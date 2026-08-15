@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import ExcwaLogo from "../components/common/ExcwaLogo";
 import { supabase } from "../lib/supabase";
 
 export default function AdminLogin() {
@@ -75,9 +76,7 @@ export default function AdminLogin() {
 
         {/* Brand */}
         <div className="admin-login-brand">
-          <div className="admin-logo-mark">
-            <span />
-          </div>
+          <ExcwaLogo size={46} />
 
           <div className="admin-brand-text">
             <strong>

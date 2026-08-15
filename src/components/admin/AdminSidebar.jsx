@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
+import ExcwaLogo from "../common/ExcwaLogo";
 import { supabase } from "../../lib/supabase";
 
 export default function AdminSidebar() {
@@ -21,9 +22,7 @@ export default function AdminSidebar() {
 
       <div className="admin-sidebar-brand">
 
-        <div className="brand-mark">
-          <span />
-        </div>
+        <ExcwaLogo size={32} />
 
         <div>
           <strong>EXCWA</strong>

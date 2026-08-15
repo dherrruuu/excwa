@@ -1125,36 +1125,6 @@
   margin-bottom: 28px;
 }
 
-.admin-logo-mark {
-  width: 43px;
-  height: 43px;
-  border: 1px solid rgba(91,214,255,.45);
-  border-radius: 13px;
-  transform: rotate(45deg);
-  display: grid;
-  place-items: center;
-  background:
-    linear-gradient(
-      145deg,
-      rgba(80,140,255,.18),
-      rgba(168,85,247,.12)
-    );
-  box-shadow: 0 0 35px rgba(74,126,255,.15);
-}
-
-.admin-logo-mark span {
-  width: 15px;
-  height: 15px;
-  border-radius: 5px;
-  background: linear-gradient(
-    110deg,
-    #55e6ff,
-    #647bff 45%,
-    #a855f7
-  );
-  box-shadow: 0 0 15px rgba(85,230,255,.55);
-}
-
 .admin-brand-text {
   display: flex;
   flex-direction: column;
