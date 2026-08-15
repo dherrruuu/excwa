@@ -1,7 +1,14 @@
 import { supabase } from "../lib/supabase";
 
+
+/* =========================================================
+   CREATE ENQUIRY
+   Public users can submit an enquiry without needing
+   SELECT permission on the enquiries table.
+   ========================================================= */
+
 export async function createEnquiry(form) {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("enquiries")
     .insert([
       {
@@ -13,17 +20,21 @@ export async function createEnquiry(form) {
         estimated_budget: form.budget || null,
         preferred_contact: form.contact || null,
       },
-    ])
-    .select()
-    .single();
+    ]);
 
   if (error) {
     console.error("Supabase enquiry error:", error);
     throw error;
   }
 
-  return data;
+  return true;
 }
+
+
+/* =========================================================
+   GET ALL ENQUIRIES
+   Admin / authenticated use
+   ========================================================= */
 
 export async function getEnquiries() {
   const { data, error } = await supabase
@@ -40,6 +51,12 @@ export async function getEnquiries() {
   return data || [];
 }
 
+
+/* =========================================================
+   GET SINGLE ENQUIRY
+   Admin / authenticated use
+   ========================================================= */
+
 export async function getEnquiry(id) {
   const { data, error } = await supabase
     .from("enquiries")
@@ -53,6 +70,12 @@ export async function getEnquiry(id) {
 
   return data;
 }
+
+
+/* =========================================================
+   UPDATE ENQUIRY STATUS
+   Admin / authenticated use
+   ========================================================= */
 
 export async function updateEnquiryStatus(id, status) {
   const { data, error } = await supabase
@@ -71,6 +94,12 @@ export async function updateEnquiryStatus(id, status) {
 
   return data;
 }
+
+
+/* =========================================================
+   DELETE ENQUIRY
+   Admin / authenticated use
+   ========================================================= */
 
 export async function deleteEnquiry(id) {
   const { error } = await supabase
