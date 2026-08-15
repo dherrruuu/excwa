@@ -1,11 +1,12 @@
 /* =========================================================
-   ADMIN DEVELOPERS
+   EXCWA ADMIN — DEVELOPERS
    ========================================================= */
 
 .admin-developers-page {
   width: 100%;
   min-height: 100%;
   color: #e7edf7;
+  box-sizing: border-box;
 }
 
 /* =========================================================
@@ -17,21 +18,27 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
+
   margin-bottom: 32px;
 }
 
 .admin-page-header h1 {
   margin: 0;
+
   color: #f5f7fb;
+
   font-size: 38px;
   line-height: 1.15;
   font-weight: 700;
+
   letter-spacing: -1px;
 }
 
 .admin-page-header p {
   margin: 10px 0 0;
+
   color: #72809a;
+
   font-size: 15px;
   line-height: 1.6;
 }
@@ -55,10 +62,12 @@
   background: #111824;
   color: #dce5f3;
 
+  font-family: inherit;
   font-size: 14px;
   font-weight: 600;
 
   cursor: pointer;
+
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -68,6 +77,10 @@
 .admin-refresh-button:hover {
   background: #172131;
   border-color: #34445d;
+}
+
+.admin-refresh-button:active {
+  transform: translateY(1px);
 }
 
 .admin-refresh-button:disabled {
@@ -93,6 +106,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
+
   margin-bottom: 24px;
 }
 
@@ -105,6 +119,8 @@
 
   min-height: 52px;
   padding: 0 17px;
+
+  box-sizing: border-box;
 
   background: #0d131d;
   border: 1px solid #202c3d;
@@ -137,7 +153,7 @@
   background: transparent;
   color: #e8eef7;
 
-  font: inherit;
+  font-family: inherit;
   font-size: 14px;
 }
 
@@ -145,7 +161,9 @@
   color: #68768d;
 }
 
-/* SELECT */
+/* =========================================================
+   STATUS FILTER
+   ========================================================= */
 
 .developer-status-filter {
   width: 215px;
@@ -153,12 +171,15 @@
 
   padding: 0 15px;
 
+  box-sizing: border-box;
+
   border: 1px solid #202c3d;
   border-radius: 10px;
 
   background: #0d131d;
   color: #dce5f2;
 
+  font-family: inherit;
   font-size: 14px;
   font-weight: 500;
 
@@ -198,7 +219,9 @@
 
 .developer-table-wrapper {
   width: 100%;
+
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* =========================================================
@@ -228,8 +251,10 @@
 
   font-size: 12px;
   font-weight: 700;
+
   text-align: left;
   text-transform: uppercase;
+
   letter-spacing: 0.6px;
 
   white-space: nowrap;
@@ -244,12 +269,15 @@
   color: #cbd5e4;
 
   font-size: 14px;
+
   vertical-align: middle;
 }
 
 .developer-table tbody tr {
   background: #0d131d;
-  transition: background 0.15s ease;
+
+  transition:
+    background 0.15s ease;
 }
 
 .developer-table tbody tr:hover {
@@ -270,8 +298,10 @@
 
 .developer-name {
   color: #f0f4fa;
+
   font-size: 14px;
   font-weight: 650;
+
   line-height: 1.4;
 }
 
@@ -279,6 +309,7 @@
   margin-top: 4px;
 
   color: #718099;
+
   font-size: 12px;
 }
 
@@ -306,6 +337,7 @@
 
   font-size: 11px;
   font-weight: 600;
+
   white-space: nowrap;
 }
 
@@ -319,12 +351,16 @@
   justify-content: center;
 
   min-width: 78px;
+
   padding: 6px 11px;
+
+  box-sizing: border-box;
 
   border-radius: 999px;
 
   font-size: 12px;
   font-weight: 650;
+
   text-transform: capitalize;
 }
 
@@ -333,6 +369,7 @@
 .developer-status-pending {
   background: rgba(245, 158, 11, 0.09);
   border: 1px solid rgba(245, 158, 11, 0.45);
+
   color: #f5b942;
 }
 
@@ -341,6 +378,7 @@
 .developer-status-accepted {
   background: rgba(34, 197, 94, 0.09);
   border: 1px solid rgba(34, 197, 94, 0.4);
+
   color: #4ade80;
 }
 
@@ -349,6 +387,7 @@
 .developer-status-rejected {
   background: rgba(239, 68, 68, 0.09);
   border: 1px solid rgba(239, 68, 68, 0.4);
+
   color: #f87171;
 }
 
@@ -370,6 +409,7 @@
   background: #101824;
   color: #dce5f2;
 
+  font-family: inherit;
   font-size: 13px;
   font-weight: 600;
 
@@ -401,10 +441,14 @@
   min-height: 220px;
   padding: 40px;
 
+  box-sizing: border-box;
+
   background: #0d131d;
   color: #718099;
 
   font-size: 14px;
+
+  text-align: center;
 }
 
 /* =========================================================
@@ -414,6 +458,7 @@
 .developer-modal-overlay {
   position: fixed;
   inset: 0;
+
   z-index: 1000;
 
   display: flex;
@@ -422,9 +467,12 @@
 
   padding: 30px;
 
+  box-sizing: border-box;
+
   background: rgba(2, 6, 12, 0.78);
 
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* =========================================================
@@ -438,6 +486,7 @@
   overflow-y: auto;
 
   background: #0d131d;
+
   border: 1px solid #263247;
   border-radius: 18px;
 
@@ -456,6 +505,8 @@
   align-items: flex-start;
   justify-content: space-between;
 
+  gap: 20px;
+
   padding: 25px 28px;
 
   border-bottom: 1px solid #202c3d;
@@ -465,13 +516,16 @@
   margin: 0;
 
   color: #f3f6fb;
+
   font-size: 24px;
+  line-height: 1.3;
 }
 
 .developer-modal-header p {
   margin: 6px 0 0;
 
   color: #74839a;
+
   font-size: 13px;
 }
 
@@ -479,13 +533,17 @@
   width: 36px;
   height: 36px;
 
+  flex-shrink: 0;
+
   border: 1px solid #29364a;
   border-radius: 8px;
 
   background: #111924;
   color: #9aa8bc;
 
+  font-family: inherit;
   font-size: 22px;
+
   line-height: 1;
 
   cursor: pointer;
@@ -508,7 +566,10 @@
   margin: 24px 28px;
   padding: 20px;
 
+  box-sizing: border-box;
+
   background: #111925;
+
   border: 1px solid #202d40;
   border-radius: 12px;
 }
@@ -539,10 +600,15 @@
   font-weight: 700;
 }
 
+.developer-profile-main {
+  min-width: 0;
+}
+
 .developer-profile-main h3 {
   margin: 0 0 8px;
 
   color: #f1f5fb;
+
   font-size: 18px;
 }
 
@@ -560,6 +626,7 @@
   gap: 6px;
 
   color: #8795aa;
+
   font-size: 12px;
 }
 
@@ -578,6 +645,8 @@
   border-radius: 12px;
 
   background: #0f1722;
+
+  overflow: hidden;
 }
 
 .developer-section-title {
@@ -596,13 +665,17 @@
   margin: 0;
 
   color: #dce5f1;
+
   font-size: 14px;
   font-weight: 650;
 }
 
 .developer-section-content {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 0;
 
   padding: 4px 18px;
@@ -628,7 +701,9 @@
   margin-bottom: 5px;
 
   color: #718098;
+
   font-size: 11px;
+
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -637,6 +712,7 @@
   display: block;
 
   color: #dce5f2;
+
   font-size: 13px;
   font-weight: 500;
 
@@ -645,6 +721,7 @@
 
 .developer-detail-full {
   grid-column: 1 / -1;
+
   padding: 14px 8px;
 }
 
@@ -654,7 +731,9 @@
   margin-bottom: 9px;
 
   color: #718098;
+
   font-size: 11px;
+
   text-transform: uppercase;
 }
 
@@ -663,6 +742,8 @@
    ========================================================= */
 
 .developer-role-list-large {
+  display: flex;
+  flex-wrap: wrap;
   gap: 7px;
 }
 
@@ -672,7 +753,10 @@
 
 .developer-links-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
   gap: 10px;
 
   grid-column: 1 / -1;
@@ -684,7 +768,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 10px;
+
+  min-width: 0;
 
   padding: 12px 14px;
 
@@ -698,6 +785,8 @@
 
   font-size: 13px;
   font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
 
 .developer-profile-link:hover {
@@ -750,7 +839,9 @@
 
 .developer-files p {
   margin: 0;
+
   color: #68778d;
+
   font-size: 13px;
 }
 
@@ -771,13 +862,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 8px;
 
   min-height: 44px;
   padding: 0 16px;
 
+  box-sizing: border-box;
+
   border-radius: 9px;
 
+  font-family: inherit;
   font-size: 13px;
   font-weight: 650;
 
@@ -786,13 +881,17 @@
 
 .developer-actions:not(:has(.developer-reject-box)) {
   display: grid;
+
   grid-template-columns: 1fr 1fr;
+
   gap: 10px;
 }
 
 .developer-reject-button {
   background: rgba(239, 68, 68, 0.08);
+
   border: 1px solid rgba(239, 68, 68, 0.35);
+
   color: #f87171;
 }
 
@@ -802,7 +901,9 @@
 
 .developer-accept-button {
   background: rgba(34, 197, 94, 0.09);
+
   border: 1px solid rgba(34, 197, 94, 0.35);
+
   color: #4ade80;
 }
 
@@ -817,22 +918,28 @@
 .developer-reject-box {
   padding: 18px;
 
+  box-sizing: border-box;
+
   background: #111925;
+
   border: 1px solid #28364a;
   border-radius: 10px;
 }
 
 .developer-reject-box label {
   display: block;
+
   margin-bottom: 8px;
 
   color: #cbd6e5;
+
   font-size: 13px;
   font-weight: 600;
 }
 
 .developer-reject-box textarea {
   width: 100%;
+
   box-sizing: border-box;
 
   padding: 12px;
@@ -843,10 +950,11 @@
   background: #0b121c;
   color: #e4ebf5;
 
-  font: inherit;
+  font-family: inherit;
   font-size: 13px;
 
   resize: vertical;
+
   outline: none;
 }
 
@@ -858,6 +966,7 @@
   margin: 9px 0 15px;
 
   color: #68778d;
+
   font-size: 12px;
   line-height: 1.5;
 }
@@ -865,11 +974,13 @@
 .developer-reject-actions {
   display: flex;
   justify-content: flex-end;
+
   gap: 9px;
 }
 
 .developer-reject-actions button {
   min-height: 38px;
+
   padding: 0 14px;
 
   border: 1px solid #29364a;
@@ -878,6 +989,7 @@
   background: #141e2c;
   color: #bdc9d9;
 
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
 
@@ -886,7 +998,9 @@
 
 .developer-reject-actions .developer-confirm-reject {
   background: #3b1d22;
+
   border-color: #713038;
+
   color: #f87171;
 }
 
@@ -896,6 +1010,7 @@
 
 .developer-delete-section {
   margin: 24px 28px 28px;
+
   padding-top: 20px;
 
   border-top: 1px solid #202c3d;
@@ -904,6 +1019,7 @@
 .developer-delete-button {
   display: inline-flex;
   align-items: center;
+
   gap: 8px;
 
   padding: 10px 14px;
@@ -914,6 +1030,7 @@
   background: rgba(239, 68, 68, 0.05);
   color: #ef7070;
 
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
 
@@ -925,19 +1042,40 @@
 }
 
 /* =========================================================
-   RESPONSIVE
+   TABLET
    ========================================================= */
 
 @media (max-width: 900px) {
+
   .admin-page-header {
     flex-direction: column;
+
+    gap: 18px;
+
+    margin-bottom: 24px;
+  }
+
+  .admin-page-header h1 {
+    font-size: 34px;
+  }
+
+  .admin-page-header p {
+    font-size: 14px;
+  }
+
+  .admin-refresh-button {
+    width: 100%;
+    min-height: 46px;
   }
 
   .developer-controls {
     flex-direction: column;
     align-items: stretch;
+
+    gap: 10px;
   }
 
+  .developer-search,
   .developer-status-filter {
     width: 100%;
   }
@@ -951,55 +1089,322 @@
   }
 }
 
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 600px) {
-  .admin-page-header h1 {
-    font-size: 30px;
+
+  .admin-page-header {
+    margin-bottom: 22px;
   }
 
+  .admin-page-header h1 {
+    font-size: 29px;
+
+    letter-spacing: -0.6px;
+  }
+
+  .admin-page-header p {
+    font-size: 13px;
+  }
+
+  .admin-refresh-button {
+    min-height: 44px;
+
+    font-size: 13px;
+  }
+
+  .developer-controls {
+    margin-bottom: 18px;
+  }
+
+  .developer-search,
+  .developer-status-filter {
+    min-height: 46px;
+  }
+
+  .developer-search {
+    padding: 0 14px;
+  }
+
+  .developer-search input {
+    font-size: 13px;
+  }
+
+  .developer-status-filter {
+    padding: 0 13px;
+
+    font-size: 13px;
+  }
+
+  /* TABLE */
+
+  .developer-table-card {
+    border-radius: 13px;
+  }
+
+  .developer-table {
+    min-width: 850px;
+  }
+
+  .developer-table th {
+    padding: 14px 16px;
+
+    font-size: 10px;
+  }
+
+  .developer-table td {
+    padding: 16px;
+
+    font-size: 13px;
+  }
+
+  /* MODAL */
+
   .developer-modal-overlay {
-    padding: 12px;
+    padding: 10px;
+
+    align-items: flex-start;
   }
 
   .developer-modal {
-    max-height: calc(100vh - 24px);
+    width: 100%;
+
+    max-height: calc(100vh - 20px);
+
+    margin-top: 10px;
+
     border-radius: 14px;
   }
 
-  .developer-modal-header,
-  .developer-profile-section,
-  .developer-application-section,
-  .developer-actions,
-  .developer-delete-section {
-    margin-left: 16px;
-    margin-right: 16px;
+  .developer-modal-header {
+    padding: 18px 16px;
+
+    gap: 14px;
   }
 
-  .developer-modal-header {
-    padding: 20px 0;
+  .developer-modal-header h2 {
+    font-size: 20px;
   }
+
+  .developer-modal-header p {
+    font-size: 12px;
+  }
+
+  .developer-modal-close {
+    width: 34px;
+    height: 34px;
+
+    font-size: 20px;
+  }
+
+  /* PROFILE */
 
   .developer-profile-section {
-    margin-top: 16px;
-    padding: 15px;
+    margin: 14px 16px;
+
+    padding: 14px;
+
+    gap: 13px;
+  }
+
+  .developer-profile-photo,
+  .developer-profile-placeholder {
+    width: 58px;
+    height: 58px;
+
+    border-radius: 10px;
+  }
+
+  .developer-profile-placeholder {
+    font-size: 22px;
+  }
+
+  .developer-profile-main h3 {
+    margin-bottom: 7px;
+
+    font-size: 16px;
+  }
+
+  .developer-profile-contact {
+    gap: 8px;
+
+    margin-bottom: 5px;
+  }
+
+  .developer-profile-contact span {
+    font-size: 11px;
+  }
+
+  /* APPLICATION */
+
+  .developer-application-section {
+    margin: 0 16px 16px;
+  }
+
+  .developer-section-title {
+    padding: 13px 15px;
+  }
+
+  .developer-section-title h3 {
+    font-size: 13px;
+  }
+
+  .developer-section-content {
+    padding: 3px 14px;
+  }
+
+  .developer-detail {
+    padding: 12px 5px;
+  }
+
+  .developer-detail span {
+    font-size: 10px;
+  }
+
+  .developer-detail strong {
+    font-size: 12px;
+  }
+
+  .developer-detail-full {
+    padding: 12px 5px;
+  }
+
+  /* LINKS */
+
+  .developer-links-grid {
+    grid-template-columns: 1fr;
+
+    gap: 8px;
+
+    padding: 12px 0;
+  }
+
+  .developer-profile-link {
+    padding: 11px 12px;
+
+    font-size: 12px;
+  }
+
+  /* FILES */
+
+  .developer-files {
+    padding: 12px 0;
+
+    gap: 8px;
+  }
+
+  .developer-file-button {
+    padding: 9px 11px;
+
+    font-size: 12px;
+  }
+
+  /* ACTIONS */
+
+  .developer-actions {
+    margin: 18px 16px 0;
   }
 
   .developer-actions:not(:has(.developer-reject-box)) {
     grid-template-columns: 1fr;
   }
-}
-@media (max-width: 768px) {
-  /* Dynamic grid fallback for item listings */
-  .opportunity-list,
-  .developer-cards,
-  .enquiry-list {
-    grid-template-columns: 1fr !important;
+
+  .developer-reject-button,
+  .developer-accept-button {
+    min-height: 43px;
+
+    font-size: 12px;
   }
 
-  /* Compact card paddings for mobile viewports */
-  .card, 
-  .enquiry-card, 
-  .developer-card {
-    padding: 1rem;
-    margin-bottom: 1rem;
+  /* REJECTION */
+
+  .developer-reject-box {
+    padding: 15px;
+  }
+
+  .developer-reject-actions {
+    flex-direction: column;
+  }
+
+  .developer-reject-actions button {
+    width: 100%;
+  }
+
+  /* DELETE */
+
+  .developer-delete-section {
+    margin: 20px 16px 22px;
+
+    padding-top: 18px;
+  }
+
+  .developer-delete-button {
+    width: 100%;
+
+    justify-content: center;
+
+    min-height: 40px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 400px) {
+
+  .admin-page-header h1 {
+    font-size: 26px;
+  }
+
+  .admin-page-header p {
+    font-size: 12px;
+  }
+
+  .developer-profile-section {
+    align-items: flex-start;
+
+    padding: 12px;
+  }
+
+  .developer-profile-photo,
+  .developer-profile-placeholder {
+    width: 50px;
+    height: 50px;
+  }
+
+  .developer-profile-placeholder {
+    font-size: 19px;
+  }
+
+  .developer-profile-main h3 {
+    font-size: 15px;
+  }
+
+  .developer-profile-contact {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .developer-profile-contact span {
+    font-size: 10px;
+  }
+
+  .developer-role {
+    padding: 4px 7px;
+
+    font-size: 10px;
+  }
+
+  .developer-view-button {
+    padding: 7px 10px;
+
+    font-size: 11px;
+  }
+
+  .developer-modal-header h2 {
+    font-size: 18px;
   }
 }

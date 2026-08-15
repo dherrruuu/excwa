@@ -1,14 +1,15 @@
 /* =========================================================
-   STAT CARDS
+   EXCWA ADMIN — STAT CARDS
+   Desktop + Tablet + Mobile
    ========================================================= */
 
 .admin-stat-card {
   position: relative;
 
+  width: 100%;
   min-width: 0;
 
   padding: 20px;
-
   box-sizing: border-box;
 
   background:
@@ -34,35 +35,38 @@
 }
 
 
-/* subtle glow */
+/* =========================================================
+   SUBTLE GLOW
+   ========================================================= */
 
 .admin-stat-card::after {
   content: "";
 
   position: absolute;
 
-  width: 100px;
-  height: 100px;
+  width: 110px;
+  height: 110px;
 
-  right: -45px;
-  top: -45px;
+  right: -50px;
+  top: -50px;
 
   border-radius: 50%;
 
   opacity: 0.10;
-
   filter: blur(25px);
 
   pointer-events: none;
 }
 
 
-/* hover */
+/* =========================================================
+   HOVER
+   ========================================================= */
 
 .admin-stat-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 
-  border-color: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.12);
 
   background:
     linear-gradient(
@@ -82,6 +86,8 @@
   align-items: center;
   justify-content: space-between;
 
+  width: 100%;
+
   gap: 12px;
 
   margin-bottom: 17px;
@@ -93,14 +99,16 @@
    ========================================================= */
 
 .admin-stat-icon {
-  width: 37px;
-  height: 37px;
+  width: 38px;
+  height: 38px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   flex-shrink: 0;
+
+  box-sizing: border-box;
 
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 10px;
@@ -125,9 +133,10 @@
 
   letter-spacing: 0.08em;
 
-  text-transform: uppercase;
+  line-height: 1.3;
 
   text-align: right;
+  text-transform: uppercase;
 }
 
 
@@ -156,7 +165,7 @@
 
 
 /* =========================================================
-   ACCENTS
+   BLUE
    ========================================================= */
 
 .admin-stat-card.blue::after {
@@ -165,10 +174,16 @@
 
 .admin-stat-card.blue .admin-stat-icon {
   color: #55dfff;
+
   border-color: rgba(85, 230, 255, 0.14);
+
   background: rgba(85, 230, 255, 0.055);
 }
 
+
+/* =========================================================
+   GREEN
+   ========================================================= */
 
 .admin-stat-card.green::after {
   background: #5ee7a4;
@@ -176,10 +191,16 @@
 
 .admin-stat-card.green .admin-stat-icon {
   color: #69e5b7;
+
   border-color: rgba(34, 197, 94, 0.14);
+
   background: rgba(34, 197, 94, 0.055);
 }
 
+
+/* =========================================================
+   ORANGE
+   ========================================================= */
 
 .admin-stat-card.orange::after {
   background: #ffb84d;
@@ -187,10 +208,16 @@
 
 .admin-stat-card.orange .admin-stat-icon {
   color: #ffca70;
+
   border-color: rgba(255, 180, 70, 0.14);
+
   background: rgba(255, 180, 70, 0.055);
 }
 
+
+/* =========================================================
+   RED
+   ========================================================= */
 
 .admin-stat-card.red::after {
   background: #ff6678;
@@ -198,10 +225,16 @@
 
 .admin-stat-card.red .admin-stat-icon {
   color: #ff8292;
+
   border-color: rgba(255, 70, 90, 0.14);
+
   background: rgba(255, 70, 90, 0.055);
 }
 
+
+/* =========================================================
+   PURPLE
+   ========================================================= */
 
 .admin-stat-card.purple::after {
   background: #a855f7;
@@ -209,39 +242,138 @@
 
 .admin-stat-card.purple .admin-stat-icon {
   color: #bd8aff;
+
   border-color: rgba(168, 85, 247, 0.14);
+
   background: rgba(168, 85, 247, 0.055);
 }
 
 
 /* =========================================================
-   RESPONSIVE
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .admin-stat-card {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .admin-stat-top {
+    margin-bottom: 15px;
+  }
+
+  .admin-stat-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .admin-stat-label {
+    font-size: 8px;
+  }
+
+  .admin-stat-card > strong {
+    font-size: 26px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
    ========================================================= */
 
 @media (max-width: 700px) {
+
   .admin-stat-card {
     padding: 17px;
+
+    border-radius: 13px;
+  }
+
+  .admin-stat-card:hover {
+    transform: none;
+  }
+
+  .admin-stat-top {
+    gap: 10px;
+
+    margin-bottom: 14px;
+  }
+
+  .admin-stat-icon {
+    width: 35px;
+    height: 35px;
+
+    border-radius: 9px;
+  }
+
+  .admin-stat-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .admin-stat-label {
+    font-size: 8px;
+    letter-spacing: 0.06em;
   }
 
   .admin-stat-card > strong {
     font-size: 24px;
   }
 }
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .admin-stat-card {
+    padding: 15px;
+  }
+
+  .admin-stat-top {
+    margin-bottom: 12px;
+  }
+
+  .admin-stat-icon {
+    width: 33px;
+    height: 33px;
+  }
+
+  .admin-stat-label {
+    font-size: 7px;
+  }
+
+  .admin-stat-card > strong {
+    font-size: 22px;
+  }
+}
+
+
 /* =========================================================
    STATUS BADGE
+   Desktop + Tablet + Mobile
    ========================================================= */
 
 .status-badge {
   display: inline-flex;
   align-items: center;
+
   gap: 7px;
 
-  min-height: 24px;
+  min-height: 25px;
+
+  max-width: 100%;
+
   box-sizing: border-box;
 
-  padding: 0 9px;
+  padding: 0 10px;
 
   border: 1px solid rgba(255, 255, 255, 0.08);
+
   border-radius: 999px;
 
   background: rgba(255, 255, 255, 0.025);
@@ -254,11 +386,14 @@
   line-height: 1;
 
   white-space: nowrap;
+
   text-transform: capitalize;
 }
 
 
-/* status dot */
+/* =========================================================
+   STATUS DOT
+   ========================================================= */
 
 .status-badge > span {
   width: 5px;
@@ -270,12 +405,13 @@
 
   background: currentColor;
 
-  box-shadow: 0 0 7px currentColor;
+  box-shadow:
+    0 0 7px currentColor;
 }
 
 
 /* =========================================================
-   STATUS COLORS
+   NEW
    ========================================================= */
 
 .status-new {
@@ -287,6 +423,10 @@
 }
 
 
+/* =========================================================
+   READ
+   ========================================================= */
+
 .status-read {
   color: #a6b2c2;
 
@@ -295,6 +435,10 @@
   border-color: rgba(166, 178, 194, 0.13);
 }
 
+
+/* =========================================================
+   CONTACTED
+   ========================================================= */
 
 .status-contacted {
   color: #ffca70;
@@ -305,6 +449,10 @@
 }
 
 
+/* =========================================================
+   IN PROGRESS
+   ========================================================= */
+
 .status-in_progress {
   color: #a98aff;
 
@@ -313,6 +461,10 @@
   border-color: rgba(139, 92, 246, 0.16);
 }
 
+
+/* =========================================================
+   COMPLETED
+   ========================================================= */
 
 .status-completed {
   color: #69e5b7;
@@ -323,10 +475,76 @@
 }
 
 
+/* =========================================================
+   ARCHIVED
+   ========================================================= */
+
 .status-archived {
   color: #778497;
 
   background: rgba(119, 132, 151, 0.055);
 
   border-color: rgba(119, 132, 151, 0.13);
+}
+
+
+/* =========================================================
+   STATUS — TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .status-badge {
+    min-height: 24px;
+
+    padding: 0 9px;
+
+    gap: 6px;
+
+    font-size: 8px;
+  }
+
+  .status-badge > span {
+    width: 5px;
+    height: 5px;
+  }
+}
+
+
+/* =========================================================
+   STATUS — MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .status-badge {
+    min-height: 23px;
+
+    padding: 0 8px;
+
+    gap: 5px;
+
+    font-size: 7px;
+  }
+
+  .status-badge > span {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .status-badge {
+    min-height: 22px;
+
+    padding: 0 7px;
+
+    font-size: 7px;
+  }
 }

@@ -1,45 +1,340 @@
 /* =========================================================
-   ADMIN OPPORTUNITIES
+   ADMIN PANEL — GLOBAL
+   Dashboard / Developers / Enquiries / Opportunities
    ========================================================= */
 
+.admin-dashboard,
+.admin-developers-page,
 .admin-page {
   width: 100%;
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 42px 38px 60px;
+  min-width: 0;
   box-sizing: border-box;
+  color: #e7edf7;
 }
 
 /* =========================================================
-   PAGE HEADER
+   ADMIN DASHBOARD
+   ========================================================= */
+
+.admin-dashboard {
+  min-height: 100%;
+  padding: 42px 38px 60px;
+  background: #070b11;
+}
+
+/* =========================================================
+   PAGE HEADING — DASHBOARD
+   ========================================================= */
+
+.admin-page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.admin-page-heading > div {
+  min-width: 0;
+}
+
+.admin-page-heading .eyebrow,
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 9px;
+
+  color: #687890;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrow svg {
+  color: #6685ad;
+  stroke-width: 2;
+}
+
+.admin-page-heading h1 {
+  margin: 0;
+
+  color: #f2f5fa;
+  font-family: "Space Grotesk", Inter, system-ui, sans-serif;
+  font-size: clamp(29px, 3vw, 40px);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.admin-page-heading p {
+  max-width: 620px;
+  margin: 10px 0 0;
+
+  color: #71819a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   DASHBOARD STATISTICS
+   ========================================================= */
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+
+  width: 100%;
+  margin-bottom: 26px;
+}
+
+.admin-stat-card {
+  position: relative;
+
+  min-height: 132px;
+  padding: 22px;
+
+  box-sizing: border-box;
+
+  background: #0b1018;
+  border: 1px solid #1a2431;
+  border-radius: 14px;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.admin-stat-card:hover {
+  background: #0d131d;
+  border-color: #29374a;
+  transform: translateY(-2px);
+}
+
+.admin-stat-card-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 17px;
+
+  border-radius: 10px;
+
+  background: #111a27;
+  border: 1px solid #202e42;
+
+  color: #8297b5;
+}
+
+.admin-stat-card-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+.admin-stat-card-label {
+  margin: 0 0 5px;
+
+  color: #71819a;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.admin-stat-card-value {
+  margin: 0;
+
+  color: #edf2f9;
+
+  font-size: 29px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.7px;
+}
+
+/* STAT ACCENTS */
+
+.admin-stat-card.cyan .admin-stat-card-icon {
+  color: #55c8e7;
+  background: #0c1b23;
+  border-color: #1c3b47;
+}
+
+.admin-stat-card.violet .admin-stat-card-icon {
+  color: #9b8ce8;
+  background: #151229;
+  border-color: #332c50;
+}
+
+.admin-stat-card.green .admin-stat-card-icon {
+  color: #65c79a;
+  background: #0c1d17;
+  border-color: #1e3d30;
+}
+
+/* =========================================================
+   GENERIC ADMIN PANEL
+   ========================================================= */
+
+.admin-panel {
+  width: 100%;
+  min-width: 0;
+
+  overflow: hidden;
+
+  background: #0b1018;
+  border: 1px solid #1a2431;
+  border-radius: 14px;
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.14);
+}
+
+.admin-panel-header {
+  min-height: 78px;
+  padding: 20px 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #1a2431;
+}
+
+.admin-panel-header h2 {
+  margin: 0 0 5px;
+
+  color: #e9eef6;
+
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 650;
+}
+
+.admin-panel-header p {
+  margin: 0;
+
+  color: #667790;
+
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   ADMIN PAGE — OPPORTUNITIES
+   ========================================================= */
+
+.admin-page {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 42px 38px 60px;
+}
+
+/* =========================================================
+   PAGE HEADER — DEVELOPERS / OPPORTUNITIES
    ========================================================= */
 
 .admin-page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+
   gap: 30px;
   margin-bottom: 30px;
 }
 
 .admin-page-header h1 {
   margin: 0;
+
   color: #f4f7fb;
-  font-size: 34px;
+
+  font-family: "Space Grotesk", Inter, system-ui, sans-serif;
+  font-size: 38px;
   line-height: 1.15;
   font-weight: 700;
-  letter-spacing: -0.7px;
+  letter-spacing: -1px;
 }
 
 .admin-page-header p {
   margin: 9px 0 0;
+
   color: #71809a;
+
   font-size: 14px;
   line-height: 1.6;
 }
 
 /* =========================================================
-   BUTTONS
+   DEVELOPERS PAGE
+   ========================================================= */
+
+.admin-developers-page {
+  min-height: 100%;
+}
+
+/* =========================================================
+   REFRESH BUTTON
+   ========================================================= */
+
+.admin-refresh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 44px;
+  padding: 0 17px;
+
+  border: 1px solid #263247;
+  border-radius: 9px;
+
+  background: #111824;
+  color: #dce5f3;
+
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-refresh-button:hover {
+  background: #172131;
+  border-color: #34445d;
+}
+
+.admin-refresh-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-refresh-button .spin {
+  animation: developer-spin 0.8s linear infinite;
+}
+
+@keyframes developer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   BUTTONS — OPPORTUNITIES
    ========================================================= */
 
 .admin-primary-btn,
@@ -48,6 +343,7 @@
   border: 0;
   font: inherit;
   cursor: pointer;
+
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -79,14 +375,6 @@
 .admin-primary-btn:hover {
   background: #6098ff;
   transform: translateY(-1px);
-}
-
-.admin-primary-btn:disabled,
-.admin-secondary-btn:disabled,
-.admin-icon-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
 }
 
 .admin-secondary-btn {
@@ -134,6 +422,60 @@
   color: #ffffff;
 }
 
+.admin-primary-btn:disabled,
+.admin-secondary-btn:disabled,
+.admin-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
+   OUTLINE BUTTON
+   ========================================================= */
+
+.admin-outline-button {
+  min-height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 0 13px;
+
+  border: 1px solid #293649;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #9aaac0;
+
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.admin-outline-button:hover {
+  background: #111925;
+  border-color: #3a4b64;
+  color: #dbe4f1;
+}
+
+.admin-outline-button svg {
+  transition: transform 0.2s ease;
+}
+
+.admin-outline-button:hover svg {
+  transform: translateX(2px);
+}
+
 /* =========================================================
    MESSAGES
    ========================================================= */
@@ -165,7 +507,7 @@
 }
 
 /* =========================================================
-   MAIN CARD
+   OPPORTUNITIES CARD
    ========================================================= */
 
 .admin-card {
@@ -214,48 +556,227 @@
 }
 
 /* =========================================================
-   TABLE
+   ENQUIRIES TOOLBAR
    ========================================================= */
 
-.admin-table-wrapper {
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+.admin-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  flex: 1;
+  min-width: 220px;
+  height: 44px;
+
+  padding: 0 13px;
+  gap: 9px;
+
+  box-sizing: border-box;
+
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid #202c3d;
+  border-radius: 10px;
+
+  color: #657287;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-search svg {
+  flex-shrink: 0;
+  color: #657287;
+}
+
+.admin-search:focus-within {
+  border-color: rgba(92, 210, 255, 0.35);
+  background: rgba(255, 255, 255, 0.035);
+
+  box-shadow:
+    0 0 0 3px rgba(82, 178, 255, 0.05);
+}
+
+.admin-search input {
+  width: 100%;
+  min-width: 0;
+
+  height: 100%;
+  padding: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+  color: #dce4ee;
+
+  font: inherit;
+  font-size: 13px;
+}
+
+.admin-search input::placeholder {
+  color: #566275;
+}
+
+.admin-toolbar > select {
+  height: 44px;
+  min-width: 145px;
+
+  padding: 0 12px;
+
+  border: 1px solid #202c3d;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #0d131b;
+  color: #9ba8ba;
+
+  font: inherit;
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+.admin-toolbar > select:hover {
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+.admin-toolbar > select:focus {
+  border-color: rgba(92, 210, 255, 0.35);
+}
+
+.admin-toolbar > select option {
+  background: #0d131b;
+  color: #e4eaf2;
+}
+
+/* =========================================================
+   ENQUIRY REFRESH BUTTON
+   ========================================================= */
+
+.admin-icon-button {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #202c3d;
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.025);
+  color: #7d899b;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.admin-icon-button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.13);
+  color: #eaf1f8;
+}
+
+.admin-icon-button:active {
+  transform: scale(0.96);
+}
+
+/* =========================================================
+   TABLE WRAPPERS
+   ========================================================= */
+
+.admin-table-wrap,
+.admin-table-wrapper,
+.developer-table-wrapper {
   width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
 }
+
+.admin-table-wrap::-webkit-scrollbar,
+.admin-table-wrapper::-webkit-scrollbar,
+.developer-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.admin-table-wrap::-webkit-scrollbar-track,
+.admin-table-wrapper::-webkit-scrollbar-track,
+.developer-table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-table-wrap::-webkit-scrollbar-thumb,
+.admin-table-wrapper::-webkit-scrollbar-thumb,
+.developer-table-wrapper::-webkit-scrollbar-thumb {
+  background: #293241;
+  border-radius: 20px;
+}
+
+/* =========================================================
+   GENERIC ADMIN TABLE
+   ========================================================= */
 
 .admin-table {
   width: 100%;
-  border-collapse: collapse;
   min-width: 850px;
+
+  border-collapse: collapse;
+
+  color: #b8c3d3;
+  font-size: 13px;
 }
 
 .admin-table thead {
-  background: #0a1018;
+  background: #0d131c;
 }
 
 .admin-table th {
-  padding: 14px 20px;
+  height: 47px;
+  padding: 0 20px;
 
-  border-bottom: 1px solid #1c2635;
-
-  color: #71809a;
-
-  font-size: 11px;
-  font-weight: 700;
   text-align: left;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-
+  vertical-align: middle;
   white-space: nowrap;
+
+  border-bottom: 1px solid #1b2634;
+
+  color: #63748d;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .admin-table td {
-  padding: 17px 20px;
+  height: 65px;
+  padding: 12px 20px;
 
-  border-bottom: 1px solid #182230;
+  border-bottom: 1px solid #151e2a;
 
-  color: #b7c2d3;
+  color: #aebbd0;
 
-  font-size: 13px;
   vertical-align: middle;
 }
 
@@ -264,17 +785,19 @@
 }
 
 .admin-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.018);
+  background: #0d141e;
 }
 
 .admin-table tbody tr:last-child td {
-  border-bottom: 0;
+  border-bottom: none;
 }
 
 .admin-table td strong {
   display: block;
 
-  color: #e9eef7;
+  margin-bottom: 4px;
+
+  color: #e3e9f2;
 
   font-size: 13px;
   font-weight: 600;
@@ -283,15 +806,26 @@
 .admin-table td small {
   display: block;
 
-  margin-top: 4px;
-
-  color: #65748b;
+  color: #61718a;
 
   font-size: 11px;
+  line-height: 1.3;
 }
 
 /* =========================================================
-   DATE
+   CLICKABLE ROW
+   ========================================================= */
+
+.admin-table .clickable-row {
+  cursor: pointer;
+}
+
+.admin-table .clickable-row:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* =========================================================
+   OPPORTUNITY DATE
    ========================================================= */
 
 .admin-date {
@@ -308,7 +842,7 @@
 }
 
 /* =========================================================
-   STATUS
+   OPPORTUNITY STATUS
    ========================================================= */
 
 .status-badge {
@@ -327,6 +861,7 @@
 
   font-size: 11px;
   font-weight: 650;
+
   text-transform: capitalize;
 }
 
@@ -349,24 +884,128 @@
 }
 
 /* =========================================================
-   LOADING
+   ENQUIRY STATUS
    ========================================================= */
 
+.admin-table .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 5px 9px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #9ca8b8;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.admin-table .status-badge > span {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.admin-table .status-new {
+  color: #63d9ff;
+  background: rgba(85, 210, 255, 0.06);
+  border-color: rgba(85, 210, 255, 0.18);
+}
+
+.admin-table .status-read {
+  color: #a8b4c5;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.admin-table .status-contacted {
+  color: #c3a4ff;
+  background: rgba(139, 92, 246, 0.07);
+  border-color: rgba(139, 92, 246, 0.18);
+}
+
+.admin-table .status-in_progress {
+  color: #ffca70;
+  background: rgba(255, 180, 70, 0.06);
+  border-color: rgba(255, 180, 70, 0.18);
+}
+
+.admin-table .status-completed {
+  color: #69e5b7;
+  background: rgba(34, 197, 94, 0.06);
+  border-color: rgba(34, 197, 94, 0.18);
+}
+
+.admin-table .status-archived {
+  color: #8491a4;
+  background: rgba(100, 116, 139, 0.07);
+  border-color: rgba(100, 116, 139, 0.16);
+}
+
+/* =========================================================
+   ENQUIRY COLUMN SIZING
+   ========================================================= */
+
+.admin-table td:first-child {
+  min-width: 190px;
+}
+
+.admin-table td:nth-child(2) {
+  min-width: 150px;
+}
+
+.admin-table td:nth-child(3) {
+  min-width: 120px;
+}
+
+.admin-table td:nth-child(4) {
+  min-width: 120px;
+}
+
+.admin-table td:nth-child(5) {
+  min-width: 115px;
+}
+
+.admin-table td:nth-child(6) {
+  min-width: 175px;
+
+  white-space: nowrap;
+
+  color: #6f7d90;
+  font-size: 10px;
+}
+
+/* =========================================================
+   EMPTY / LOADING
+   ========================================================= */
+
+.admin-empty,
 .admin-loading {
-  min-height: 180px;
+  min-height: 200px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  color: #66758d;
+  padding: 40px;
 
-  font-size: 13px;
+  box-sizing: border-box;
+
+  color: #657287;
+
+  font-size: 12px;
+  text-align: center;
 }
-
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
 
 .admin-empty-state {
   min-height: 260px;
@@ -377,6 +1016,7 @@
   justify-content: center;
 
   padding: 35px;
+
   box-sizing: border-box;
 
   text-align: center;
@@ -405,7 +1045,1137 @@
 }
 
 /* =========================================================
-   MODAL OVERLAY
+   DEVELOPERS SEARCH / FILTER
+   ========================================================= */
+
+.developer-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-bottom: 24px;
+}
+
+.developer-search {
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  min-height: 48px;
+  padding: 0 16px;
+
+  background: #0d131d;
+  border: 1px solid #202c3d;
+  border-radius: 10px;
+
+  color: #65748c;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.developer-search:focus-within {
+  border-color: #3b82f6;
+  background: #101824;
+}
+
+.developer-search svg {
+  flex-shrink: 0;
+  color: #718099;
+}
+
+.developer-search input {
+  width: 100%;
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+  color: #e8eef7;
+
+  font: inherit;
+  font-size: 14px;
+}
+
+.developer-search input::placeholder {
+  color: #68768d;
+}
+
+.developer-status-filter {
+  width: 215px;
+  min-height: 48px;
+
+  padding: 0 15px;
+
+  border: 1px solid #202c3d;
+  border-radius: 10px;
+
+  background: #0d131d;
+  color: #dce5f2;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  outline: none;
+  cursor: pointer;
+}
+
+.developer-status-filter:focus {
+  border-color: #3b82f6;
+}
+
+.developer-status-filter option {
+  background: #101722;
+  color: #e8eef7;
+}
+
+/* =========================================================
+   DEVELOPERS TABLE CARD
+   ========================================================= */
+
+.developer-table-card {
+  width: 100%;
+  overflow: hidden;
+
+  background: #0d131d;
+  border: 1px solid #202b3b;
+  border-radius: 16px;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.developer-table {
+  width: 100%;
+  min-width: 900px;
+
+  border-collapse: collapse;
+
+  background: #0d131d;
+  color: #dce5f2;
+}
+
+.developer-table thead {
+  background: #101722;
+}
+
+.developer-table th {
+  padding: 17px 20px;
+
+  border-bottom: 1px solid #253143;
+
+  color: #7f8da5;
+
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+
+  white-space: nowrap;
+}
+
+.developer-table td {
+  padding: 19px 20px;
+
+  border-bottom: 1px solid #1d2736;
+
+  background: #0d131d;
+  color: #cbd5e4;
+
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.developer-table tbody tr {
+  background: #0d131d;
+
+  transition: background 0.15s ease;
+}
+
+.developer-table tbody tr:hover,
+.developer-table tbody tr:hover td {
+  background: #111a27;
+}
+
+.developer-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* =========================================================
+   DEVELOPER NAME / EMAIL
+   ========================================================= */
+
+.developer-name {
+  color: #f0f4fa;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.developer-email {
+  margin-top: 4px;
+
+  color: #718099;
+  font-size: 12px;
+}
+
+/* =========================================================
+   DEVELOPER ROLES
+   ========================================================= */
+
+.developer-role-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.developer-role {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 5px 9px;
+
+  border: 1px solid #27354a;
+  border-radius: 6px;
+
+  background: #121b29;
+  color: #9eacc0;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.developer-role-list-large {
+  gap: 7px;
+}
+
+/* =========================================================
+   DEVELOPER STATUS
+   ========================================================= */
+
+.developer-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 78px;
+  padding: 6px 11px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  text-transform: capitalize;
+}
+
+.developer-status-pending {
+  background: rgba(245, 158, 11, 0.09);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #f5b942;
+}
+
+.developer-status-accepted {
+  background: rgba(34, 197, 94, 0.09);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+}
+
+.developer-status-rejected {
+  background: rgba(239, 68, 68, 0.09);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+/* =========================================================
+   DEVELOPER VIEW BUTTON
+   ========================================================= */
+
+.developer-view-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 8px 13px;
+
+  border: 1px solid #29364a;
+  border-radius: 8px;
+
+  background: #101824;
+  color: #dce5f2;
+
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.developer-view-button:hover {
+  background: #172233;
+  border-color: #3b4b64;
+}
+
+.developer-view-button svg {
+  color: #8da0ba;
+}
+
+.developer-empty {
+  min-height: 220px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px;
+
+  background: #0d131d;
+  color: #718099;
+
+  font-size: 14px;
+}
+
+/* =========================================================
+   DEVELOPER MODAL
+   ========================================================= */
+
+.developer-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  box-sizing: border-box;
+
+  background: rgba(2, 6, 12, 0.78);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.developer-modal {
+  width: min(900px, 100%);
+  max-height: calc(100vh - 60px);
+
+  overflow-y: auto;
+
+  background: #0d131d;
+
+  border: 1px solid #263247;
+  border-radius: 18px;
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55);
+
+  color: #e6edf7;
+}
+
+/* =========================================================
+   DEVELOPER MODAL HEADER
+   ========================================================= */
+
+.developer-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 25px 28px;
+
+  border-bottom: 1px solid #202c3d;
+}
+
+.developer-modal-header h2 {
+  margin: 0;
+
+  color: #f3f6fb;
+
+  font-size: 24px;
+}
+
+.developer-modal-header p {
+  margin: 6px 0 0;
+
+  color: #74839a;
+
+  font-size: 13px;
+}
+
+.developer-modal-close {
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid #29364a;
+  border-radius: 8px;
+
+  background: #111924;
+  color: #9aa8bc;
+
+  font-size: 22px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.developer-modal-close:hover {
+  background: #182231;
+  color: #fff;
+}
+
+/* =========================================================
+   DEVELOPER PROFILE
+   ========================================================= */
+
+.developer-profile-section {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  margin: 24px 28px;
+  padding: 20px;
+
+  background: #111925;
+  border: 1px solid #202d40;
+  border-radius: 12px;
+}
+
+.developer-profile-photo,
+.developer-profile-placeholder {
+  width: 70px;
+  height: 70px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+}
+
+.developer-profile-photo {
+  object-fit: cover;
+}
+
+.developer-profile-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #18263a;
+  color: #7da7ff;
+
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.developer-profile-main h3 {
+  margin: 0 0 8px;
+
+  color: #f1f5fb;
+
+  font-size: 18px;
+}
+
+.developer-profile-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+
+  margin-bottom: 10px;
+}
+
+.developer-profile-contact span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #8795aa;
+
+  font-size: 12px;
+}
+
+.developer-profile-contact svg {
+  color: #65748b;
+}
+
+/* =========================================================
+   DEVELOPER APPLICATION SECTIONS
+   ========================================================= */
+
+.developer-application-section {
+  margin: 0 28px 20px;
+
+  border: 1px solid #202c3d;
+  border-radius: 12px;
+
+  background: #0f1722;
+}
+
+.developer-section-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 15px 18px;
+
+  border-bottom: 1px solid #202c3d;
+
+  color: #8ba1bd;
+}
+
+.developer-section-title h3 {
+  margin: 0;
+
+  color: #dce5f1;
+
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.developer-section-content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  padding: 4px 18px;
+}
+
+/* =========================================================
+   DEVELOPER DETAILS
+   ========================================================= */
+
+.developer-detail {
+  min-width: 0;
+
+  padding: 14px 8px;
+
+  border-bottom: 1px solid #1c2736;
+}
+
+.developer-detail span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 5px;
+
+  color: #718098;
+
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.developer-detail strong {
+  display: block;
+
+  color: #dce5f2;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+.developer-detail-full {
+  grid-column: 1 / -1;
+
+  padding: 14px 8px;
+}
+
+.developer-detail-full > span {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #718098;
+
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   DEVELOPER LINKS
+   ========================================================= */
+
+.developer-links-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+
+  grid-column: 1 / -1;
+
+  padding: 14px 0;
+}
+
+.developer-profile-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #29364a;
+  border-radius: 9px;
+
+  background: #111a27;
+  color: #dce5f2;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.developer-profile-link:hover {
+  background: #172233;
+  border-color: #3b4a62;
+}
+
+.developer-profile-link-disabled {
+  color: #58667a;
+  cursor: default;
+}
+
+/* =========================================================
+   DEVELOPER FILES
+   ========================================================= */
+
+.developer-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  grid-column: 1 / -1;
+
+  padding: 14px 0;
+}
+
+.developer-file-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 13px;
+
+  border: 1px solid #29364a;
+  border-radius: 8px;
+
+  background: #111a27;
+  color: #cbd6e5;
+
+  text-decoration: none;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.developer-file-button:hover {
+  background: #182435;
+  border-color: #3a4c65;
+}
+
+.developer-files p {
+  margin: 0;
+
+  color: #68778d;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   DEVELOPER ACTIONS
+   ========================================================= */
+
+.developer-actions {
+  margin: 24px 28px 0;
+}
+
+.developer-actions > * {
+  width: 100%;
+}
+
+.developer-actions:not(:has(.developer-reject-box)) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.developer-reject-button,
+.developer-accept-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 44px;
+  padding: 0 16px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 650;
+
+  cursor: pointer;
+}
+
+.developer-reject-button {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.developer-reject-button:hover {
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.developer-accept-button {
+  background: rgba(34, 197, 94, 0.09);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #4ade80;
+}
+
+.developer-accept-button:hover {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+/* =========================================================
+   REJECTION BOX
+   ========================================================= */
+
+.developer-reject-box {
+  padding: 18px;
+
+  background: #111925;
+  border: 1px solid #28364a;
+  border-radius: 10px;
+}
+
+.developer-reject-box label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #cbd6e5;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.developer-reject-box textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 12px;
+
+  border: 1px solid #29374b;
+  border-radius: 8px;
+
+  background: #0b121c;
+  color: #e4ebf5;
+
+  font: inherit;
+  font-size: 13px;
+
+  resize: vertical;
+  outline: none;
+}
+
+.developer-reject-box textarea:focus {
+  border-color: #3b82f6;
+}
+
+.developer-reject-box p {
+  margin: 9px 0 15px;
+
+  color: #68778d;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.developer-reject-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.developer-reject-actions button {
+  min-height: 38px;
+  padding: 0 14px;
+
+  border: 1px solid #29364a;
+  border-radius: 8px;
+
+  background: #141e2c;
+  color: #bdc9d9;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.developer-reject-actions .developer-confirm-reject {
+  background: #3b1d22;
+  border-color: #713038;
+  color: #f87171;
+}
+
+/* =========================================================
+   DEVELOPER DELETE
+   ========================================================= */
+
+.developer-delete-section {
+  margin: 24px 28px 28px;
+  padding-top: 20px;
+
+  border-top: 1px solid #202c3d;
+}
+
+.developer-delete-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 14px;
+
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 8px;
+
+  background: rgba(239, 68, 68, 0.05);
+  color: #ef7070;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.developer-delete-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* =========================================================
+   ENQUIRY DETAILS MODAL
+   ========================================================= */
+
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  background: rgba(2, 5, 9, 0.76);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  animation: enquiryBackdropIn 0.18s ease-out;
+}
+
+.admin-modal {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+
+  overflow-y: auto;
+
+  box-sizing: border-box;
+
+  background:
+    linear-gradient(
+      145deg,
+      #101721,
+      #080d14
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+
+  box-shadow:
+    0 35px 100px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(0, 0, 0, 0.3);
+
+  animation: enquiryModalIn 0.2s ease-out;
+}
+
+.admin-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-modal::-webkit-scrollbar-thumb {
+  background: #293241;
+  border-radius: 20px;
+}
+
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
+.admin-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 23px 25px;
+
+  border-bottom: 1px solid #202c3d;
+}
+
+.admin-modal-header .eyebrow {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #647287;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.admin-modal-header h2 {
+  margin: 0;
+
+  color: #f1f5fa;
+
+  font-family: "Space Grotesk", Inter, system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+
+  letter-spacing: -0.03em;
+}
+
+.admin-modal-header p {
+  margin: 5px 0 0;
+
+  color: #66758b;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   ENQUIRY STATUS BAR
+   ========================================================= */
+
+.admin-detail-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 15px 25px;
+
+  background: rgba(255, 255, 255, 0.018);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+.admin-detail-status select {
+  height: 36px;
+
+  padding: 0 10px;
+
+  border: 1px solid #202c3d;
+  border-radius: 8px;
+
+  outline: none;
+
+  background: #0d131b;
+  color: #aeb9c8;
+
+  font: inherit;
+  font-size: 10px;
+}
+
+/* =========================================================
+   ENQUIRY DETAIL GRID
+   ========================================================= */
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 1px;
+
+  margin: 20px 25px;
+
+  overflow: hidden;
+
+  background: rgba(255, 255, 255, 0.055);
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 12px;
+}
+
+.admin-detail-item {
+  min-width: 0;
+
+  padding: 15px;
+
+  background: rgba(8, 13, 20, 0.88);
+}
+
+.admin-detail-item > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 7px;
+
+  color: #687589;
+
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.admin-detail-item strong,
+.admin-detail-item a {
+  display: block;
+
+  overflow: hidden;
+
+  color: #d9e1eb;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-detail-item a {
+  color: #70dfff;
+  text-decoration: none;
+}
+
+.admin-detail-item a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================================
+   ENQUIRY DESCRIPTION
+   ========================================================= */
+
+.admin-description {
+  margin: 0 25px 20px;
+  padding: 17px;
+
+  background: rgba(255, 255, 255, 0.022);
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 12px;
+}
+
+.admin-description > span {
+  display: block;
+
+  margin-bottom: 9px;
+
+  color: #687589;
+
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-description p {
+  margin: 0;
+
+  color: #a5b0c0;
+
+  font-size: 11px;
+  line-height: 1.7;
+
+  white-space: pre-wrap;
+}
+
+/* =========================================================
+   MODAL ACTIONS
+   ========================================================= */
+
+.admin-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  padding: 16px 25px;
+
+  border-top: 1px solid #202c3d;
+
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.admin-danger-button {
+  min-height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 0 14px;
+
+  border-radius: 8px;
+
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  transition: 0.2s ease;
+}
+
+.admin-danger-button {
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.055);
+  color: #ff7f8e;
+}
+
+.admin-danger-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+/* =========================================================
+   OPPORTUNITY MODAL
    ========================================================= */
 
 .admin-modal-overlay {
@@ -427,13 +2197,8 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* =========================================================
-   MODAL
-   ========================================================= */
-
-.admin-modal {
+.admin-modal-overlay .admin-modal {
   width: min(900px, 100%);
-
   max-height: calc(100vh - 60px);
 
   display: flex;
@@ -448,51 +2213,16 @@
 
   box-shadow:
     0 30px 90px rgba(0, 0, 0, 0.55);
+
+  animation: none;
 }
 
 .admin-opportunity-modal {
-  width: min(920px, 100%);
+  width: min(920px, 100%) !important;
 }
 
 /* =========================================================
-   MODAL HEADER
-   ========================================================= */
-
-.admin-modal-header {
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-
-  padding: 22px 24px;
-
-  border-bottom: 1px solid #202b3b;
-
-  background: #0d131c;
-}
-
-.admin-modal-header h2 {
-  margin: 0;
-
-  color: #edf2f8;
-
-  font-size: 20px;
-  font-weight: 650;
-  letter-spacing: -0.2px;
-}
-
-.admin-modal-header p {
-  margin: 5px 0 0;
-
-  color: #66758b;
-
-  font-size: 12px;
-}
-
-/* =========================================================
-   MODAL BODY
+   OPPORTUNITY MODAL BODY
    ========================================================= */
 
 .admin-modal-body {
@@ -543,10 +2273,6 @@
   font-size: 14px;
   font-weight: 650;
 }
-
-/* =========================================================
-   FORM GRID
-   ========================================================= */
 
 .admin-form-grid {
   display: grid;
@@ -616,8 +2342,11 @@
 .admin-form-field textarea,
 .admin-form-section > textarea {
   min-height: 100px;
+
   padding: 12px;
+
   resize: vertical;
+
   line-height: 1.55;
 }
 
@@ -664,10 +2393,6 @@
   font-size: 10px;
   line-height: 1.4;
 }
-
-/* =========================================================
-   SELECT
-   ========================================================= */
 
 .admin-form-field select {
   appearance: auto;
@@ -729,7 +2454,7 @@
 }
 
 /* =========================================================
-   MODAL FOOTER
+   OPPORTUNITY MODAL FOOTER
    ========================================================= */
 
 .admin-modal-footer {
@@ -738,6 +2463,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
   gap: 10px;
 
   padding: 16px 24px;
@@ -748,7 +2474,128 @@
 }
 
 /* =========================================================
-   RESPONSIVE
+   DRAWER-STYLE ENQUIRY MODAL
+   ========================================================= */
+
+.enquiry-details-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  justify-content: flex-end;
+
+  background: rgba(0, 0, 0, 0.75);
+
+  backdrop-filter: blur(4px);
+
+  animation: fadeIn 0.2s ease;
+}
+
+.enquiry-details-modal {
+  width: 100%;
+  max-width: 520px;
+  height: 100%;
+
+  box-sizing: border-box;
+
+  padding: 1.75rem;
+
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #090d16;
+
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================================
+   GENERIC ADMIN MODAL CONTENT
+   ========================================================= */
+
+.admin-modal-content {
+  width: 100%;
+  max-width: 520px;
+  height: 100%;
+
+  box-sizing: border-box;
+
+  padding: 1.75rem;
+
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #090d16;
+
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes enquiryBackdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes enquiryModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — 1150px
+   ========================================================= */
+
+@media (max-width: 1150px) {
+  .admin-dashboard {
+    padding: 38px 30px 55px;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — 1024px
+   ========================================================= */
+
+@media (max-width: 1024px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — 900px
    ========================================================= */
 
 @media (max-width: 900px) {
@@ -757,12 +2604,29 @@
   }
 
   .admin-page-header {
-    align-items: stretch;
     flex-direction: column;
+    align-items: stretch;
   }
 
   .admin-page-header .admin-primary-btn {
     align-self: flex-start;
+  }
+
+  .developer-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .developer-status-filter {
+    width: 100%;
+  }
+
+  .developer-section-content {
+    grid-template-columns: 1fr;
+  }
+
+  .developer-links-grid {
+    grid-template-columns: 1fr;
   }
 
   .admin-form-grid {
@@ -774,13 +2638,171 @@
   }
 }
 
+/* =========================================================
+   RESPONSIVE — 800px
+   ========================================================= */
+
+@media (max-width: 800px) {
+  .admin-dashboard {
+    padding: 34px 24px 50px;
+  }
+
+  .admin-page-heading h1 {
+    font-size: 34px;
+  }
+
+  .admin-page-heading {
+    flex-direction: column;
+  }
+
+  .admin-panel-header {
+    align-items: flex-start;
+  }
+
+  .admin-table {
+    min-width: 760px;
+  }
+
+  .admin-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .admin-search {
+    flex-basis: 100%;
+  }
+
+  .admin-toolbar > select {
+    flex: 1;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — 768px
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .opportunity-list,
+  .developer-cards,
+  .enquiry-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .card,
+  .enquiry-card,
+  .developer-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — 680px
+   ========================================================= */
+
+@media (max-width: 680px) {
+  .admin-toolbar {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .admin-search {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .admin-toolbar select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .admin-icon-button {
+    flex-shrink: 0;
+  }
+
+  .enquiry-details-modal,
+  .admin-modal-content {
+    max-width: 100%;
+    border-left: none;
+    padding: 1.25rem;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — 640px
+   ========================================================= */
+
 @media (max-width: 640px) {
+  .admin-dashboard {
+    padding: 28px 16px 40px;
+  }
+
   .admin-page {
     padding: 24px 15px 40px;
   }
 
+  .admin-page-heading {
+    margin-bottom: 24px;
+  }
+
+  .admin-page-heading h1,
   .admin-page-header h1 {
-    font-size: 28px;
+    font-size: 29px;
+  }
+
+  .admin-page-heading p,
+  .admin-page-header p {
+    font-size: 12px;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+
+    margin-bottom: 20px;
+  }
+
+  .admin-stat-card {
+    min-height: 115px;
+    padding: 19px;
+  }
+
+  .admin-stat-card-icon {
+    width: 36px;
+    height: 36px;
+
+    margin-bottom: 13px;
+  }
+
+  .admin-stat-card-value {
+    font-size: 25px;
+  }
+
+  .admin-card-header {
+    padding: 17px;
+  }
+
+  .admin-panel-header {
+    padding: 17px;
+  }
+
+  .admin-panel-header h2 {
+    font-size: 15px;
+  }
+
+  .admin-panel-header p {
+    font-size: 11px;
+  }
+
+  .admin-outline-button {
+    height: 34px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding-left: 15px;
+    padding-right: 15px;
   }
 
   .admin-modal-overlay {
@@ -802,7 +2824,6 @@
 
   .admin-modal-footer {
     padding: 13px 18px;
-
     flex-wrap: wrap;
   }
 
@@ -810,29 +2831,109 @@
     flex: 1;
   }
 
-  .admin-card-header {
-    padding: 17px;
+  .admin-detail-grid {
+    grid-template-columns: 1fr;
+
+    margin-left: 18px;
+    margin-right: 18px;
   }
 
-  .admin-table th,
-  .admin-table td {
-    padding-left: 15px;
-    padding-right: 15px;
+  .admin-detail-status {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .admin-description {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+
+  .admin-modal-actions {
+    padding-left: 18px;
+    padding-right: 18px;
+
+    flex-wrap: wrap;
+  }
+
+  .admin-outline-button,
+  .admin-danger-button {
+    flex: 1;
+  }
+
+  .developer-modal-overlay {
+    padding: 12px;
+  }
+
+  .developer-modal {
+    max-height: calc(100vh - 24px);
+    border-radius: 14px;
+  }
+
+  .developer-modal-header,
+  .developer-profile-section,
+  .developer-application-section,
+  .developer-actions,
+  .developer-delete-section {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .developer-modal-header {
+    padding: 20px 0;
+  }
+
+  .developer-profile-section {
+    margin-top: 16px;
+    padding: 15px;
+  }
+
+  .developer-actions:not(:has(.developer-reject-box)) {
+    grid-template-columns: 1fr;
   }
 }
-@media (max-width: 768px) {
-  /* Dynamic grid fallback for item listings */
-  .opportunity-list,
-  .developer-cards,
-  .enquiry-list {
-    grid-template-columns: 1fr !important;
+
+/* =========================================================
+   RESPONSIVE — 560px
+   ========================================================= */
+
+@media (max-width: 560px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
   }
 
-  /* Compact card paddings for mobile viewports */
-  .card, 
-  .enquiry-card, 
-  .developer-card {
-    padding: 1rem;
-    margin-bottom: 1rem;
+  .admin-stat-card {
+    min-height: 115px;
+  }
+
+  .admin-panel-header {
+    gap: 12px;
+  }
+
+  .admin-page-heading h1 {
+    font-size: 28px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — 400px
+   ========================================================= */
+
+@media (max-width: 400px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-dashboard {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .admin-page {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .admin-page-header h1 {
+    font-size: 27px;
   }
 }

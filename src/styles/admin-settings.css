@@ -30,32 +30,32 @@
   display: block;
   margin-bottom: 7px;
 
+  color: #53647e;
+
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 1.6px;
   text-transform: uppercase;
-
-  color: #53647e;
 }
 
 .admin-page-header h1 {
   margin: 0;
 
+  color: #f3f6fb;
+
   font-size: 40px;
   line-height: 1.15;
   font-weight: 700;
   letter-spacing: -1.2px;
-
-  color: #f3f6fb;
 }
 
 .admin-page-header p {
   margin: 10px 0 0;
 
+  color: #7183a0;
+
   font-size: 14px;
   line-height: 1.6;
-
-  color: #7183a0;
 }
 
 /* =========================================================
@@ -66,6 +66,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
+
   width: 100%;
 }
 
@@ -108,7 +109,7 @@
 }
 
 /* =========================================================
-   ICON
+   SETTING ICON
    ========================================================= */
 
 .admin-setting-icon {
@@ -121,13 +122,13 @@
 
   flex-shrink: 0;
 
-  color: #72a9ff;
+  box-sizing: border-box;
 
   background: #111c2c;
   border: 1px solid #233653;
   border-radius: 12px;
 
-  box-sizing: border-box;
+  color: #72a9ff;
 }
 
 .admin-setting-icon svg {
@@ -141,22 +142,21 @@
 .admin-setting-card h3 {
   margin: 0 0 6px;
 
+  color: #e8edf7;
+
   font-size: 16px;
   line-height: 1.3;
   font-weight: 650;
-
-  color: #e8edf7;
 }
 
 .admin-setting-card p {
+  max-width: 500px;
   margin: 0;
 
-  max-width: 500px;
+  color: #71809a;
 
   font-size: 13px;
   line-height: 1.55;
-
-  color: #71809a;
 }
 
 /* =========================================================
@@ -174,15 +174,15 @@
 
   box-sizing: border-box;
 
+  background: #0f1724;
   border: 1px solid #24334a;
   border-radius: 999px;
-
-  background: #0f1724;
 
   color: #7f9bc4;
 
   font-size: 11px;
   font-weight: 600;
+
   white-space: nowrap;
 }
 
@@ -191,31 +191,59 @@
    ========================================================= */
 
 .admin-setting-card:nth-child(1) .admin-setting-status {
-  color: #82a9df;
-  border-color: #293c59;
   background: #101a29;
+  border-color: #293c59;
+  color: #82a9df;
 }
 
 .admin-setting-card:nth-child(2) .admin-setting-status {
-  color: #86b8a0;
-  border-color: #294438;
   background: #0e1b16;
+  border-color: #294438;
+  color: #86b8a0;
 }
 
 .admin-setting-card:nth-child(3) .admin-setting-status {
-  color: #79b8d4;
-  border-color: #254253;
   background: #0d1921;
+  border-color: #254253;
+  color: #79b8d4;
 }
 
 .admin-setting-card:nth-child(4) .admin-setting-status {
-  color: #a8a0d2;
-  border-color: #383352;
   background: #151328;
+  border-color: #383352;
+  color: #a8a0d2;
 }
 
 /* =========================================================
-   RESPONSIVE
+   GLOBAL SMALL-SCREEN FORM SUPPORT
+   ========================================================= */
+
+@media (max-width: 576px) {
+  .auth-card,
+  .login-container,
+  .settings-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1.5rem 1rem;
+
+    box-shadow: none;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea,
+  .btn {
+    width: 100%;
+    min-height: 44px;
+
+    font-size: 16px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
    ========================================================= */
 
 @media (max-width: 1000px) {
@@ -227,6 +255,10 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
 
 @media (max-width: 650px) {
   .admin-page {
@@ -247,6 +279,7 @@
 
   .admin-setting-card {
     grid-template-columns: 44px minmax(0, 1fr);
+
     padding: 20px;
   }
 
@@ -258,9 +291,14 @@
   .admin-setting-status {
     grid-column: 2;
     justify-self: start;
+
     margin-top: 2px;
   }
 }
+
+/* =========================================================
+   RESPONSIVE — SMALL MOBILE
+   ========================================================= */
 
 @media (max-width: 420px) {
   .admin-page {
@@ -282,28 +320,5 @@
 
   .admin-setting-card p {
     font-size: 12px;
-  }
-}
-@media (max-width: 576px) {
-  /* Center and expand auth forms on small screens */
-  .auth-card,
-  .login-container,
-  .settings-form {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 1.5rem 1rem;
-    box-shadow: none;
-  }
-
-  /* Touch-friendly inputs and buttons */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  select,
-  textarea,
-  .btn {
-    width: 100%;
-    min-height: 44px; /* Optimal iOS touch target size */
-    font-size: 16px; /* Prevents auto-zoom on iOS Safari */
   }
 }

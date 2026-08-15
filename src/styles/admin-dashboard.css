@@ -1,11 +1,12 @@
 /* =========================================================
-   ADMIN DASHBOARD
+   EXCWA ADMIN — DASHBOARD
+   Desktop + Tablet + Mobile
    ========================================================= */
 
 .admin-dashboard {
   width: 100%;
   min-height: 100%;
-  padding: 58px 62px 70px;
+  padding: 42px 48px 60px;
   box-sizing: border-box;
 
   background: #070b11;
@@ -21,14 +22,14 @@
   align-items: flex-start;
   justify-content: space-between;
 
-  margin-bottom: 34px;
+  margin-bottom: 30px;
 }
 
 .admin-page-heading > div {
   min-width: 0;
 }
 
-.eyebrow {
+.admin-page-heading .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -37,15 +38,14 @@
 
   color: #5f7492;
 
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
 }
 
-.eyebrow svg {
+.admin-page-heading .eyebrow svg {
   color: #6685ad;
-  stroke-width: 2;
 }
 
 .admin-page-heading h1 {
@@ -53,32 +53,35 @@
 
   color: #f2f5fa;
 
-  font-size: 40px;
+  font-family: "Space Grotesk", Inter, sans-serif;
+  font-size: 36px;
   line-height: 1.12;
   font-weight: 700;
-  letter-spacing: -1.2px;
+
+  letter-spacing: -1px;
 }
 
 .admin-page-heading p {
-  margin: 10px 0 0;
+  margin: 9px 0 0;
 
   color: #71819a;
 
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.6;
 }
 
 /* =========================================================
-   STATISTICS
+   STATISTICS GRID
    ========================================================= */
 
 .admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
-  gap: 16px;
+  gap: 15px;
 
-  margin-bottom: 26px;
+  width: 100%;
+  margin-bottom: 24px;
 }
 
 /* =========================================================
@@ -88,112 +91,243 @@
 .admin-stat-card {
   position: relative;
 
-  min-height: 132px;
-  padding: 22px;
+  min-width: 0;
+  min-height: 128px;
+
+  padding: 20px;
 
   box-sizing: border-box;
 
-  background: #0b1018;
-  border: 1px solid #1a2431;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.015)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 14px;
 
   overflow: hidden;
 
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.16),
+    inset 0 1px rgba(255, 255, 255, 0.025);
+
   transition:
-    border-color 0.2s ease,
     transform 0.2s ease,
+    border-color 0.2s ease,
     background 0.2s ease;
 }
 
 .admin-stat-card:hover {
-  background: #0d131d;
-  border-color: #29374a;
-
   transform: translateY(-2px);
+
+  border-color: rgba(255, 255, 255, 0.12);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.018)
+    );
+}
+
+/* subtle glow */
+
+.admin-stat-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 100px;
+  height: 100px;
+
+  right: -45px;
+  top: -45px;
+
+  border-radius: 50%;
+
+  opacity: 0.1;
+
+  filter: blur(25px);
+
+  pointer-events: none;
 }
 
 /* =========================================================
-   STAT CARD ICON
+   STAT CARD TOP
    ========================================================= */
 
+.admin-stat-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+}
+
+/* =========================================================
+   STAT ICON
+   ========================================================= */
+
+.admin-stat-icon,
 .admin-stat-card-icon {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 17px;
+  flex-shrink: 0;
 
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 10px;
 
-  background: #111a27;
-  border: 1px solid #202e42;
+  background: rgba(255, 255, 255, 0.035);
 
-  color: #8297b5;
+  color: #7e8da1;
 }
 
+.admin-stat-icon svg,
 .admin-stat-card-icon svg {
   width: 19px;
   height: 19px;
 }
 
 /* =========================================================
-   STAT LABEL / VALUE
+   STAT LABEL
    ========================================================= */
 
+.admin-stat-label,
 .admin-stat-card-label {
   margin: 0 0 5px;
 
-  color: #71819a;
+  color: #69778a;
 
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
+/* =========================================================
+   STAT VALUE
+
+   Supports both:
+   <strong>123</strong>
+   and
+   <p class="admin-stat-card-value">123</p>
+   ========================================================= */
+
+.admin-stat-card > strong,
 .admin-stat-card-value {
+  display: block;
+
   margin: 0;
 
-  color: #edf2f9;
+  color: #edf2f8;
 
-  font-size: 29px;
+  font-family:
+    "Space Grotesk",
+    Inter,
+    system-ui,
+    sans-serif;
+
+  font-size: 27px;
+  font-weight: 600;
+
   line-height: 1;
 
-  font-weight: 700;
-  letter-spacing: -0.7px;
+  letter-spacing: -0.045em;
 }
 
 /* =========================================================
    STAT ACCENTS
    ========================================================= */
 
+.admin-stat-card.blue::after,
+.admin-stat-card.cyan::after {
+  background: #55e6ff;
+}
+
+.admin-stat-card.blue .admin-stat-icon,
+.admin-stat-card.cyan .admin-stat-icon,
 .admin-stat-card.cyan .admin-stat-card-icon {
-  color: #55c8e7;
-  background: #0c1b23;
-  border-color: #1c3b47;
+  color: #55dfff;
+
+  border-color: rgba(85, 230, 255, 0.14);
+
+  background: rgba(85, 230, 255, 0.055);
 }
 
-.admin-stat-card.violet .admin-stat-card-icon {
-  color: #9b8ce8;
-  background: #151229;
-  border-color: #332c50;
+.admin-stat-card.green::after {
+  background: #5ee7a4;
 }
 
+.admin-stat-card.green .admin-stat-icon,
 .admin-stat-card.green .admin-stat-card-icon {
-  color: #65c79a;
-  background: #0c1d17;
-  border-color: #1e3d30;
+  color: #69e5b7;
+
+  border-color: rgba(34, 197, 94, 0.14);
+
+  background: rgba(34, 197, 94, 0.055);
+}
+
+.admin-stat-card.orange::after {
+  background: #ffb84d;
+}
+
+.admin-stat-card.orange .admin-stat-icon {
+  color: #ffca70;
+
+  border-color: rgba(255, 180, 70, 0.14);
+
+  background: rgba(255, 180, 70, 0.055);
+}
+
+.admin-stat-card.red::after {
+  background: #ff6678;
+}
+
+.admin-stat-card.red .admin-stat-icon {
+  color: #ff8292;
+
+  border-color: rgba(255, 70, 90, 0.14);
+
+  background: rgba(255, 70, 90, 0.055);
+}
+
+.admin-stat-card.purple::after,
+.admin-stat-card.violet::after {
+  background: #a855f7;
+}
+
+.admin-stat-card.purple .admin-stat-icon,
+.admin-stat-card.violet .admin-stat-icon,
+.admin-stat-card.violet .admin-stat-card-icon {
+  color: #bd8aff;
+
+  border-color: rgba(168, 85, 247, 0.14);
+
+  background: rgba(168, 85, 247, 0.055);
 }
 
 /* =========================================================
-   PANEL
+   MAIN PANEL
    ========================================================= */
 
 .admin-panel {
   width: 100%;
 
   background: #0b1018;
+
   border: 1px solid #1a2431;
   border-radius: 14px;
 
@@ -205,12 +339,14 @@
    ========================================================= */
 
 .admin-panel-header {
-  min-height: 78px;
-  padding: 20px 22px;
+  min-height: 76px;
+
+  padding: 19px 21px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
 
   box-sizing: border-box;
@@ -245,10 +381,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 8px;
 
   height: 36px;
+
   padding: 0 13px;
+
+  box-sizing: border-box;
 
   border: 1px solid #293649;
   border-radius: 8px;
@@ -263,6 +403,8 @@
 
   cursor: pointer;
 
+  white-space: nowrap;
+
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -271,7 +413,9 @@
 
 .admin-outline-button:hover {
   background: #111925;
+
   border-color: #3a4b64;
+
   color: #dbe4f1;
 }
 
@@ -289,7 +433,10 @@
 
 .admin-table-wrap {
   width: 100%;
+
   overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
 }
 
 /* =========================================================
@@ -298,6 +445,9 @@
 
 .admin-table {
   width: 100%;
+
+  min-width: 700px;
+
   border-collapse: collapse;
 
   color: #b8c3d3;
@@ -310,7 +460,8 @@
 }
 
 .admin-table th {
-  height: 47px;
+  height: 46px;
+
   padding: 0 20px;
 
   text-align: left;
@@ -322,14 +473,17 @@
 
   font-size: 10px;
   font-weight: 700;
+
   letter-spacing: 0.8px;
+
   text-transform: uppercase;
 
   white-space: nowrap;
 }
 
 .admin-table td {
-  height: 72px;
+  height: 70px;
+
   padding: 12px 20px;
 
   border-bottom: 1px solid #151e2a;
@@ -352,7 +506,7 @@
 }
 
 /* =========================================================
-   CUSTOMER COLUMN
+   CUSTOMER
    ========================================================= */
 
 .admin-table td:first-child {
@@ -376,6 +530,7 @@
   color: #61718a;
 
   font-size: 11px;
+
   line-height: 1.3;
 }
 
@@ -389,7 +544,8 @@
   justify-content: center;
 
   min-width: 72px;
-  height: 27px;
+  min-height: 27px;
+
   padding: 0 10px;
 
   box-sizing: border-box;
@@ -398,7 +554,10 @@
 
   font-size: 10px;
   font-weight: 650;
+
   text-transform: capitalize;
+
+  white-space: nowrap;
 }
 
 /* =========================================================
@@ -407,6 +566,7 @@
 
 .admin-table td:last-child {
   color: #70809a;
+
   white-space: nowrap;
 }
 
@@ -428,16 +588,17 @@
   color: #64758e;
 
   font-size: 13px;
+
   text-align: center;
 }
 
 /* =========================================================
-   RESPONSIVE - LARGE TABLETS
+   LARGE TABLET
    ========================================================= */
 
 @media (max-width: 1150px) {
   .admin-dashboard {
-    padding: 48px 38px 60px;
+    padding: 38px 34px 55px;
   }
 
   .admin-stats-grid {
@@ -446,16 +607,20 @@
 }
 
 /* =========================================================
-   RESPONSIVE - TABLET
+   TABLET
    ========================================================= */
 
 @media (max-width: 800px) {
   .admin-dashboard {
-    padding: 38px 24px 50px;
+    padding: 32px 24px 45px;
   }
 
   .admin-page-heading h1 {
-    font-size: 34px;
+    font-size: 32px;
+  }
+
+  .admin-page-heading p {
+    font-size: 12px;
   }
 
   .admin-panel-header {
@@ -463,99 +628,200 @@
   }
 
   .admin-table {
-    min-width: 760px;
+    min-width: 700px;
   }
 }
 
 /* =========================================================
-   RESPONSIVE - MOBILE
+   MOBILE
    ========================================================= */
 
 @media (max-width: 560px) {
   .admin-dashboard {
-    padding: 30px 16px 40px;
+    padding: 26px 14px 35px;
   }
 
   .admin-page-heading {
-    margin-bottom: 26px;
+    margin-bottom: 23px;
+  }
+
+  .admin-page-heading .eyebrow {
+    font-size: 9px;
   }
 
   .admin-page-heading h1 {
-    font-size: 29px;
+    font-size: 28px;
+
     letter-spacing: -0.7px;
   }
 
   .admin-page-heading p {
-    font-size: 12px;
+    margin-top: 7px;
+
+    font-size: 11px;
   }
 
-  .admin-stats-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  /* 2 x 2 stats on mobile */
 
-    margin-bottom: 18px;
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+    margin-bottom: 17px;
   }
 
   .admin-stat-card {
-    min-height: 115px;
-    padding: 19px;
+    min-height: 112px;
+
+    padding: 16px;
+
+    border-radius: 12px;
   }
 
-  .admin-stat-card-icon {
-    width: 36px;
-    height: 36px;
+  .admin-stat-top {
     margin-bottom: 13px;
   }
 
+  .admin-stat-icon,
+  .admin-stat-card-icon {
+    width: 34px;
+    height: 34px;
+
+    border-radius: 9px;
+  }
+
+  .admin-stat-icon svg,
+  .admin-stat-card-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .admin-stat-label,
+  .admin-stat-card-label {
+    font-size: 8px;
+
+    letter-spacing: 0.04em;
+  }
+
+  .admin-stat-card > strong,
   .admin-stat-card-value {
-    font-size: 25px;
+    font-size: 23px;
+  }
+
+  /* Panel */
+
+  .admin-panel {
+    border-radius: 12px;
   }
 
   .admin-panel-header {
-    padding: 17px;
+    min-height: auto;
+
+    padding: 15px;
+
+    gap: 10px;
   }
 
   .admin-panel-header h2 {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .admin-panel-header p {
-    font-size: 11px;
+    font-size: 10px;
   }
 
   .admin-outline-button {
-    height: 34px;
-    padding: 0 10px;
-    font-size: 11px;
+    height: 32px;
+
+    padding: 0 9px;
+
+    font-size: 10px;
+  }
+
+  /* Table */
+
+  .admin-table {
+    min-width: 680px;
   }
 
   .admin-table th,
   .admin-table td {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .admin-table th {
+    height: 43px;
+
+    font-size: 9px;
+  }
+
+  .admin-table td {
+    height: 64px;
+
+    font-size: 11px;
+  }
+
+  .admin-table td strong {
+    font-size: 12px;
+  }
+
+  .admin-table td small {
+    font-size: 10px;
+  }
+
+  .admin-empty {
+    min-height: 150px;
+
+    padding: 25px 15px;
+
+    font-size: 11px;
   }
 }
-@media (max-width: 768px) {
-  /* Convert sidebars to full-width or collapsible mobile panels */
-  .admin-sidebar {
-    width: 100%;
-    position: static;
-    height: auto;
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 400px) {
+  .admin-dashboard {
+    padding: 22px 11px 30px;
   }
 
-  /* Stack dashboard grids and cards vertically */
-  .dashboard-grid,
-  .stats-grid,
-  .card-deck {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  .admin-stats-grid {
+    gap: 8px;
   }
 
-  /* Responsive Data Tables */
-  .table-container {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .admin-stat-card {
+    min-height: 105px;
+
+    padding: 13px;
+  }
+
+  .admin-stat-icon,
+  .admin-stat-card-icon {
+    width: 31px;
+    height: 31px;
+  }
+
+  .admin-stat-card > strong,
+  .admin-stat-card-value {
+    font-size: 21px;
+  }
+
+  .admin-stat-label,
+  .admin-stat-card-label {
+    font-size: 7px;
+  }
+
+  .admin-panel-header {
+    padding: 13px;
+  }
+
+  .admin-outline-button {
+    padding: 0 7px;
+
+    font-size: 9px;
   }
 }

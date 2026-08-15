@@ -2,14 +2,20 @@
    ADMIN ENQUIRIES
    ========================================================= */
 
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 .admin-dashboard {
   width: 100%;
   min-width: 0;
+  box-sizing: border-box;
+  color: #e7edf7;
 }
 
-/* =========================
+/* =========================================================
    PAGE HEADING
-   ========================= */
+   ========================================================= */
 
 .admin-page-heading {
   display: flex;
@@ -19,11 +25,17 @@
   margin-bottom: 28px;
 }
 
+.admin-page-heading > div {
+  min-width: 0;
+}
+
 .admin-page-heading .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+
   margin-bottom: 10px;
+
   color: #6d7b8f;
   font-size: 10px;
   font-weight: 700;
@@ -31,9 +43,15 @@
   text-transform: uppercase;
 }
 
+.admin-page-heading .eyebrow svg {
+  color: #71839b;
+}
+
 .admin-page-heading h1 {
   margin: 0;
+
   color: #f3f6fb;
+
   font-family: "Space Grotesk", Inter, system-ui, sans-serif;
   font-size: clamp(28px, 3vw, 38px);
   font-weight: 600;
@@ -44,78 +62,125 @@
 .admin-page-heading p {
   max-width: 620px;
   margin: 9px 0 0;
+
   color: #758297;
+
   font-size: 13px;
   line-height: 1.6;
 }
 
-/* =========================
+/* =========================================================
    TOOLBAR
-   ========================= */
+   ========================================================= */
 
 .admin-toolbar {
+  width: 100%;
+
   display: flex;
   align-items: center;
   gap: 10px;
+
   margin-bottom: 18px;
 }
 
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
 .admin-search {
   position: relative;
+
   display: flex;
   align-items: center;
+  gap: 9px;
+
   flex: 1;
   min-width: 220px;
   height: 44px;
+
   padding: 0 13px;
-  gap: 9px;
+
+  box-sizing: border-box;
 
   background: rgba(255, 255, 255, 0.025);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
 
   color: #657287;
-  transition: 0.2s ease;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .admin-search:focus-within {
-  border-color: rgba(92, 210, 255, 0.35);
   background: rgba(255, 255, 255, 0.035);
-  box-shadow: 0 0 0 3px rgba(82, 178, 255, 0.05);
+  border-color: rgba(92, 210, 255, 0.35);
+
+  box-shadow:
+    0 0 0 3px rgba(82, 178, 255, 0.05);
+}
+
+.admin-search svg {
+  flex-shrink: 0;
+  color: #657287;
+  pointer-events: none;
 }
 
 .admin-search input {
   width: 100%;
   min-width: 0;
+
   padding: 0;
+
   border: 0;
   outline: 0;
+
   background: transparent;
 
   color: #dce4ee;
+
   font: inherit;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .admin-search input::placeholder {
   color: #566275;
 }
 
-.admin-toolbar > select {
-  height: 44px;
-  min-width: 145px;
-  padding: 0 12px;
+/* =========================================================
+   FILTER SELECT
+   ========================================================= */
 
-  border: 1px solid var(--line);
+.admin-toolbar > select {
+  width: auto;
+  min-width: 145px;
+  height: 44px;
+
+  padding: 0 34px 0 12px;
+
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
 
-  background: #0d131b;
-  color: #9ba8ba;
+  background:
+    #0d131b
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2369778a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")
+    no-repeat right 11px center;
+
+  color: #aeb9c8;
 
   font: inherit;
   font-size: 11px;
+
   cursor: pointer;
+
+  appearance: none;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .admin-toolbar > select:hover {
@@ -131,26 +196,30 @@
   color: #e4eaf2;
 }
 
-/* =========================
-   REFRESH BUTTON
-   ========================= */
+/* =========================================================
+   REFRESH / ICON BUTTON
+   ========================================================= */
 
 .admin-icon-button {
   width: 44px;
   height: 44px;
+
   flex: 0 0 44px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  border: 1px solid var(--line);
+  padding: 0;
+
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
 
   background: rgba(255, 255, 255, 0.025);
   color: #7d899b;
 
   cursor: pointer;
+
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -168,14 +237,23 @@
   transform: scale(0.96);
 }
 
-/* =========================
+.admin-icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================================================
    PANEL
-   ========================= */
+   ========================================================= */
 
 .admin-panel {
   width: 100%;
   min-width: 0;
+
   overflow: hidden;
+
+  box-sizing: border-box;
 
   background:
     linear-gradient(
@@ -184,7 +262,7 @@
       rgba(255, 255, 255, 0.012)
     );
 
-  border: 1px solid var(--line);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   border-radius: 16px;
 
   box-shadow:
@@ -192,14 +270,17 @@
     inset 0 1px rgba(255, 255, 255, 0.02);
 }
 
-/* =========================
+/* =========================================================
    TABLE WRAPPER
-   ========================= */
+   ========================================================= */
 
 .admin-table-wrap {
   width: 100%;
+
   overflow-x: auto;
   overflow-y: hidden;
+
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-table-wrap::-webkit-scrollbar {
@@ -215,15 +296,28 @@
   border-radius: 20px;
 }
 
-/* =========================
+/* Firefox */
+.admin-table-wrap {
+  scrollbar-width: thin;
+  scrollbar-color: #293241 transparent;
+}
+
+/* =========================================================
    TABLE
-   ========================= */
+   ========================================================= */
 
 .admin-table {
   width: 100%;
   min-width: 900px;
+
   border-collapse: collapse;
+  border-spacing: 0;
+
   table-layout: auto;
+
+  background: transparent;
+
+  color: #cbd5e4;
 }
 
 .admin-table thead {
@@ -232,33 +326,39 @@
 
 .admin-table th {
   height: 46px;
+
   padding: 0 18px;
 
   text-align: left;
+  vertical-align: middle;
   white-space: nowrap;
 
   color: #59677a;
+
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.08));
 }
 
 .admin-table td {
   padding: 17px 18px;
 
   color: #919daf;
+
   font-size: 11px;
   line-height: 1.4;
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+
   vertical-align: middle;
 }
 
 .admin-table tbody tr {
   cursor: pointer;
+
   transition:
     background 0.18s ease,
     box-shadow 0.18s ease;
@@ -272,9 +372,29 @@
   border-bottom: none;
 }
 
-/* =========================
+/* =========================================================
+   CLICKABLE ROW
+   ========================================================= */
+
+.admin-table .clickable-row {
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.admin-table .clickable-row:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.admin-table .clickable-row:active {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+/* =========================================================
    CUSTOMER CELL
-   ========================= */
+   ========================================================= */
 
 .admin-table td:first-child {
   min-width: 190px;
@@ -282,9 +402,11 @@
 
 .admin-table td strong {
   display: block;
+
   margin-bottom: 4px;
 
   color: #dce3ed;
+
   font-size: 12px;
   font-weight: 600;
 }
@@ -293,60 +415,181 @@
   display: block;
 
   color: #59677a;
+
   font-size: 9px;
   line-height: 1.4;
 }
 
-/* =========================
+/* =========================================================
    SERVICE
-   ========================= */
+   ========================================================= */
 
 .admin-table td:nth-child(2) {
   min-width: 150px;
+
   color: #a4afbf;
   font-weight: 500;
 }
 
-/* =========================
+/* =========================================================
    BUDGET
-   ========================= */
+   ========================================================= */
 
 .admin-table td:nth-child(3) {
   min-width: 120px;
+
   color: #aeb8c7;
 }
 
-/* =========================
+/* =========================================================
    CONTACT
-   ========================= */
+   ========================================================= */
 
 .admin-table td:nth-child(4) {
   min-width: 120px;
+
   color: #8e9bad;
 }
 
-/* =========================
-   STATUS
-   ========================= */
+/* =========================================================
+   STATUS COLUMN
+   ========================================================= */
 
 .admin-table td:nth-child(5) {
   min-width: 115px;
 }
 
-/* =========================
+/* =========================================================
    DATE
-   ========================= */
+   ========================================================= */
 
 .admin-table td:nth-child(6) {
   min-width: 175px;
+
   white-space: nowrap;
+
   color: #6f7d90;
+
   font-size: 10px;
 }
 
-/* =========================
-   EMPTY / LOADING
-   ========================= */
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
+
+.admin-table .status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 24px;
+  padding: 5px 9px;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #9ca8b8;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  line-height: 1;
+
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.admin-table .status-badge > span {
+  width: 5px;
+  height: 5px;
+
+  flex: 0 0 5px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+/* =========================================================
+   STATUS - NEW
+   ========================================================= */
+
+.admin-table .status-new {
+  color: #63d9ff;
+
+  background: rgba(85, 210, 255, 0.06);
+
+  border-color: rgba(85, 210, 255, 0.18);
+}
+
+/* =========================================================
+   STATUS - READ
+   ========================================================= */
+
+.admin-table .status-read {
+  color: #a8b4c5;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+/* =========================================================
+   STATUS - CONTACTED
+   ========================================================= */
+
+.admin-table .status-contacted {
+  color: #c3a4ff;
+
+  background: rgba(139, 92, 246, 0.07);
+
+  border-color: rgba(139, 92, 246, 0.18);
+}
+
+/* =========================================================
+   STATUS - IN PROGRESS
+   ========================================================= */
+
+.admin-table .status-in_progress {
+  color: #ffca70;
+
+  background: rgba(255, 180, 70, 0.06);
+
+  border-color: rgba(255, 180, 70, 0.18);
+}
+
+/* =========================================================
+   STATUS - COMPLETED
+   ========================================================= */
+
+.admin-table .status-completed {
+  color: #69e5b7;
+
+  background: rgba(34, 197, 94, 0.06);
+
+  border-color: rgba(34, 197, 94, 0.18);
+}
+
+/* =========================================================
+   STATUS - ARCHIVED
+   ========================================================= */
+
+.admin-table .status-archived {
+  color: #8491a4;
+
+  background: rgba(100, 116, 139, 0.07);
+
+  border-color: rgba(100, 116, 139, 0.16);
+}
+
+/* =========================================================
+   EMPTY / LOADING STATE
+   ========================================================= */
 
 .admin-empty {
   min-height: 300px;
@@ -357,92 +600,28 @@
 
   padding: 40px;
 
+  box-sizing: border-box;
+
   color: #657287;
+
   font-size: 12px;
+
   text-align: center;
 }
 
-/* =========================
-   STATUS BADGE
-   ========================= */
-
-.admin-table .status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-
-  padding: 5px 9px;
-
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-
-  background: rgba(255, 255, 255, 0.025);
-
-  color: #9ca8b8;
-  font-size: 8px;
-  font-weight: 700;
-  text-transform: capitalize;
-  white-space: nowrap;
-}
-
-.admin-table .status-badge > span {
-  width: 5px;
-  height: 5px;
-  flex: 0 0 5px;
-
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.admin-table .status-new {
-  color: #63d9ff;
-  background: rgba(85, 210, 255, 0.06);
-  border-color: rgba(85, 210, 255, 0.18);
-}
-
-.admin-table .status-read {
-  color: #a8b4c5;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.admin-table .status-contacted {
-  color: #c3a4ff;
-  background: rgba(139, 92, 246, 0.07);
-  border-color: rgba(139, 92, 246, 0.18);
-}
-
-.admin-table .status-in_progress {
-  color: #ffca70;
-  background: rgba(255, 180, 70, 0.06);
-  border-color: rgba(255, 180, 70, 0.18);
-}
-
-.admin-table .status-completed {
-  color: #69e5b7;
-  background: rgba(34, 197, 94, 0.06);
-  border-color: rgba(34, 197, 94, 0.18);
-}
-
-.admin-table .status-archived {
-  color: #8491a4;
-  background: rgba(100, 116, 139, 0.07);
-  border-color: rgba(100, 116, 139, 0.16);
-}
-
 /* =========================================================
-   ENQUIRY DETAILS MODAL
+   ENQUIRY DETAILS OVERLAY
    ========================================================= */
 
+.enquiry-details-overlay,
+.admin-modal-overlay,
 .admin-modal-backdrop {
   position: fixed;
   inset: 0;
+
   z-index: 9999;
 
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 24px;
 
   background: rgba(2, 5, 9, 0.76);
 
@@ -452,11 +631,66 @@
   animation: enquiryBackdropIn 0.18s ease-out;
 }
 
+/* =========================================================
+   DRAWER ALIGNMENT
+   ========================================================= */
+
+.enquiry-details-overlay,
+.admin-modal-overlay {
+  justify-content: flex-end;
+}
+
+/* =========================================================
+   MODAL / DRAWER
+   ========================================================= */
+
+.enquiry-details-modal,
+.admin-modal-content {
+  width: 100%;
+  max-width: 520px;
+  height: 100%;
+
+  box-sizing: border-box;
+
+  padding: 28px;
+
+  overflow-y: auto;
+
+  background:
+    linear-gradient(
+      145deg,
+      #101721,
+      #080d14
+    );
+
+  border-left: 1px solid rgba(255, 255, 255, 0.09);
+
+  color: #e6edf7;
+
+  box-shadow:
+    -20px 0 60px rgba(0, 0, 0, 0.35);
+
+  animation: enquiryDrawerIn 0.2s ease-out;
+}
+
+/* =========================================================
+   CENTERED ADMIN MODAL
+   ========================================================= */
+
+.admin-modal-backdrop {
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+}
+
 .admin-modal {
   width: min(760px, 100%);
   max-height: calc(100vh - 48px);
 
   overflow-y: auto;
+
+  box-sizing: border-box;
 
   background:
     linear-gradient(
@@ -475,35 +709,52 @@
   animation: enquiryModalIn 0.2s ease-out;
 }
 
+/* =========================================================
+   MODAL SCROLLBAR
+   ========================================================= */
+
+.enquiry-details-modal::-webkit-scrollbar,
+.admin-modal-content::-webkit-scrollbar,
 .admin-modal::-webkit-scrollbar {
   width: 6px;
 }
 
+.enquiry-details-modal::-webkit-scrollbar-track,
+.admin-modal-content::-webkit-scrollbar-track,
 .admin-modal::-webkit-scrollbar-track {
   background: transparent;
 }
 
+.enquiry-details-modal::-webkit-scrollbar-thumb,
+.admin-modal-content::-webkit-scrollbar-thumb,
 .admin-modal::-webkit-scrollbar-thumb {
   background: #293241;
   border-radius: 20px;
 }
 
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
 .admin-modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+
   gap: 20px;
 
   padding: 23px 25px;
 
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.08));
 }
 
 .admin-modal-header .eyebrow {
   display: block;
+
   margin-bottom: 7px;
 
   color: #647287;
+
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -514,42 +765,95 @@
   margin: 0;
 
   color: #f1f5fa;
+
   font-family: "Space Grotesk", Inter, system-ui, sans-serif;
   font-size: 22px;
   font-weight: 600;
+
+  line-height: 1.25;
+
   letter-spacing: -0.03em;
 }
+
+.admin-modal-header p {
+  margin: 6px 0 0;
+
+  color: #74839a;
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   DETAIL STATUS BAR
+   ========================================================= */
 
 .admin-detail-status {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 15px;
 
   padding: 15px 25px;
 
   background: rgba(255, 255, 255, 0.018);
+
   border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+}
+
+.admin-detail-status > span {
+  color: #687589;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .admin-detail-status select {
   height: 36px;
-  padding: 0 10px;
 
-  border: 1px solid var(--line);
+  padding: 0 32px 0 10px;
+
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   border-radius: 8px;
   outline: none;
 
-  background: #0d131b;
+  background:
+    #0d131b
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%2369778a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")
+    no-repeat right 10px center;
+
   color: #aeb9c8;
 
   font: inherit;
   font-size: 10px;
+
+  cursor: pointer;
+
+  appearance: none;
 }
+
+.admin-detail-status select:focus {
+  border-color: rgba(92, 210, 255, 0.35);
+}
+
+.admin-detail-status select option {
+  background: #0d131b;
+  color: #e4eaf2;
+}
+
+/* =========================================================
+   DETAIL GRID
+   ========================================================= */
 
 .admin-detail-grid {
   display: grid;
+
   grid-template-columns: repeat(2, minmax(0, 1fr));
+
   gap: 1px;
 
   margin: 20px 25px;
@@ -557,12 +861,18 @@
   overflow: hidden;
 
   background: rgba(255, 255, 255, 0.055);
+
   border: 1px solid rgba(255, 255, 255, 0.055);
   border-radius: 12px;
 }
 
+/* =========================================================
+   DETAIL ITEM
+   ========================================================= */
+
 .admin-detail-item {
   min-width: 0;
+
   padding: 15px;
 
   background: rgba(8, 13, 20, 0.88);
@@ -576,27 +886,40 @@
   margin-bottom: 7px;
 
   color: #687589;
+
   font-size: 8px;
   font-weight: 700;
+
   letter-spacing: 0.09em;
   text-transform: uppercase;
+}
+
+.admin-detail-item > span svg {
+  color: #657287;
 }
 
 .admin-detail-item strong,
 .admin-detail-item a {
   display: block;
 
+  min-width: 0;
+
   overflow: hidden;
 
   color: #d9e1eb;
+
   font-size: 11px;
   font-weight: 500;
+
+  line-height: 1.5;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .admin-detail-item a {
   color: #70dfff;
+
   text-decoration: none;
 }
 
@@ -604,93 +927,182 @@
   text-decoration: underline;
 }
 
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
 .admin-description {
   margin: 0 25px 20px;
+
   padding: 17px;
 
   background: rgba(255, 255, 255, 0.022);
+
   border: 1px solid rgba(255, 255, 255, 0.055);
   border-radius: 12px;
 }
 
 .admin-description > span {
   display: block;
+
   margin-bottom: 9px;
 
   color: #687589;
+
   font-size: 8px;
   font-weight: 700;
+
   letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .admin-description p {
   margin: 0;
 
   color: #a5b0c0;
+
   font-size: 11px;
   line-height: 1.7;
+
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
+
+/* =========================================================
+   MODAL ACTIONS
+   ========================================================= */
 
 .admin-modal-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
   gap: 9px;
 
   padding: 16px 25px;
 
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+
   background: rgba(255, 255, 255, 0.012);
 }
 
-.admin-outline-button,
-.admin-danger-button {
+/* =========================================================
+   OUTLINE BUTTON
+   ========================================================= */
+
+.admin-outline-button {
   min-height: 38px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 7px;
 
   padding: 0 14px;
 
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #aab5c4;
 
   font: inherit;
   font-size: 10px;
   font-weight: 600;
 
   cursor: pointer;
-  text-decoration: none;
-  transition: 0.2s ease;
-}
 
-.admin-outline-button {
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.025);
-  color: #aab5c4;
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .admin-outline-button:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+
+  border-color: rgba(255, 255, 255, 0.13);
+
+  color: #ffffff;
 }
 
+.admin-outline-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   DANGER BUTTON
+   ========================================================= */
+
 .admin-danger-button {
+  min-height: 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 14px;
+
   border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+
   background: rgba(239, 68, 68, 0.055);
+
   color: #ff7f8e;
+
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .admin-danger-button:hover {
   background: rgba(239, 68, 68, 0.1);
+
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-/* =========================
+.admin-danger-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   GENERIC DRAWER CONTENT
+   ========================================================= */
+
+.enquiry-details-modal h2,
+.admin-modal-content h2 {
+  margin: 0;
+
+  color: #f1f5fa;
+
+  font-family: "Space Grotesk", Inter, system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.enquiry-details-modal p,
+.admin-modal-content p {
+  color: #a5b0c0;
+  line-height: 1.6;
+}
+
+/* =========================================================
    ANIMATIONS
-   ========================= */
+   ========================================================= */
 
 @keyframes enquiryBackdropIn {
   from {
@@ -714,9 +1126,35 @@
   }
 }
 
-/* =========================
-   RESPONSIVE
-   ========================= */
+@keyframes enquiryDrawerIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* =========================================================
+   LARGE TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .admin-page-heading {
+    gap: 18px;
+  }
+
+  .admin-table {
+    min-width: 850px;
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 800px) {
   .admin-toolbar {
@@ -729,11 +1167,23 @@
 
   .admin-toolbar > select {
     flex: 1;
+    min-width: 0;
+  }
+
+  .admin-table {
+    min-width: 820px;
   }
 }
 
-@media (max-width: 600px) {
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 680px) {
   .admin-page-heading {
+    flex-direction: column;
+    gap: 0;
+
     margin-bottom: 20px;
   }
 
@@ -745,26 +1195,94 @@
     font-size: 12px;
   }
 
-  .admin-detail-grid {
-    grid-template-columns: 1fr;
+  /* -------------------------
+     TOOLBAR
+     ------------------------- */
+
+  .admin-toolbar {
+    flex-wrap: wrap;
+    gap: 8px;
+
+    margin-bottom: 14px;
   }
+
+  .admin-search {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 100%;
+
+    height: 44px;
+  }
+
+  .admin-toolbar > select {
+    flex: 1;
+
+    min-width: 0;
+    height: 42px;
+  }
+
+  .admin-icon-button {
+    width: 42px;
+    height: 42px;
+
+    flex: 0 0 42px;
+  }
+
+  /* -------------------------
+     TABLE
+     ------------------------- */
+
+  .admin-table {
+    min-width: 760px;
+  }
+
+  .admin-table th {
+    height: 42px;
+    padding: 0 14px;
+
+    font-size: 8px;
+  }
+
+  .admin-table td {
+    padding: 14px;
+
+    font-size: 10px;
+  }
+
+  .admin-table td:first-child {
+    min-width: 170px;
+  }
+
+  /* -------------------------
+     MODAL
+     ------------------------- */
 
   .admin-modal-backdrop {
     padding: 12px;
   }
 
   .admin-modal {
+    width: 100%;
     max-height: calc(100vh - 24px);
+
     border-radius: 14px;
   }
 
-  .admin-modal-header,
+  .admin-modal-header {
+    padding: 20px 18px;
+  }
+
+  .admin-modal-header h2 {
+    font-size: 19px;
+  }
+
   .admin-detail-status {
-    padding-left: 18px;
-    padding-right: 18px;
+    padding: 13px 18px;
   }
 
   .admin-detail-grid {
+    grid-template-columns: 1fr;
+
     margin-left: 18px;
     margin-right: 18px;
   }
@@ -775,8 +1293,8 @@
   }
 
   .admin-modal-actions {
-    padding-left: 18px;
-    padding-right: 18px;
+    padding: 14px 18px;
+
     flex-wrap: wrap;
   }
 
@@ -784,20 +1302,147 @@
   .admin-danger-button {
     flex: 1;
   }
+
+  /* -------------------------
+     DRAWER
+     ------------------------- */
+
+  .enquiry-details-modal,
+  .admin-modal-content {
+    max-width: 100%;
+
+    padding: 20px;
+
+    border-left: none;
+  }
 }
-@media (max-width: 768px) {
-  /* Dynamic grid fallback for item listings */
-  .opportunity-list,
-  .developer-cards,
-  .enquiry-list {
-    grid-template-columns: 1fr !important;
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+  .admin-page-heading h1 {
+    font-size: 25px;
   }
 
-  /* Compact card paddings for mobile viewports */
-  .card, 
-  .enquiry-card, 
-  .developer-card {
-    padding: 1rem;
-    margin-bottom: 1rem;
+  .admin-page-heading p {
+    font-size: 11px;
+  }
+
+  .admin-toolbar > select {
+    font-size: 10px;
+  }
+
+  .admin-table {
+    min-width: 720px;
+  }
+
+  .admin-table th {
+    padding: 0 12px;
+  }
+
+  .admin-table td {
+    padding: 13px 12px;
+  }
+
+  .admin-table td strong {
+    font-size: 11px;
+  }
+
+  .admin-table td small {
+    font-size: 8px;
+  }
+
+  .admin-table .status-badge {
+    padding: 5px 8px;
+
+    font-size: 7px;
+  }
+
+  .admin-modal-header {
+    padding: 18px 15px;
+  }
+
+  .admin-detail-status {
+    padding: 12px 15px;
+  }
+
+  .admin-detail-grid {
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+
+  .admin-description {
+    margin-left: 15px;
+    margin-right: 15px;
+
+    padding: 14px;
+  }
+
+  .admin-modal-actions {
+    padding: 13px 15px;
+  }
+
+  .enquiry-details-modal,
+  .admin-modal-content {
+    padding: 16px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 360px) {
+  .admin-toolbar {
+    gap: 7px;
+  }
+
+  .admin-toolbar > select {
+    flex-basis: calc(100% - 49px);
+  }
+
+  .admin-icon-button {
+    flex: 0 0 42px;
+  }
+
+  .admin-table {
+    min-width: 680px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+.admin-icon-button:focus-visible,
+.admin-outline-button:focus-visible,
+.admin-danger-button:focus-visible,
+.admin-search input:focus-visible,
+.admin-toolbar select:focus-visible,
+.admin-detail-status select:focus-visible {
+  outline: 2px solid rgba(92, 210, 255, 0.55);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-icon-button,
+  .admin-outline-button,
+  .admin-danger-button,
+  .admin-table tbody tr,
+  .admin-search,
+  .enquiry-details-modal,
+  .admin-modal-content,
+  .admin-modal,
+  .admin-modal-backdrop,
+  .enquiry-details-overlay,
+  .admin-modal-overlay {
+    animation: none;
+    transition: none;
   }
 }
