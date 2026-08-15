@@ -97,19 +97,45 @@ export async function getAllSkills() {
 // ============================================================
 
 export async function getOpenOpportunities() {
-  const { data, error } = await supabase
-    .from("opportunities")
-    .select("*")
-    .eq("status", "open")
-    .order("created_at", {
-      ascending: false,
-    });
+  const developerProfile = await getCurrentDeveloperProfile();
 
-  if (error) {
-    throw error;
+  const { data: opportunities, error: opportunitiesError } =
+    await supabase
+      .from("opportunities")
+      .select("*")
+      .eq("status", "open")
+      .order("created_at", {
+        ascending: false,
+      });
+
+  if (opportunitiesError) {
+    throw opportunitiesError;
   }
 
-  return data || [];
+  if (!opportunities?.length) {
+    return [];
+  }
+
+  const { data: applications, error: applicationsError } =
+    await supabase
+      .from("opportunity_applications")
+      .select("opportunity_id")
+      .eq("developer_id", developerProfile.id);
+
+  if (applicationsError) {
+    throw applicationsError;
+  }
+
+  const appliedOpportunityIds = new Set(
+    (applications || []).map(
+      (application) => application.opportunity_id
+    )
+  );
+
+  return opportunities.filter(
+    (opportunity) =>
+      !appliedOpportunityIds.has(opportunity.id)
+  );
 }
 
 // ============================================================
