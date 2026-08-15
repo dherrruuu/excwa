@@ -1,0 +1,25 @@
+/* Mobile-First Responsive Base */
+:root {
+  --container-padding: 1rem;
+  --font-size-base: 14px;
+  --sidebar-width: 100%;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: var(--font-size-base);
+  }
+
+  body {
+    overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
+  }
+
+  /* Full-width container adjustments */
+  .container, 
+  .main-content, 
+  .dashboard-wrapper {
+    width: 100% !important;
+    padding: var(--container-padding) !important;
+    margin: 0 !important;
+  }
+}

@@ -1,0 +1,23 @@
+@media (max-width: 576px) {
+  /* Center and expand auth forms on small screens */
+  .auth-card,
+  .login-container,
+  .settings-form {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1.5rem 1rem;
+    box-shadow: none;
+  }
+
+  /* Touch-friendly inputs and buttons */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  select,
+  textarea,
+  .btn {
+    width: 100%;
+    min-height: 44px; /* Optimal iOS touch target size */
+    font-size: 16px; /* Prevents auto-zoom on iOS Safari */
+  }
+}
