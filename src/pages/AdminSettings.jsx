@@ -1,4 +1,5 @@
 import React from "react";
+import "../styles/admin-settings.css";
 import { Settings, ShieldCheck, Database, Bell } from "lucide-react";
 
 export default function AdminSettings() {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "../styles/admin-developers.css";
 import {
   Search,
   Eye,

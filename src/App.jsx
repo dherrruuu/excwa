@@ -12,6 +12,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminEnquiries from "./pages/AdminEnquiries";
 import AdminDevelopers from "./pages/AdminDevelopers";
+import AdminOpportunities from "./pages/AdminOpportunities";
 import AdminSettings from "./pages/AdminSettings";
 
 import AdminLayout from "./components/admin/AdminLayout";
@@ -29,7 +30,6 @@ import DevSuspended from "./pages/developer/DevSuspended";
 import DevDashboard from "./pages/developer/DevDashboard";
 
 import DevProtectedRoute from "./components/developer/DevProtectedRoute";
-
 
 export default function App() {
   return (
@@ -133,6 +133,12 @@ export default function App() {
             <Route
               path="developers"
               element={<AdminDevelopers />}
+            />
+
+            {/* Opportunities */}
+            <Route
+              path="opportunities"
+              element={<AdminOpportunities />}
             />
 
             {/* Settings */}

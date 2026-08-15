@@ -9,6 +9,7 @@ import {
   EyeOff,
   Sparkles,
 } from "lucide-react";
+import "../styles/admin-auth.css";
 
 import ExcwaLogo from "../components/common/ExcwaLogo";
 import { supabase } from "../lib/supabase";

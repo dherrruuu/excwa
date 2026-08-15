@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-
+import "../styles/admin-enquiries.css";
 import {
   Search,
   RefreshCcw,

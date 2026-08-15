@@ -4,6 +4,7 @@ import {
   Settings,
   ExternalLink,
   Users,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -79,6 +80,19 @@ export default function AdminSidebar() {
         >
           <Users size={18} />
           Developer Applications
+        </NavLink>
+
+        {/* OPPORTUNITIES */}
+        <NavLink
+          to="/admin/opportunities"
+          className={({ isActive }) =>
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
+          }
+        >
+          <BriefcaseBusiness size={18} />
+          Opportunities
         </NavLink>
 
         {/* SETTINGS */}
