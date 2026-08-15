@@ -44,6 +44,10 @@ export default function DeveloperApplicationForm({ onClose }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
+  // =========================================================
+  // FORM CHANGE
+  // =========================================================
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -52,6 +56,10 @@ export default function DeveloperApplicationForm({ onClose }) {
       [name]: value,
     }));
   };
+
+  // =========================================================
+  // ROLE SELECTION
+  // =========================================================
 
   const handleRoleChange = (role) => {
     setForm((prev) => {
@@ -66,6 +74,10 @@ export default function DeveloperApplicationForm({ onClose }) {
     });
   };
 
+  // =========================================================
+  // PROFILE PHOTO
+  // =========================================================
+
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
 
@@ -76,6 +88,8 @@ export default function DeveloperApplicationForm({ onClose }) {
       return;
     }
 
+    // Must match Supabase profile-photos bucket limit.
+    // Bucket should be configured to 5MB.
     if (file.size > 5 * 1024 * 1024) {
       setError("Profile photo must be less than 5MB.");
       return;
@@ -84,6 +98,10 @@ export default function DeveloperApplicationForm({ onClose }) {
     setProfilePhoto(file);
     setError("");
   };
+
+  // =========================================================
+  // RESUME
+  // =========================================================
 
   const handleResumeChange = (e) => {
     const file = e.target.files?.[0];
@@ -110,26 +128,71 @@ export default function DeveloperApplicationForm({ onClose }) {
     setError("");
   };
 
+  // =========================================================
+  // STORAGE UPLOAD
+  // =========================================================
+
   const uploadFile = async (file, bucket, folder) => {
-    const extension = file.name.split(".").pop();
+    if (!file) {
+      throw new Error("No file selected.");
+    }
+
+    const originalExtension =
+      file.name.includes(".")
+        ? file.name.split(".").pop().toLowerCase()
+        : "";
+
+    const extension =
+      originalExtension ||
+      (file.type === "application/pdf" ? "pdf" : "bin");
 
     const fileName = `${crypto.randomUUID()}.${extension}`;
 
     const filePath = `${folder}/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    console.log("Uploading file:", {
+      bucket,
+      filePath,
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+    });
+
+    const { data, error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(filePath, file, {
         cacheControl: "3600",
         upsert: false,
+        contentType: file.type,
       });
 
     if (uploadError) {
-      throw uploadError;
+      console.error("Storage upload failed:", {
+        bucket,
+        filePath,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        error: uploadError,
+      });
+
+      throw new Error(
+        uploadError.message || `Unable to upload ${file.name}.`
+      );
     }
+
+    console.log("Storage upload successful:", {
+      bucket,
+      filePath,
+      data,
+    });
 
     return filePath;
   };
+
+  // =========================================================
+  // VALIDATION
+  // =========================================================
 
   const validate = () => {
     if (!form.full_name.trim()) {
@@ -167,6 +230,10 @@ export default function DeveloperApplicationForm({ onClose }) {
     return "";
   };
 
+  // =========================================================
+  // SUBMIT
+  // =========================================================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -185,79 +252,98 @@ export default function DeveloperApplicationForm({ onClose }) {
     let uploadedResumePath = null;
 
     try {
-      /*
-       * ======================================================
-       * 1. Upload profile photo
-       * ======================================================
-       */
+      // -----------------------------------------------------
+      // 1. Upload profile photo
+      // -----------------------------------------------------
 
-      uploadedPhotoPath = await uploadFile(
-        profilePhoto,
-        "profile-photos",
-        "applications"
+      try {
+        uploadedPhotoPath = await uploadFile(
+          profilePhoto,
+          "profile-photos",
+          "applications"
+        );
+      } catch (photoError) {
+        throw new Error(
+          `Profile photo upload failed: ${
+            photoError?.message || "Unable to upload profile photo."
+          }`
+        );
+      }
+
+      // -----------------------------------------------------
+      // 2. Upload resume
+      // -----------------------------------------------------
+
+      try {
+        uploadedResumePath = await uploadFile(
+          resume,
+          "developer-resumes",
+          "applications"
+        );
+      } catch (resumeError) {
+        throw new Error(
+          `Resume upload failed: ${
+            resumeError?.message || "Unable to upload resume."
+          }`
+        );
+      }
+
+      // -----------------------------------------------------
+      // 3. Create developer application
+      // -----------------------------------------------------
+
+      const applicationPayload = {
+        full_name: form.full_name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim().toLowerCase(),
+        city: form.city.trim(),
+        education: form.education.trim(),
+
+        github_url:
+          form.github_url.trim() || null,
+
+        linkedin_url:
+          form.linkedin_url.trim() || null,
+
+        portfolio_url:
+          form.portfolio_url.trim() || null,
+
+        primary_roles: form.primary_roles,
+
+        profile_photo_path: uploadedPhotoPath,
+        resume_path: uploadedResumePath,
+
+        status: "pending",
+      };
+
+      console.log(
+        "Creating developer application:",
+        applicationPayload
       );
-
-      /*
-       * ======================================================
-       * 2. Upload resume
-       * ======================================================
-       */
-
-      uploadedResumePath = await uploadFile(
-        resume,
-        "developer-resumes",
-        "applications"
-      );
-
-      /*
-       * ======================================================
-       * 3. Create application
-       * ======================================================
-       */
 
       const { error: insertError } = await supabase
         .from("developer_applications")
-        .insert({
-          full_name: form.full_name.trim(),
-
-          phone: form.phone.trim(),
-
-          email: form.email.trim().toLowerCase(),
-
-          city: form.city.trim(),
-
-          education: form.education.trim(),
-
-          github_url:
-            form.github_url.trim() || null,
-
-          linkedin_url:
-            form.linkedin_url.trim() || null,
-
-          portfolio_url:
-            form.portfolio_url.trim() || null,
-
-          primary_roles: form.primary_roles,
-
-          profile_photo_path: uploadedPhotoPath,
-
-          resume_path: uploadedResumePath,
-
-          status: "pending",
-        });
+        .insert(applicationPayload);
 
       if (insertError) {
-        throw insertError;
+        console.error(
+          "Developer application insert failed:",
+          insertError
+        );
+
+        throw new Error(
+          `Application submission failed: ${
+            insertError.message ||
+            "Unable to save your application."
+          }`
+        );
       }
 
-      /*
-       * ======================================================
-       * SUCCESS
-       * ======================================================
-       */
+      // -----------------------------------------------------
+      // SUCCESS
+      // -----------------------------------------------------
 
       setSuccess(true);
-
     } catch (err) {
       console.error(
         "Developer application error:",
@@ -268,22 +354,18 @@ export default function DeveloperApplicationForm({ onClose }) {
         err?.message ||
           "Unable to submit your application. Please try again."
       );
-
     } finally {
       setLoading(false);
     }
   };
 
-  /*
-   * ==========================================================
-   * SUCCESS SCREEN
-   * ==========================================================
-   */
+  // =========================================================
+  // SUCCESS SCREEN
+  // =========================================================
 
   if (success) {
     return (
       <div className="developer-application-overlay">
-
         <div className="developer-application-card success-card">
 
           <button
@@ -327,29 +409,31 @@ export default function DeveloperApplicationForm({ onClose }) {
           </button>
 
         </div>
-
       </div>
     );
   }
 
-  /*
-   * ==========================================================
-   * APPLICATION FORM
-   * ==========================================================
-   */
+  // =========================================================
+  // APPLICATION FORM
+  // =========================================================
 
   return (
     <div className="developer-application-overlay">
 
       <div className="developer-application-card">
 
+        {/* CLOSE */}
+
         <button
           type="button"
           className="developer-form-close"
           onClick={onClose}
+          disabled={loading}
         >
           <X size={20} />
         </button>
+
+        {/* HEADER */}
 
         <div className="developer-form-header">
 
@@ -371,9 +455,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
         <form onSubmit={handleSubmit}>
 
-          {/* ==================================================
+          {/* =================================================
               BASIC INFORMATION
-          ================================================== */}
+          ================================================= */}
 
           <div className="developer-form-section">
 
@@ -472,9 +556,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
-          {/* ==================================================
+          {/* =================================================
               PROFILE PHOTO
-          ================================================== */}
+          ================================================= */}
 
           <div className="developer-form-section">
 
@@ -508,9 +592,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
-          {/* ==================================================
+          {/* =================================================
               PROFESSIONAL PROFILES
-          ================================================== */}
+          ================================================= */}
 
           <div className="developer-form-section">
 
@@ -523,7 +607,9 @@ export default function DeveloperApplicationForm({ onClose }) {
               <div className="developer-form-field">
 
                 <label>
-                  <span style={{ fontWeight: 700 }}>GH</span>
+                  <span style={{ fontWeight: 700 }}>
+                    GH
+                  </span>
                   GitHub
                 </label>
 
@@ -541,7 +627,9 @@ export default function DeveloperApplicationForm({ onClose }) {
               <div className="developer-form-field">
 
                 <label>
-                  <span style={{ fontWeight: 700 }}>in</span>
+                  <span style={{ fontWeight: 700 }}>
+                    in
+                  </span>
                   LinkedIn
                 </label>
 
@@ -578,9 +666,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
-          {/* ==================================================
+          {/* =================================================
               ROLES
-          ================================================== */}
+          ================================================= */}
 
           <div className="developer-form-section">
 
@@ -621,9 +709,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
-          {/* ==================================================
+          {/* =================================================
               RESUME
-          ================================================== */}
+          ================================================= */}
 
           <div className="developer-form-section">
 
@@ -657,9 +745,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
-          {/* ==================================================
+          {/* =================================================
               ERROR
-          ================================================== */}
+          ================================================= */}
 
           {error && (
             <div className="developer-form-error">
@@ -667,9 +755,9 @@ export default function DeveloperApplicationForm({ onClose }) {
             </div>
           )}
 
-          {/* ==================================================
+          {/* =================================================
               SUBMIT
-          ================================================== */}
+          ================================================= */}
 
           <button
             type="submit"
