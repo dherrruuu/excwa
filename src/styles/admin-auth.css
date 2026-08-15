@@ -210,3 +210,119 @@ body, html {
     box-shadow: none;
   }
 }
+/* Reset Page Container */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #05070f;
+  color: #ffffff;
+  font-family: system-ui, -apple-system, sans-serif;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* Auth Page Wrapper */
+.auth-container, 
+div:has(> .auth-card),
+div:has(> form) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  width: 100%;
+}
+
+/* Card Container */
+.auth-card,
+form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fix Inputs and Icon Alignment */
+.input-group,
+.input-wrapper,
+div:has(> input) {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+input {
+  width: 100% !important;
+  min-height: 48px !important;
+  padding: 0.75rem 2.5rem 0.75rem 2.5rem !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 6px !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  box-sizing: border-box !important;
+}
+
+/* Absolute Positioning for Left Icons & Right Eye Toggle */
+.input-icon-left,
+div:has(> input) > svg:first-child,
+div:has(> input) > i:first-child {
+  position: absolute !important;
+  left: 12px !important;
+  pointer-events: none;
+}
+
+button:has(svg),
+.toggle-password,
+div:has(> input) > button,
+div:has(> input) > svg:last-child {
+  position: absolute !important;
+  right: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fix Submit Button Layout */
+button[type="submit"],
+.submit-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: 48px !important;
+  margin-top: 1rem !important;
+  margin-bottom: 1.5rem !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+}
+
+/* Footer Alignment & Spacing */
+.protection-notice,
+.copyright,
+footer,
+div:has(> p) p {
+  display: block !important;
+  margin-top: 0.5rem !important;
+  line-height: 1.5 !important;
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.6) !important;
+}
