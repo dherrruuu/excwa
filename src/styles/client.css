@@ -3131,3 +3131,528 @@ footer {
     justify-content: center;
   }
 }
+/* =========================================================
+   EXCWA DEVELOPER APPLICATION
+   ========================================================= */
+
+.developer-application-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow-y: auto;
+  padding: 40px 20px;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(80, 120, 255, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(120, 70, 255, 0.10), transparent 35%),
+    #07090d;
+}
+
+.developer-application-card {
+  position: relative;
+  width: min(920px, 100%);
+  margin: 0 auto;
+  padding: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 24, 34, 0.97),
+      rgba(10, 13, 19, 0.98)
+    );
+  box-shadow:
+    0 30px 100px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+}
+
+.developer-form-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.7);
+
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.developer-form-close:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: white;
+  transform: rotate(90deg);
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.developer-form-header {
+  max-width: 700px;
+  margin-bottom: 42px;
+}
+
+.developer-form-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+
+  color: #8fa8ff;
+}
+
+.developer-form-header h2 {
+  margin: 0;
+
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+
+  color: white;
+}
+
+.developer-form-header h2 span {
+  color: #8fa8ff;
+}
+
+.developer-form-header p {
+  max-width: 620px;
+  margin-top: 16px;
+
+  font-size: 15px;
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.55);
+}
+
+
+/* =========================================================
+   FORM SECTIONS
+   ========================================================= */
+
+.developer-form-section {
+  margin-top: 34px;
+  padding-top: 30px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.developer-form-section h3 {
+  margin: 0 0 18px;
+
+  font-size: 16px;
+  font-weight: 650;
+
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.developer-form-help {
+  margin: -8px 0 18px;
+
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.developer-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.developer-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.developer-form-field label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  color: rgba(255, 255, 255, 0.65);
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.developer-form-field input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 14px 15px;
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 11px;
+
+  outline: none;
+
+  background: rgba(255, 255, 255, 0.035);
+  color: white;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.developer-form-field input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.developer-form-field input:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.developer-form-field input:focus {
+  border-color: rgba(143, 168, 255, 0.65);
+
+  background: rgba(143, 168, 255, 0.045);
+
+  box-shadow:
+    0 0 0 3px rgba(143, 168, 255, 0.08);
+}
+
+.developer-form-field input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   UPLOAD BOX
+   ========================================================= */
+
+.developer-upload-box {
+  min-height: 145px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  padding: 25px;
+
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: rgba(255, 255, 255, 0.65);
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+}
+
+.developer-upload-box:hover {
+  border-color: rgba(143, 168, 255, 0.55);
+  background: rgba(143, 168, 255, 0.045);
+  transform: translateY(-1px);
+}
+
+.developer-upload-box svg {
+  color: #8fa8ff;
+}
+
+.developer-upload-box span {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.developer-upload-box small {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+
+/* =========================================================
+   ROLE SELECTION
+   ========================================================= */
+
+.developer-role-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.developer-role {
+  padding: 10px 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(255, 255, 255, 0.58);
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 550;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.developer-role:hover {
+  border-color: rgba(143, 168, 255, 0.45);
+  color: white;
+  background: rgba(143, 168, 255, 0.06);
+}
+
+.developer-role.selected {
+  border-color: rgba(143, 168, 255, 0.7);
+  background: rgba(143, 168, 255, 0.13);
+  color: white;
+  box-shadow: 0 0 20px rgba(143, 168, 255, 0.08);
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.developer-form-error {
+  margin-top: 22px;
+  padding: 13px 15px;
+
+  border: 1px solid rgba(255, 90, 90, 0.25);
+  border-radius: 10px;
+
+  background: rgba(255, 70, 70, 0.06);
+
+  color: #ff9b9b;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON
+   ========================================================= */
+
+.developer-submit-btn {
+  width: 100%;
+  margin-top: 28px;
+
+  min-height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  border: 0;
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #d9e0ff
+  );
+
+  color: #080a0f;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.developer-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 35px rgba(255, 255, 255, 0.12);
+}
+
+.developer-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   NOTE
+   ========================================================= */
+
+.developer-form-note {
+  max-width: 650px;
+
+  margin: 14px auto 0;
+
+  text-align: center;
+
+  font-size: 11px;
+  line-height: 1.6;
+
+  color: rgba(255, 255, 255, 0.3);
+}
+
+
+/* =========================================================
+   SUCCESS
+   ========================================================= */
+
+.success-card {
+  max-width: 580px;
+  text-align: center;
+  padding: 60px 42px;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+
+  margin: 0 auto 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(80, 220, 150, 0.08);
+  border: 1px solid rgba(80, 220, 150, 0.2);
+
+  color: #75e0aa;
+}
+
+.success-card h2 {
+  margin: 0 0 15px;
+
+  color: white;
+
+  font-size: 30px;
+  letter-spacing: -0.03em;
+}
+
+.success-card p {
+  margin: 8px auto;
+
+  max-width: 470px;
+
+  color: rgba(255, 255, 255, 0.52);
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.success-card .primary-btn {
+  margin-top: 24px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .developer-application-overlay {
+    padding: 15px;
+  }
+
+  .developer-application-card {
+    padding: 28px 20px;
+    border-radius: 18px;
+  }
+
+  .developer-form-close {
+    top: 14px;
+    right: 14px;
+  }
+
+  .developer-form-header {
+    padding-right: 35px;
+    margin-bottom: 30px;
+  }
+
+  .developer-form-header h2 {
+    font-size: 34px;
+  }
+
+  .developer-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .developer-form-field.full-width {
+    grid-column: auto;
+  }
+
+  .developer-role-grid {
+    gap: 7px;
+  }
+
+  .developer-role {
+    font-size: 11px;
+    padding: 9px 11px;
+  }
+
+  .success-card {
+    padding: 45px 22px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .developer-form-header h2 {
+    font-size: 29px;
+  }
+
+  .developer-form-section {
+    margin-top: 27px;
+    padding-top: 24px;
+  }
+
+  .developer-upload-box {
+    min-height: 125px;
+  }
+}

@@ -3,6 +3,7 @@ import {
   MessageSquareText,
   Settings,
   ExternalLink,
+  Users,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -20,6 +21,7 @@ export default function AdminSidebar() {
   return (
     <aside className="admin-sidebar">
 
+      {/* BRAND */}
       <div className="admin-sidebar-brand">
 
         <ExcwaLogo size={32} />
@@ -31,37 +33,61 @@ export default function AdminSidebar() {
 
       </div>
 
+      {/* NAVIGATION LABEL */}
       <div className="admin-nav-label">
         MANAGEMENT
       </div>
 
+      {/* NAVIGATION */}
       <nav className="admin-nav">
 
+        {/* DASHBOARD */}
         <NavLink
           to="/admin"
           end
           className={({ isActive }) =>
-            isActive ? "admin-nav-item active" : "admin-nav-item"
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
           }
         >
           <LayoutDashboard size={18} />
           Dashboard
         </NavLink>
 
+        {/* ENQUIRIES */}
         <NavLink
           to="/admin/enquiries"
           className={({ isActive }) =>
-            isActive ? "admin-nav-item active" : "admin-nav-item"
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
           }
         >
           <MessageSquareText size={18} />
           Enquiries
         </NavLink>
 
+        {/* DEVELOPER APPLICATIONS */}
+        <NavLink
+          to="/admin/developers"
+          className={({ isActive }) =>
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
+          }
+        >
+          <Users size={18} />
+          Developer Applications
+        </NavLink>
+
+        {/* SETTINGS */}
         <NavLink
           to="/admin/settings"
           className={({ isActive }) =>
-            isActive ? "admin-nav-item active" : "admin-nav-item"
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
           }
         >
           <Settings size={18} />
@@ -70,6 +96,7 @@ export default function AdminSidebar() {
 
       </nav>
 
+      {/* BOTTOM */}
       <div className="admin-sidebar-bottom">
 
         <a
