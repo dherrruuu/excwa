@@ -17,6 +17,7 @@ import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import AdminOpportunities from "./pages/admin/AdminOpportunities";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminSettings from "./pages/admin/AdminSettings";
+
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
@@ -34,7 +35,6 @@ import DevDashboard from "./pages/developer/DevDashboard";
 
 import DevProtectedRoute from "./components/developer/DevProtectedRoute";
 
-
 // ============================================================
 // APP
 // ============================================================
@@ -44,9 +44,9 @@ export default function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* ====================================================
+        {/* ======================================================
             PUBLIC WEBSITE
-            ==================================================== */}
+            ====================================================== */}
 
         <Route
           path="/"
@@ -54,9 +54,9 @@ export default function App() {
         />
 
 
-        {/* ====================================================
+        {/* ======================================================
             DEVELOPER AUTH
-            ==================================================== */}
+            ====================================================== */}
 
         <Route
           path="/developer/login"
@@ -89,9 +89,9 @@ export default function App() {
         />
 
 
-        {/* ====================================================
+        {/* ======================================================
             DEVELOPER PROTECTED ROUTES
-            ==================================================== */}
+            ====================================================== */}
 
         <Route element={<DevProtectedRoute />}>
 
@@ -103,9 +103,9 @@ export default function App() {
         </Route>
 
 
-        {/* ====================================================
+        {/* ======================================================
             ADMIN LOGIN
-            ==================================================== */}
+            ====================================================== */}
 
         <Route
           path="/admin/login"
@@ -113,9 +113,9 @@ export default function App() {
         />
 
 
-        {/* ====================================================
+        {/* ======================================================
             ADMIN PROTECTED ROUTES
-            ==================================================== */}
+            ====================================================== */}
 
         <Route element={<AdminProtectedRoute />}>
 
@@ -124,37 +124,76 @@ export default function App() {
             element={<AdminLayout />}
           >
 
-            {/* Dashboard */}
+            {/* ==================================================
+                ADMIN DASHBOARD
+                /admin
+                ================================================== */}
+
             <Route
               index
               element={<AdminDashboard />}
             />
 
-            {/* Enquiries */}
+
+            {/* ==================================================
+                ENQUIRIES
+                /admin/enquiries
+                ================================================== */}
+
             <Route
               path="enquiries"
               element={<AdminEnquiries />}
             />
 
-            {/* Developers */}
+
+            {/* ==================================================
+                DEVELOPERS
+                /admin/developers
+                ================================================== */}
+
             <Route
               path="developers"
               element={<AdminDevelopers />}
             />
 
-            {/* Opportunities */}
+
+            {/* ==================================================
+                OPPORTUNITIES
+                /admin/opportunities
+                ================================================== */}
+
             <Route
               path="opportunities"
               element={<AdminOpportunities />}
             />
 
-            {/* Reviews */}
+
+            {/* ==================================================
+                REVIEWS
+                /admin/reviews
+                ==================================================
+                
+                Review details are opened as a panel from
+                AdminReviews.jsx.
+
+                There is intentionally NO:
+                /admin/reviews/:id
+
+                This prevents a page reload and prevents
+                AdminProtectedRoute from running again.
+                ================================================== */}
+
             <Route
               path="reviews"
               element={<AdminReviews />}
             />
 
-            {/* Settings */}
+
+            {/* ==================================================
+                SETTINGS
+                /admin/settings
+                ================================================== */}
+
             <Route
               path="settings"
               element={<AdminSettings />}

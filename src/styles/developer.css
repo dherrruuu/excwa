@@ -4,23 +4,29 @@
    GLOBAL STYLES
    ============================================================ */
 
+
 /* ============================================================
    ROOT VARIABLES
    ============================================================ */
 
 :root {
   --dev-bg: #080b10;
+  --dev-bg-soft: #0a0d12;
+
   --dev-surface: #0d1118;
   --dev-surface-2: #11161f;
   --dev-surface-3: #151b25;
 
   --dev-border: rgba(255, 255, 255, 0.07);
+  --dev-border-soft: rgba(255, 255, 255, 0.055);
   --dev-border-hover: rgba(255, 255, 255, 0.13);
 
   --dev-text: #f4f7fb;
   --dev-text-soft: #c7ced9;
+  --dev-text-muted: #8994a4;
   --dev-muted: #7d8796;
-  --dev-muted-2: #5f6978;
+  --dev-muted-2: #687384;
+  --dev-muted-3: #5f6978;
 
   --dev-cyan: #62e2ff;
   --dev-green: #69e5b7;
@@ -28,45 +34,86 @@
   --dev-red: #ff8585;
   --dev-purple: #9d8cff;
 
-  --dev-radius: 12px;
+  --dev-radius-sm: 6px;
+  --dev-radius: 10px;
+  --dev-radius-lg: 13px;
+  --dev-radius-xl: 14px;
+
   --dev-transition: 0.2s ease;
+
+  --dev-sidebar-width: 230px;
 }
 
 
 /* ============================================================
-   GLOBAL BOX SIZING
+   GLOBAL RESET
    ============================================================ */
 
 html {
-  /*
-    Always reserve scrollbar space.
+  width: 100%;
+  max-width: 100%;
 
-    This prevents the whole dashboard from moving
-    left/right when changing between tabs with different
-    content heights.
-  */
+  margin: 0;
+  padding: 0;
+
   overflow-y: scroll;
+  overflow-x: hidden;
+
+  background: var(--dev-bg);
 }
 
 html,
 body {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-
-  overflow-x: hidden;
+  min-height: 100%;
 }
 
 body {
+  width: 100%;
+  max-width: 100%;
+
+  margin: 0;
+  padding: 0;
+
   background: var(--dev-bg);
   color: var(--dev-text);
+
+  overflow-x: hidden;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+
+/* ============================================================
+   LINKS / FORMS
+   ============================================================ */
+
+.developer-dashboard button,
+.developer-dashboard input,
+.developer-dashboard textarea,
+.developer-dashboard select {
+  font: inherit;
+}
+
+.developer-dashboard button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.developer-dashboard a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.developer-dashboard img,
+.developer-dashboard video,
+.developer-dashboard iframe {
+  max-width: 100%;
 }
 
 
@@ -88,31 +135,12 @@ body {
 
 
 /* ============================================================
-   FORM ELEMENTS
-   ============================================================ */
-
-.developer-dashboard button,
-.developer-dashboard input,
-.developer-dashboard textarea,
-.developer-dashboard select {
-  font: inherit;
-}
-
-.developer-dashboard button {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.developer-dashboard a {
-  color: inherit;
-  text-decoration: none;
-}
-
-
-/* ============================================================
-   DASHBOARD LAYOUT
+   MAIN LAYOUT
    ============================================================ */
 
 .developer-layout {
+  position: relative;
+
   width: 100%;
   max-width: 100%;
 
@@ -122,11 +150,11 @@ body {
 
   background:
     radial-gradient(
-      circle at top right,
-      rgba(98, 226, 255, 0.025),
-      transparent 30%
+      circle at 80% 0%,
+      rgba(98, 226, 255, 0.018),
+      transparent 28%
     ),
-    #080b10;
+    var(--dev-bg);
 
   overflow-x: hidden;
 }
@@ -143,16 +171,16 @@ body {
   left: 0;
   bottom: 0;
 
-  width: 230px;
+  width: var(--dev-sidebar-width);
 
   display: flex;
   flex-direction: column;
 
   padding: 20px 14px;
 
-  background: #0a0d12;
+  background: var(--dev-bg-soft);
 
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid var(--dev-border-soft);
 
   z-index: 100;
 
@@ -168,6 +196,8 @@ body {
 
 .developer-sidebar-logo {
   padding: 2px 8px 25px;
+
+  min-width: 0;
 }
 
 
@@ -176,8 +206,11 @@ body {
    ============================================================ */
 
 .developer-nav {
+  width: 100%;
+
   display: flex;
   flex-direction: column;
+
   gap: 4px;
 
   min-width: 0;
@@ -185,13 +218,14 @@ body {
 
 .developer-nav-item {
   width: 100%;
+  min-width: 0;
+
+  min-height: 38px;
 
   display: flex;
   align-items: center;
 
   gap: 10px;
-
-  min-height: 38px;
 
   padding: 0 11px;
 
@@ -217,11 +251,12 @@ body {
   width: 15px;
   height: 15px;
 
-  flex-shrink: 0;
+  flex: 0 0 15px;
 }
 
 .developer-nav-item:hover {
   background: rgba(255, 255, 255, 0.035);
+
   color: #cbd3dd;
 }
 
@@ -243,7 +278,9 @@ body {
 
   padding: 14px 8px 5px;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.055);
+  border-top: 1px solid var(--dev-border-soft);
+
+  min-width: 0;
 }
 
 .developer-user-name {
@@ -274,12 +311,12 @@ body {
    ============================================================ */
 
 .developer-main {
-  width: calc(100% - 230px);
-  max-width: calc(100% - 230px);
+  width: calc(100% - var(--dev-sidebar-width));
+  max-width: calc(100% - var(--dev-sidebar-width));
 
   min-height: 100vh;
 
-  margin-left: 230px;
+  margin-left: var(--dev-sidebar-width);
 
   background:
     radial-gradient(
@@ -287,7 +324,7 @@ body {
       rgba(98, 226, 255, 0.018),
       transparent 28%
     ),
-    #080b10;
+    var(--dev-bg);
 
   overflow-x: hidden;
 }
@@ -298,22 +335,26 @@ body {
    ============================================================ */
 
 .developer-topbar {
+  position: sticky;
+
+  top: 0;
+
   height: 64px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
+  gap: 20px;
+
   padding: 0 28px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-bottom: 1px solid var(--dev-border-soft);
 
   background: rgba(8, 11, 16, 0.82);
 
   backdrop-filter: blur(14px);
-
-  position: sticky;
-  top: 0;
+  -webkit-backdrop-filter: blur(14px);
 
   z-index: 50;
 
@@ -359,9 +400,10 @@ body {
    ============================================================ */
 
 .developer-section {
-  margin-bottom: 28px;
-
+  width: 100%;
   min-width: 0;
+
+  margin-bottom: 28px;
 }
 
 .developer-section-header {
@@ -379,7 +421,7 @@ body {
 .developer-section-title {
   margin: 0;
 
-  color: #f4f7fb;
+  color: var(--dev-text);
 
   font-size: 20px;
   font-weight: 620;
@@ -402,6 +444,7 @@ body {
    ============================================================ */
 
 .developer-card {
+  width: 100%;
   min-width: 0;
 
   border: 1px solid var(--dev-border);
@@ -421,18 +464,18 @@ body {
 
 
 /* ============================================================
-   STAT CARDS
+   STATISTICS
    ============================================================ */
 
 .developer-stats-grid {
+  width: 100%;
+  min-width: 0;
+
   display: grid;
 
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 
   gap: 12px;
-
-  min-width: 0;
 }
 
 .developer-stat-card {
@@ -469,6 +512,7 @@ body {
   font-weight: 600;
 
   letter-spacing: 0.07em;
+
   text-transform: uppercase;
 }
 
@@ -529,7 +573,6 @@ body {
 
 .developer-section-label {
   display: inline-flex;
-
   align-items: center;
 
   gap: 7px;
@@ -542,12 +585,15 @@ body {
   font-weight: 700;
 
   letter-spacing: 0.12em;
+
   text-transform: uppercase;
 }
 
 .developer-section-label svg {
   width: 14px;
   height: 14px;
+
+  flex-shrink: 0;
 }
 
 .developer-opportunities-header h1 {
@@ -561,6 +607,8 @@ body {
   font-weight: 650;
 
   letter-spacing: -0.5px;
+
+  overflow-wrap: anywhere;
 }
 
 .developer-opportunities-header p {
@@ -571,6 +619,8 @@ body {
   font-size: 12px;
 
   line-height: 1.6;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -582,7 +632,6 @@ body {
   min-width: 92px;
 
   display: flex;
-
   flex-direction: column;
 
   align-items: center;
@@ -606,7 +655,6 @@ body {
   color: #ffffff;
 
   font-size: 20px;
-
   line-height: 1;
 
   font-weight: 650;
@@ -618,7 +666,6 @@ body {
   color: #687384;
 
   font-size: 9px;
-
   font-weight: 500;
 
   letter-spacing: 0.04em;
@@ -678,7 +725,6 @@ body {
   border-radius: 8px;
 
   font-size: 11px;
-
   line-height: 1.5;
 
   min-width: 0;
@@ -712,7 +758,6 @@ body {
   padding: 6px 9px;
 
   border: 1px solid currentColor;
-
   border-radius: 6px;
 
   background: transparent;
@@ -720,7 +765,6 @@ body {
   color: inherit;
 
   font-size: 10px;
-
   font-weight: 600;
 
   cursor: pointer;
@@ -738,15 +782,14 @@ body {
    ============================================================ */
 
 .developer-opportunities-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 16px;
-
   width: 100%;
   min-width: 0;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
 }
 
 
@@ -757,18 +800,18 @@ body {
 .opportunity-card {
   position: relative;
 
-  display: flex;
-
-  flex-direction: column;
-
-  min-width: 0;
+  width: 100%;
   max-width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
 
   padding: 20px;
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--dev-border);
 
-  border-radius: 13px;
+  border-radius: var(--dev-radius-lg);
 
   background:
     linear-gradient(
@@ -782,10 +825,10 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
   transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+    transform var(--dev-transition),
+    border-color var(--dev-transition),
+    background var(--dev-transition),
+    box-shadow var(--dev-transition);
 }
 
 .opportunity-card:hover {
@@ -814,7 +857,6 @@ body {
   display: flex;
 
   align-items: center;
-
   justify-content: space-between;
 
   gap: 10px;
@@ -824,10 +866,13 @@ body {
   min-width: 0;
 }
 
-.opportunity-type {
+.opportunity-type,
+.dev-opp-category {
   display: inline-flex;
 
   align-items: center;
+
+  max-width: 100%;
 
   padding: 5px 8px;
 
@@ -840,14 +885,11 @@ body {
   color: var(--dev-cyan);
 
   font-size: 8px;
-
   font-weight: 700;
 
   letter-spacing: 0.08em;
 
   text-transform: uppercase;
-
-  max-width: 100%;
 
   overflow: hidden;
   text-overflow: ellipsis;
@@ -869,7 +911,6 @@ body {
   color: #ffffff;
 
   font-size: 17px;
-
   line-height: 1.35;
 
   font-weight: 620;
@@ -891,32 +932,28 @@ body {
   display: -webkit-box;
 
   -webkit-box-orient: vertical;
-
   -webkit-line-clamp: 3;
 
   overflow: hidden;
-
   overflow-wrap: anywhere;
 }
 
 
 /* ============================================================
-   OPPORTUNITY INFO
+   OPPORTUNITY INFORMATION
    ============================================================ */
 
 .opportunity-info-grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 
   gap: 8px;
 
   margin-top: 17px;
-
   padding: 11px;
 
-  border: 1px solid rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--dev-border-soft);
 
   border-radius: 9px;
 
@@ -944,10 +981,9 @@ body {
   display: flex;
 
   align-items: center;
-
   justify-content: center;
 
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--dev-border);
 
   border-radius: 7px;
 
@@ -967,7 +1003,6 @@ body {
   color: #5f6a7a;
 
   font-size: 8px;
-
   font-weight: 600;
 
   letter-spacing: 0.05em;
@@ -977,7 +1012,6 @@ body {
   white-space: nowrap;
 
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
 
@@ -989,7 +1023,6 @@ body {
   color: #d8dee7;
 
   font-size: 10px;
-
   line-height: 1.35;
 
   font-weight: 550;
@@ -1001,7 +1034,6 @@ body {
   color: var(--dev-green);
 
   font-size: 11px;
-
   font-weight: 650;
 }
 
@@ -1028,7 +1060,6 @@ body {
   color: #737e8e;
 
   font-size: 9px;
-
   font-weight: 600;
 
   letter-spacing: 0.04em;
@@ -1050,7 +1081,8 @@ body {
    OPPORTUNITY TAGS
    ============================================================ */
 
-.opportunity-tags {
+.opportunity-tags,
+.dev-opp-tags {
   display: flex;
 
   flex-wrap: wrap;
@@ -1078,16 +1110,65 @@ body {
   color: #9aa5b5;
 
   font-size: 8px;
-
   font-weight: 500;
 
   overflow-wrap: anywhere;
+
+  transition:
+    color var(--dev-transition),
+    border-color var(--dev-transition),
+    background var(--dev-transition);
 }
 
 .opportunity-tag:hover {
   border-color: rgba(98, 226, 255, 0.12);
 
+  background: rgba(98, 226, 255, 0.025);
+
   color: #c1cbd7;
+}
+
+
+/* ============================================================
+   CURRENT PROJECT TAGS
+   ============================================================ */
+
+.dev-tag {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 25px;
+
+  max-width: 100%;
+
+  padding: 0 9px;
+
+  border: 1px solid rgba(98, 226, 255, 0.09);
+
+  border-radius: 6px;
+
+  background: rgba(98, 226, 255, 0.035);
+
+  color: #9ca8b7;
+
+  font-size: 9px;
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+
+  transition:
+    background var(--dev-transition),
+    border-color var(--dev-transition),
+    color var(--dev-transition);
+}
+
+.dev-tag:hover {
+  background: rgba(98, 226, 255, 0.065);
+
+  border-color: rgba(98, 226, 255, 0.2);
+
+  color: #d1d9e2;
 }
 
 
@@ -1103,7 +1184,6 @@ body {
   gap: 5px;
 
   margin: 0;
-
   padding: 0;
 
   list-style: none;
@@ -1150,16 +1230,14 @@ body {
   display: flex;
 
   align-items: center;
-
   justify-content: space-between;
 
   gap: 12px;
 
   margin-top: 18px;
-
   padding-top: 13px;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.055);
+  border-top: 1px solid var(--dev-border-soft);
 
   min-width: 0;
 }
@@ -1170,6 +1248,8 @@ body {
   font-size: 9px;
 
   min-width: 0;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -1178,17 +1258,15 @@ body {
    ============================================================ */
 
 .opportunity-apply-button {
+  min-width: 82px;
+  height: 32px;
+
   display: inline-flex;
 
   align-items: center;
-
   justify-content: center;
 
   gap: 6px;
-
-  min-width: 82px;
-
-  height: 32px;
 
   padding: 0 12px;
 
@@ -1201,18 +1279,17 @@ body {
   color: var(--dev-green);
 
   font-size: 10px;
-
   font-weight: 650;
 
   cursor: pointer;
+
+  flex-shrink: 0;
 
   transition:
     background 0.18s ease,
     border-color 0.18s ease,
     transform 0.15s ease,
     opacity 0.18s ease;
-
-  flex-shrink: 0;
 }
 
 .opportunity-apply-button:hover:not(:disabled) {
@@ -1238,15 +1315,18 @@ body {
    EMPTY OPPORTUNITIES
    ============================================================ */
 
-.developer-opportunities-empty {
-  min-height: 320px;
+.developer-opportunities-empty,
+.dev-tab-empty {
+  width: 100%;
+  min-width: 0;
+
+  min-height: 300px;
 
   display: flex;
 
   flex-direction: column;
 
   align-items: center;
-
   justify-content: center;
 
   padding: 35px;
@@ -1258,8 +1338,10 @@ body {
   background: rgba(255, 255, 255, 0.012);
 
   text-align: center;
+}
 
-  min-width: 0;
+.developer-opportunities-empty {
+  min-height: 320px;
 }
 
 .developer-empty-icon {
@@ -1288,7 +1370,6 @@ body {
   color: #dce3ec;
 
   font-size: 15px;
-
   font-weight: 600;
 }
 
@@ -1318,15 +1399,14 @@ body {
   color: #9ba6b5;
 
   font-size: 10px;
-
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
-    background 0.18s ease,
-    color 0.18s ease,
-    border-color 0.18s ease;
+    background var(--dev-transition),
+    color var(--dev-transition),
+    border-color var(--dev-transition);
 }
 
 .developer-refresh-button:hover {
@@ -1343,9 +1423,10 @@ body {
    ============================================================ */
 
 .developer-profile-card {
-  padding: 22px;
-
+  width: 100%;
   min-width: 0;
+
+  padding: 22px;
 }
 
 .developer-profile-header {
@@ -1357,7 +1438,7 @@ body {
 
   padding-bottom: 18px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-bottom: 1px solid var(--dev-border-soft);
 
   min-width: 0;
 }
@@ -1369,10 +1450,9 @@ body {
   display: flex;
 
   align-items: center;
-
   justify-content: center;
 
-  flex-shrink: 0;
+  flex: 0 0 50px;
 
   border: 1px solid rgba(98, 226, 255, 0.12);
 
@@ -1389,6 +1469,8 @@ body {
   width: 100%;
   height: 100%;
 
+  display: block;
+
   object-fit: cover;
 }
 
@@ -1396,7 +1478,6 @@ body {
   color: #f1f4f8;
 
   font-size: 15px;
-
   font-weight: 620;
 
   overflow-wrap: anywhere;
@@ -1418,8 +1499,7 @@ body {
 .developer-profile-details {
   display: grid;
 
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 12px;
 
@@ -1433,7 +1513,7 @@ body {
 
   padding: 12px;
 
-  border: 1px solid rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--dev-border-soft);
 
   border-radius: 8px;
 
@@ -1448,7 +1528,6 @@ body {
   font-size: 8px;
 
   text-transform: uppercase;
-
   letter-spacing: 0.06em;
 }
 
@@ -1460,7 +1539,6 @@ body {
   color: #cbd3dd;
 
   font-size: 11px;
-
   font-weight: 500;
 
   overflow-wrap: anywhere;
@@ -1472,9 +1550,10 @@ body {
    ============================================================ */
 
 .developer-assignment-card {
-  padding: 21px;
-
+  width: 100%;
   min-width: 0;
+
+  padding: 21px;
 }
 
 .developer-assignment-status {
@@ -1495,7 +1574,6 @@ body {
   color: var(--dev-green);
 
   font-size: 8px;
-
   font-weight: 650;
 
   letter-spacing: 0.07em;
@@ -1509,7 +1587,6 @@ body {
   color: #ffffff;
 
   font-size: 17px;
-
   font-weight: 620;
 
   overflow-wrap: anywhere;
@@ -1529,7 +1606,7 @@ body {
 
 
 /* ============================================================
-   SUBMIT WORK
+   GENERIC FORM
    ============================================================ */
 
 .developer-submit-form {
@@ -1556,7 +1633,6 @@ body {
   color: #8994a4;
 
   font-size: 9px;
-
   font-weight: 600;
 
   letter-spacing: 0.05em;
@@ -1623,15 +1699,14 @@ body {
    ============================================================ */
 
 .developer-primary-button {
+  min-height: 36px;
+
   display: inline-flex;
 
   align-items: center;
-
   justify-content: center;
 
   gap: 7px;
-
-  min-height: 36px;
 
   padding: 0 15px;
 
@@ -1644,7 +1719,6 @@ body {
   color: var(--dev-cyan);
 
   font-size: 10px;
-
   font-weight: 650;
 
   cursor: pointer;
@@ -1675,15 +1749,14 @@ body {
    ============================================================ */
 
 .developer-secondary-button {
+  min-height: 36px;
+
   display: inline-flex;
 
   align-items: center;
-
   justify-content: center;
 
   gap: 7px;
-
-  min-height: 36px;
 
   padding: 0 15px;
 
@@ -1696,7 +1769,6 @@ body {
   color: #9ca6b5;
 
   font-size: 10px;
-
   font-weight: 600;
 
   cursor: pointer;
@@ -1717,39 +1789,34 @@ body {
 
 
 /* ============================================================
-   SUCCESS / ERROR STATES
+   SUCCESS / ERROR
    ============================================================ */
 
-.developer-success {
+.developer-success,
+.developer-error {
   padding: 11px 13px;
 
-  border: 1px solid rgba(105, 229, 183, 0.14);
-
   border-radius: 8px;
-
-  background: rgba(105, 229, 183, 0.045);
-
-  color: var(--dev-green);
 
   font-size: 10px;
 
   overflow-wrap: anywhere;
 }
 
+.developer-success {
+  border: 1px solid rgba(105, 229, 183, 0.14);
+
+  background: rgba(105, 229, 183, 0.045);
+
+  color: var(--dev-green);
+}
+
 .developer-error {
-  padding: 11px 13px;
-
   border: 1px solid rgba(255, 92, 92, 0.14);
-
-  border-radius: 8px;
 
   background: rgba(255, 92, 92, 0.045);
 
   color: var(--dev-red);
-
-  font-size: 10px;
-
-  overflow-wrap: anywhere;
 }
 
 
@@ -1765,12 +1832,12 @@ body {
 
   margin: 18px 0;
 
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--dev-border-soft);
 }
 
 
 /* ============================================================
-   DEVELOPER DASHBOARD TAB PANEL
+   DASHBOARD SHELL
    IMPORTANT:
    NO INNER SCROLLBAR
    ============================================================ */
@@ -1791,11 +1858,11 @@ body {
 
   min-width: 0;
 
-  overflow-x: hidden;
-  overflow-y: visible;
-
   height: auto;
   max-height: none;
+
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .dev-dashboard-panel {
@@ -1809,13 +1876,11 @@ body {
   max-height: none !important;
 
   overflow: visible !important;
-  overflow-x: hidden !important;
-  overflow-y: visible !important;
 }
 
 
 /* ============================================================
-   TAB CONTENT — PREVENT WIDTH EXPANSION
+   DASHBOARD PANEL WIDTH SAFETY
    ============================================================ */
 
 .dev-dashboard-panel > * {
@@ -1823,12 +1888,6 @@ body {
   max-width: 100%;
 
   min-width: 0;
-}
-
-.dev-dashboard-panel img,
-.dev-dashboard-panel video,
-.dev-dashboard-panel iframe {
-  max-width: 100%;
 }
 
 .dev-dashboard-panel a,
@@ -1849,15 +1908,15 @@ body {
    ============================================================ */
 
 .dev-dashboard-panel,
-.dev-dashboard-panel *,
 .dev-dashboard-content,
+.dev-dashboard-panel *,
 .dev-dashboard-content * {
   scrollbar-width: none;
 }
 
 .dev-dashboard-panel::-webkit-scrollbar,
-.dev-dashboard-panel *::-webkit-scrollbar,
 .dev-dashboard-content::-webkit-scrollbar,
+.dev-dashboard-panel *::-webkit-scrollbar,
 .dev-dashboard-content *::-webkit-scrollbar {
   width: 0;
   height: 0;
@@ -1867,7 +1926,7 @@ body {
 
 
 /* ============================================================
-   DEVELOPER DASHBOARD — TABS
+   DASHBOARD TABS
    ============================================================ */
 
 .dev-tabs {
@@ -1890,6 +1949,7 @@ body {
 
 .dev-tabs::-webkit-scrollbar {
   display: none;
+
   width: 0;
   height: 0;
 }
@@ -1897,14 +1957,14 @@ body {
 .dev-tab {
   flex: 0 0 auto;
 
+  min-height: 36px;
+
   display: inline-flex;
 
   align-items: center;
   justify-content: center;
 
   gap: 7px;
-
-  min-height: 36px;
 
   padding: 0 13px;
 
@@ -1917,7 +1977,6 @@ body {
   color: #7d8796;
 
   font-size: 10px;
-
   font-weight: 600;
 
   cursor: pointer;
@@ -1946,17 +2005,585 @@ body {
 
 
 /* ============================================================
-   RESPONSIVE — TABLET
+   CURRENT PROJECT
+   ============================================================ */
+
+.dev-current-project {
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+
+  padding: 24px;
+
+  border: 1px solid var(--dev-border);
+
+  border-radius: var(--dev-radius-xl);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* ============================================================
+   CURRENT PROJECT HEADER
+   ============================================================ */
+
+.dev-project-header {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid var(--dev-border-soft);
+
+  min-width: 0;
+}
+
+.dev-project-header > div:first-child {
+  min-width: 0;
+}
+
+.dev-project-header h2 {
+  margin: 9px 0 0;
+
+  color: #ffffff;
+
+  font-size: 22px;
+  line-height: 1.3;
+
+  font-weight: 650;
+
+  letter-spacing: -0.35px;
+
+  overflow-wrap: anywhere;
+}
+
+.dev-project-header p {
+  margin: 7px 0 0;
+
+  color: #606b7a;
+
+  font-size: 9px;
+  line-height: 1.5;
+
+  font-family: monospace;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   PROJECT SECTION
+   ============================================================ */
+
+.dev-project-section {
+  margin-top: 22px;
+
+  min-width: 0;
+}
+
+.dev-project-section h3 {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin: 0 0 9px;
+
+  color: #d9e0e8;
+
+  font-size: 10px;
+  font-weight: 650;
+
+  letter-spacing: 0.07em;
+
+  text-transform: uppercase;
+}
+
+.dev-project-section h3::before {
+  content: "";
+
+  width: 3px;
+  height: 13px;
+
+  flex-shrink: 0;
+
+  border-radius: 3px;
+
+  background: var(--dev-cyan);
+}
+
+.dev-project-section > p {
+  margin: 0;
+
+  padding: 14px 15px;
+
+  border: 1px solid var(--dev-border-soft);
+
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.018);
+
+  color: #8994a4;
+
+  font-size: 11px;
+
+  line-height: 1.7;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   PROJECT INFORMATION GRID
+   ============================================================ */
+
+.dev-project-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 20px;
+
+  min-width: 0;
+}
+
+.dev-project-info {
+  min-width: 0;
+
+  padding: 13px;
+
+  border: 1px solid var(--dev-border-soft);
+
+  border-radius: 9px;
+
+  background: rgba(0, 0, 0, 0.13);
+
+  transition:
+    border-color var(--dev-transition),
+    background var(--dev-transition);
+}
+
+.dev-project-info:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.dev-project-info span {
+  display: block;
+
+  color: #5f6a79;
+
+  font-size: 8px;
+  font-weight: 600;
+
+  letter-spacing: 0.06em;
+
+  text-transform: uppercase;
+}
+
+.dev-project-info strong {
+  display: block;
+
+  margin-top: 7px;
+
+  color: #dce2e9;
+
+  font-size: 11px;
+  font-weight: 550;
+
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   FREELANCER PAYOUT
+   ============================================================ */
+
+.dev-project-info:nth-child(3) {
+  border-color: rgba(105, 229, 183, 0.1);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(105, 229, 183, 0.045),
+      rgba(105, 229, 183, 0.012)
+    );
+}
+
+.dev-project-info:nth-child(3) strong {
+  color: var(--dev-green);
+
+  font-size: 13px;
+  font-weight: 650;
+}
+
+
+/* ============================================================
+   SUBMIT WORK CARD
+   ============================================================ */
+
+.dev-submit-card {
+  width: 100%;
+  max-width: 760px;
+
+  min-width: 0;
+
+  padding: 24px;
+
+  border: 1px solid var(--dev-border);
+
+  border-radius: var(--dev-radius-xl);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* ============================================================
+   SUBMIT HEADER
+   ============================================================ */
+
+.dev-submit-header {
+  display: flex;
+
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  margin-bottom: 24px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid var(--dev-border-soft);
+
+  min-width: 0;
+}
+
+.dev-submit-header > div:first-child {
+  min-width: 0;
+}
+
+.dev-submit-header h2 {
+  margin: 9px 0 0;
+
+  color: #ffffff;
+
+  font-size: 19px;
+  line-height: 1.35;
+
+  font-weight: 620;
+
+  letter-spacing: -0.25px;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   SUBMIT FORM FIELDS
+   ============================================================ */
+
+.dev-submit-card .field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+
+  min-width: 0;
+}
+
+.dev-submit-card .field label {
+  color: #8994a4;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  letter-spacing: 0.055em;
+
+  text-transform: uppercase;
+}
+
+.dev-submit-card .field label em {
+  color: var(--dev-red);
+
+  font-style: normal;
+}
+
+
+/* ============================================================
+   SUBMIT INPUTS
+   ============================================================ */
+
+.dev-submit-card .field input,
+.dev-submit-card .field textarea {
+  width: 100%;
+  max-width: 100%;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 9px;
+
+  outline: none;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #e7ebf0;
+
+  font-size: 11px;
+
+  transition:
+    border-color var(--dev-transition),
+    background var(--dev-transition),
+    box-shadow var(--dev-transition);
+}
+
+.dev-submit-card .field input {
+  height: 40px;
+
+  padding: 0 12px;
+}
+
+.dev-submit-card .field textarea {
+  min-height: 115px;
+
+  padding: 11px 12px;
+
+  resize: vertical;
+
+  line-height: 1.6;
+}
+
+.dev-submit-card .field input::placeholder,
+.dev-submit-card .field textarea::placeholder {
+  color: #4f5968;
+}
+
+.dev-submit-card .field input:hover,
+.dev-submit-card .field textarea:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dev-submit-card .field input:focus,
+.dev-submit-card .field textarea:focus {
+  border-color: rgba(98, 226, 255, 0.28);
+
+  background: rgba(98, 226, 255, 0.018);
+
+  box-shadow:
+    0 0 0 3px rgba(98, 226, 255, 0.035);
+}
+
+
+/* ============================================================
+   SUBMIT BUTTON
+   ============================================================ */
+
+.dev-submit-card .form-submit {
+  width: 100%;
+
+  min-height: 40px;
+
+  margin-top: 18px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border: 1px solid rgba(105, 229, 183, 0.2);
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(105, 229, 183, 0.09),
+      rgba(98, 226, 255, 0.055)
+    );
+
+  color: var(--dev-green);
+
+  font-size: 10px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background var(--dev-transition),
+    border-color var(--dev-transition);
+}
+
+.dev-submit-card .form-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: rgba(105, 229, 183, 0.35);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(105, 229, 183, 0.14),
+      rgba(98, 226, 255, 0.08)
+    );
+}
+
+.dev-submit-card .form-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.dev-submit-card .form-submit:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   SUBMIT ERROR
+   ============================================================ */
+
+.dev-submit-card .error {
+  margin: 12px 0 0;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(255, 92, 92, 0.14);
+
+  border-radius: 7px;
+
+  background: rgba(255, 92, 92, 0.045);
+
+  color: var(--dev-red);
+
+  font-size: 10px;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   SUBMIT SUCCESS
+   ============================================================ */
+
+.dev-submit-card p[style*="69e5b7"] {
+  margin: 12px 0 0;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(105, 229, 183, 0.14);
+
+  border-radius: 7px;
+
+  background: rgba(105, 229, 183, 0.045);
+
+  color: var(--dev-green) !important;
+
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   EMPTY TAB
+   ============================================================ */
+
+.dev-tab-empty p {
+  margin: 0;
+
+  color: #dce3eb;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dev-tab-empty span {
+  max-width: 400px;
+
+  margin-top: 7px;
+
+  color: #687384;
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   FINAL WIDTH SAFETY
+   ============================================================ */
+
+.developer-dashboard,
+.developer-dashboard *,
+.dev-dashboard-shell,
+.dev-dashboard-content,
+.dev-dashboard-panel {
+  max-width: 100%;
+}
+
+.developer-dashboard input,
+.developer-dashboard textarea,
+.developer-dashboard select,
+.developer-dashboard button {
+  max-width: 100%;
+}
+
+
+/* ============================================================
+   RESPONSIVE — LARGE TABLET
    ============================================================ */
 
 @media (max-width: 1100px) {
   .developer-stats-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .developer-opportunities-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE — PROJECT TABLET
+   ============================================================ */
+
+@media (max-width: 1000px) {
+  .dev-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -2002,10 +2629,7 @@ body {
     padding: 0 18px;
   }
 
-  .developer-content {
-    padding: 22px 18px 40px;
-  }
-
+  .developer-content,
   .developer-opportunities-page {
     padding: 22px 18px 40px;
   }
@@ -2042,6 +2666,49 @@ body {
    RESPONSIVE — SMALL MOBILE
    ============================================================ */
 
+@media (max-width: 650px) {
+  .dev-current-project {
+    padding: 18px;
+  }
+
+  .dev-project-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .dev-project-header h2 {
+    font-size: 19px;
+  }
+
+  .dev-project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dev-project-section {
+    margin-top: 18px;
+  }
+
+  .dev-submit-card {
+    padding: 18px;
+  }
+
+  .dev-submit-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .dev-submit-header h2 {
+    font-size: 17px;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE — VERY SMALL MOBILE
+   ============================================================ */
+
 @media (max-width: 500px) {
   .developer-main {
     width: 100%;
@@ -2060,10 +2727,7 @@ body {
     padding: 0 14px;
   }
 
-  .developer-content {
-    padding: 18px 14px 35px;
-  }
-
+  .developer-content,
   .developer-opportunities-page {
     padding: 18px 14px 35px;
   }
@@ -2095,24 +2759,55 @@ body {
 
     flex-direction: column;
   }
+
+  .dev-current-project,
+  .dev-submit-card {
+    padding: 15px;
+  }
 }
 
 
 /* ============================================================
-   FINAL WIDTH SAFETY
+   RESPONSIVE — EXTRA SMALL
    ============================================================ */
 
-.developer-dashboard,
-.developer-dashboard *,
-.dev-dashboard-shell,
-.dev-dashboard-content,
-.dev-dashboard-panel {
-  max-width: 100%;
-}
+@media (max-width: 420px) {
+  .developer-topbar {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 
-.developer-dashboard input,
-.developer-dashboard textarea,
-.developer-dashboard select,
-.developer-dashboard button {
-  max-width: 100%;
+  .developer-content,
+  .developer-opportunities-page {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .developer-opportunities-header h1 {
+    font-size: 21px;
+  }
+
+  .dev-project-header h2 {
+    font-size: 17px;
+  }
+
+  .dev-project-info {
+    padding: 11px;
+  }
+
+  .dev-project-section > p {
+    padding: 12px;
+  }
+
+  .dev-submit-card .field input {
+    height: 38px;
+  }
+
+  .developer-profile-card {
+    padding: 17px;
+  }
+
+  .developer-assignment-card {
+    padding: 17px;
+  }
 }
