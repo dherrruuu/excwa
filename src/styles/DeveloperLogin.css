@@ -811,3 +811,366 @@
     animation: none;
   }
 }
+/* ============================================================
+   DEVELOPER ACTIVATION PAGE
+   ============================================================ */
+
+.developer-auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: #f5f7fb;
+  box-sizing: border-box;
+}
+
+.developer-auth-card {
+  width: 100%;
+  max-width: 470px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 38px;
+  box-sizing: border-box;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+.developer-auth-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.developer-auth-header {
+  text-align: center;
+}
+
+.developer-auth-header h1,
+.developer-auth-card > h1 {
+  margin: 16px 0 10px;
+  color: #111827;
+  font-size: 26px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.developer-auth-header p,
+.developer-auth-description {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* ============================================================
+   ICONS
+   ============================================================ */
+
+.developer-auth-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.developer-auth-icon.success {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.developer-auth-icon.error {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.developer-auth-loading {
+  text-align: center;
+  padding: 20px 0 8px;
+}
+
+.developer-auth-loading h2 {
+  margin: 18px 0 8px;
+  color: #111827;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.developer-auth-loading p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.developer-auth-spinner {
+  animation: developer-auth-spin 0.9s linear infinite;
+}
+
+@keyframes developer-auth-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   FORM
+   ============================================================ */
+
+.developer-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 28px;
+}
+
+.developer-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.developer-auth-field label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.developer-auth-input-wrapper {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.developer-auth-input-wrapper:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.developer-auth-input-wrapper > svg {
+  flex-shrink: 0;
+  color: #6b7280;
+}
+
+.developer-auth-input-wrapper input {
+  flex: 1;
+  min-width: 0;
+  height: 46px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #111827;
+  font-size: 14px;
+}
+
+.developer-auth-input-wrapper input::placeholder {
+  color: #9ca3af;
+}
+
+.developer-auth-input-wrapper input:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.developer-auth-password-toggle {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 7px;
+}
+
+.developer-auth-password-toggle:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.developer-auth-password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.developer-auth-field-hint {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
+
+.developer-auth-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 22px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.developer-auth-message svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.developer-auth-message.error {
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.developer-auth-message.success {
+  color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.developer-auth-primary-button,
+.developer-auth-secondary-button {
+  width: 100%;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.developer-auth-primary-button {
+  border: 1px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.developer-auth-primary-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.developer-auth-primary-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.developer-auth-primary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.developer-auth-secondary-button {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+}
+
+.developer-auth-secondary-button:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* ============================================================
+   INVALID LINK ACTIONS
+   ============================================================ */
+
+.developer-auth-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.developer-auth-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid #f0f0f0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.developer-auth-footer a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.developer-auth-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 560px) {
+  .developer-auth-page {
+    align-items: flex-start;
+    padding: 20px 14px;
+  }
+
+  .developer-auth-card {
+    margin-top: 20px;
+    padding: 28px 20px;
+    border-radius: 14px;
+  }
+
+  .developer-auth-header h1,
+  .developer-auth-card > h1 {
+    font-size: 23px;
+  }
+
+  .developer-auth-logo {
+    margin-bottom: 24px;
+  }
+}
+

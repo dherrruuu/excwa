@@ -1,3 +1,4 @@
+```jsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -38,7 +39,6 @@ export default function DeveloperActivate() {
 
   useEffect(() => {
     let mounted = true;
-
     let authSubscription = null;
 
     async function initializeActivation() {
@@ -47,18 +47,12 @@ export default function DeveloperActivate() {
         setError("");
 
         /*
-         * IMPORTANT:
-         *
-         * Register the auth listener BEFORE checking the session.
-         *
-         * Supabase may process the recovery token from the
-         * URL hash immediately when the page loads.
+         * Register listener before checking the session.
          */
-
         const {
           data: authListener,
         } = supabase.auth.onAuthStateChange(
-          async (event, currentSession) => {
+          (event, currentSession) => {
             if (!mounted) {
               return;
             }
@@ -67,11 +61,6 @@ export default function DeveloperActivate() {
               "Developer activation auth event:",
               event
             );
-
-            /*
-             * PASSWORD_RECOVERY is the important event for
-             * reset-password / activation links.
-             */
 
             if (
               event === "PASSWORD_RECOVERY" &&
@@ -82,11 +71,6 @@ export default function DeveloperActivate() {
               return;
             }
 
-            /*
-             * SIGNED_IN can also occur when Supabase processes
-             * the recovery link.
-             */
-
             if (
               event === "SIGNED_IN" &&
               currentSession
@@ -95,11 +79,6 @@ export default function DeveloperActivate() {
               setLoading(false);
               return;
             }
-
-            /*
-             * If an existing session is already available,
-             * allow activation.
-             */
 
             if (
               event === "INITIAL_SESSION" &&
@@ -115,11 +94,11 @@ export default function DeveloperActivate() {
           authListener?.subscription || null;
 
         /*
-         * Check the URL hash.
+         * Recovery links normally contain:
          *
-         * Supabase recovery links normally look like:
-         *
-         * /activate#access_token=...&refresh_token=...&type=recovery
+         * /activate#access_token=...
+         * &refresh_token=...
+         * &type=recovery
          */
 
         const hash =
@@ -131,8 +110,8 @@ export default function DeveloperActivate() {
         );
 
         /*
-         * Check the current session after installing the
-         * listener.
+         * Check whether Supabase already created
+         * the recovery session.
          */
 
         const {
@@ -155,19 +134,14 @@ export default function DeveloperActivate() {
         }
 
         /*
-         * If there is a recovery hash, give Supabase time to
-         * exchange/process it.
+         * Explicitly process recovery tokens when needed.
          */
 
         if (hash) {
-          /*
-           * Parse hash parameters only for diagnostics and
-           * recovery detection.
-           */
-
-          const hashParams = new URLSearchParams(
-            hash.replace(/^#/, "")
-          );
+          const hashParams =
+            new URLSearchParams(
+              hash.replace(/^#/, "")
+            );
 
           const accessToken =
             hashParams.get("access_token");
@@ -181,16 +155,13 @@ export default function DeveloperActivate() {
           console.log(
             "Developer activation hash detected:",
             {
-              hasAccessToken: Boolean(accessToken),
-              hasRefreshToken: Boolean(refreshToken),
+              hasAccessToken:
+                Boolean(accessToken),
+              hasRefreshToken:
+                Boolean(refreshToken),
               type: recoveryType,
             }
           );
-
-          /*
-           * If Supabase did not automatically establish the
-           * session, explicitly establish it from the tokens.
-           */
 
           if (
             accessToken &&
@@ -220,11 +191,9 @@ export default function DeveloperActivate() {
               setLoading(false);
 
               /*
-               * Clean the token from the browser address bar.
-               *
-               * The session is now stored by Supabase.
+               * Remove recovery tokens from
+               * the browser address bar.
                */
-
               window.history.replaceState(
                 {},
                 document.title,
@@ -238,10 +207,7 @@ export default function DeveloperActivate() {
         }
 
         /*
-         * Final session check.
-         *
-         * This gives Supabase a little extra time to process
-         * the recovery URL.
+         * Final delayed session check.
          */
 
         await new Promise((resolve) =>
@@ -268,12 +234,6 @@ export default function DeveloperActivate() {
           setLoading(false);
           return;
         }
-
-        /*
-         * No session means the activation link did not contain
-         * usable recovery credentials, or the link has expired
-         * or already been consumed.
-         */
 
         setError(
           "This activation link is invalid, expired, or has already been used."
@@ -369,11 +329,6 @@ export default function DeveloperActivate() {
     try {
       setSubmitting(true);
 
-      /*
-       * The recovery session created by Supabase allows the
-       * developer to set their permanent password.
-       */
-
       const {
         data,
         error: updateError,
@@ -399,12 +354,14 @@ export default function DeveloperActivate() {
       setConfirmPassword("");
 
       /*
-       * Wait briefly so the developer can see the success
-       * message, then go to the developer dashboard.
+       * IMPORTANT:
+       *
+       * After successful activation, send the developer
+       * to the DEVELOPER LOGIN page, not the dashboard.
        */
 
       setTimeout(() => {
-        navigate("/developer", {
+        navigate("/developer/login", {
           replace: true,
         });
       }, 1200);
@@ -484,6 +441,7 @@ export default function DeveloperActivate() {
           </p>
 
           <div className="developer-auth-actions">
+
             <Link
               to="/developer/login"
               className="developer-auth-primary-button"
@@ -497,6 +455,7 @@ export default function DeveloperActivate() {
             >
               Back to EXCWA
             </Link>
+
           </div>
 
         </div>
@@ -677,7 +636,8 @@ export default function DeveloperActivate() {
                 className="developer-auth-password-toggle"
                 onClick={() =>
                   setShowConfirmPassword(
-                    (current) => !current
+                    (current) =>
+                      !current
                   )
                 }
                 disabled={submitting}
@@ -744,3 +704,4 @@ export default function DeveloperActivate() {
     </div>
   );
 }
+```
