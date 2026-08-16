@@ -1,4 +1,3 @@
-```jsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -34,7 +33,7 @@ export default function DeveloperActivate() {
   const [success, setSuccess] = useState("");
 
   /* =========================================================
-     CHECK RECOVERY / ACTIVATION SESSION
+     CHECK ACTIVATION / RECOVERY SESSION
   ========================================================= */
 
   useEffect(() => {
@@ -47,7 +46,8 @@ export default function DeveloperActivate() {
         setError("");
 
         /*
-         * Register listener before checking the session.
+         * Listen for Supabase auth events before checking
+         * the existing session.
          */
         const {
           data: authListener,
@@ -63,25 +63,9 @@ export default function DeveloperActivate() {
             );
 
             if (
-              event === "PASSWORD_RECOVERY" &&
-              currentSession
-            ) {
-              setSessionReady(true);
-              setLoading(false);
-              return;
-            }
-
-            if (
-              event === "SIGNED_IN" &&
-              currentSession
-            ) {
-              setSessionReady(true);
-              setLoading(false);
-              return;
-            }
-
-            if (
-              event === "INITIAL_SESSION" &&
+              (event === "PASSWORD_RECOVERY" ||
+                event === "SIGNED_IN" ||
+                event === "INITIAL_SESSION") &&
               currentSession
             ) {
               setSessionReady(true);
@@ -94,24 +78,9 @@ export default function DeveloperActivate() {
           authListener?.subscription || null;
 
         /*
-         * Recovery links normally contain:
-         *
-         * /activate#access_token=...
-         * &refresh_token=...
-         * &type=recovery
-         */
-
-        const hash =
-          window.location.hash || "";
-
-        console.log(
-          "Developer activation URL hash:",
-          hash
-        );
-
-        /*
-         * Check whether Supabase already created
-         * the recovery session.
+         * -------------------------------------------------------
+         * FIRST: CHECK EXISTING SESSION
+         * -------------------------------------------------------
          */
 
         const {
@@ -134,14 +103,24 @@ export default function DeveloperActivate() {
         }
 
         /*
-         * Explicitly process recovery tokens when needed.
+         * -------------------------------------------------------
+         * SECOND: PROCESS RECOVERY HASH
+         * -------------------------------------------------------
+         *
+         * Supabase recovery links may arrive as:
+         *
+         * /developer/activate
+         * #access_token=...
+         * &refresh_token=...
+         * &type=recovery
          */
 
+        const hash = window.location.hash || "";
+
         if (hash) {
-          const hashParams =
-            new URLSearchParams(
-              hash.replace(/^#/, "")
-            );
+          const hashParams = new URLSearchParams(
+            hash.replace(/^#/, "")
+          );
 
           const accessToken =
             hashParams.get("access_token");
@@ -157,42 +136,40 @@ export default function DeveloperActivate() {
             {
               hasAccessToken:
                 Boolean(accessToken),
+
               hasRefreshToken:
                 Boolean(refreshToken),
+
               type: recoveryType,
             }
           );
 
-          if (
-            accessToken &&
-            refreshToken
-          ) {
+          /*
+           * Only attempt to create a session when both
+           * tokens exist.
+           */
+          if (accessToken && refreshToken) {
             const {
               data: recoverySession,
               error: recoveryError,
-            } =
-              await supabase.auth.setSession({
-                access_token: accessToken,
-                refresh_token: refreshToken,
-              });
+            } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
 
             if (recoveryError) {
               throw recoveryError;
             }
 
             if (
-              recoverySession?.session
+              recoverySession?.session &&
+              mounted
             ) {
-              if (!mounted) {
-                return;
-              }
-
               setSessionReady(true);
               setLoading(false);
 
               /*
-               * Remove recovery tokens from
-               * the browser address bar.
+               * Remove tokens from the address bar.
                */
               window.history.replaceState(
                 {},
@@ -207,7 +184,11 @@ export default function DeveloperActivate() {
         }
 
         /*
-         * Final delayed session check.
+         * -------------------------------------------------------
+         * THIRD: FINAL SESSION CHECK
+         * -------------------------------------------------------
+         *
+         * Give Supabase a moment to process the URL.
          */
 
         await new Promise((resolve) =>
@@ -227,20 +208,21 @@ export default function DeveloperActivate() {
           throw latestSessionError;
         }
 
-        if (
-          latestSessionData?.session
-        ) {
+        if (latestSessionData?.session) {
           setSessionReady(true);
           setLoading(false);
           return;
         }
 
+        /*
+         * No valid session.
+         */
+        setSessionReady(false);
+        setLoading(false);
+
         setError(
           "This activation link is invalid, expired, or has already been used."
         );
-
-        setSessionReady(false);
-        setLoading(false);
       } catch (err) {
         console.error(
           "Developer activation initialization failed:",
@@ -251,13 +233,13 @@ export default function DeveloperActivate() {
           return;
         }
 
+        setSessionReady(false);
+        setLoading(false);
+
         setError(
           err?.message ||
             "Unable to open the developer activation link."
         );
-
-        setSessionReady(false);
-        setLoading(false);
       }
     }
 
@@ -297,7 +279,7 @@ export default function DeveloperActivate() {
   }
 
   /* =========================================================
-     SET PASSWORD
+     ACTIVATE ACCOUNT
   ========================================================= */
 
   async function handleSubmit(event) {
@@ -329,6 +311,9 @@ export default function DeveloperActivate() {
     try {
       setSubmitting(true);
 
+      /*
+       * Set the user's password.
+       */
       const {
         data,
         error: updateError,
@@ -346,6 +331,9 @@ export default function DeveloperActivate() {
         );
       }
 
+      /*
+       * Password successfully created.
+       */
       setSuccess(
         "Your developer account has been activated successfully."
       );
@@ -356,10 +344,11 @@ export default function DeveloperActivate() {
       /*
        * IMPORTANT:
        *
-       * After successful activation, send the developer
-       * to the DEVELOPER LOGIN page, not the dashboard.
+       * Do NOT navigate to /developer.
+       *
+       * The developer must explicitly log in using
+       * the newly created password.
        */
-
       setTimeout(() => {
         navigate("/developer/login", {
           replace: true,
@@ -381,7 +370,7 @@ export default function DeveloperActivate() {
   }
 
   /* =========================================================
-     LOADING
+     LOADING STATE
   ========================================================= */
 
   if (loading) {
@@ -415,7 +404,7 @@ export default function DeveloperActivate() {
   }
 
   /* =========================================================
-     INVALID / EXPIRED LINK
+     INVALID / EXPIRED ACTIVATION LINK
   ========================================================= */
 
   if (!sessionReady) {
@@ -472,13 +461,17 @@ export default function DeveloperActivate() {
 
       <div className="developer-auth-card">
 
-        {/* LOGO */}
+        {/* ===================================================
+            LOGO
+        =================================================== */}
 
         <div className="developer-auth-logo">
           <ExcwaLogo />
         </div>
 
-        {/* HEADER */}
+        {/* ===================================================
+            HEADER
+        =================================================== */}
 
         <div className="developer-auth-header">
 
@@ -498,7 +491,9 @@ export default function DeveloperActivate() {
 
         </div>
 
-        {/* ERROR */}
+        {/* ===================================================
+            ERROR MESSAGE
+        =================================================== */}
 
         {error && (
           <div className="developer-auth-message error">
@@ -512,7 +507,9 @@ export default function DeveloperActivate() {
           </div>
         )}
 
-        {/* SUCCESS */}
+        {/* ===================================================
+            SUCCESS MESSAGE
+        =================================================== */}
 
         {success && (
           <div className="developer-auth-message success">
@@ -526,14 +523,18 @@ export default function DeveloperActivate() {
           </div>
         )}
 
-        {/* FORM */}
+        {/* ===================================================
+            FORM
+        =================================================== */}
 
         <form
           onSubmit={handleSubmit}
           className="developer-auth-form"
         >
 
-          {/* PASSWORD */}
+          {/* =================================================
+              PASSWORD
+          ================================================= */}
 
           <div className="developer-auth-field">
 
@@ -597,7 +598,9 @@ export default function DeveloperActivate() {
 
           </div>
 
-          {/* CONFIRM PASSWORD */}
+          {/* =================================================
+              CONFIRM PASSWORD
+          ================================================= */}
 
           <div className="developer-auth-field">
 
@@ -636,8 +639,7 @@ export default function DeveloperActivate() {
                 className="developer-auth-password-toggle"
                 onClick={() =>
                   setShowConfirmPassword(
-                    (current) =>
-                      !current
+                    (current) => !current
                   )
                 }
                 disabled={submitting}
@@ -658,7 +660,9 @@ export default function DeveloperActivate() {
 
           </div>
 
-          {/* SUBMIT */}
+          {/* =================================================
+              SUBMIT
+          ================================================= */}
 
           <button
             type="submit"
@@ -685,7 +689,9 @@ export default function DeveloperActivate() {
 
         </form>
 
-        {/* FOOTER */}
+        {/* ===================================================
+            FOOTER
+        =================================================== */}
 
         <div className="developer-auth-footer">
 
@@ -704,4 +710,3 @@ export default function DeveloperActivate() {
     </div>
   );
 }
-```
