@@ -30,8 +30,11 @@ export const DEVELOPER_PROFILE_STATUSES = {
    STORAGE CONSTANTS
 ========================================================= */
 
-const PROFILE_PHOTO_BUCKET = "profile-photos";
-const DEVELOPER_RESUME_BUCKET = "developer-resumes";
+const PROFILE_PHOTO_BUCKET =
+  "profile-photos";
+
+const DEVELOPER_RESUME_BUCKET =
+  "developer-resumes";
 
 /* =========================================================
    GET CURRENT ADMIN
@@ -377,28 +380,6 @@ export async function rejectDeveloperApplication(
 
 /* =========================================================
    DELETE DEVELOPER APPLICATION
-=========================================================
-
-IMPORTANT:
-
-This function intentionally does NOT call
-getDeveloperApplication().
-
-The old version called getDeveloperApplication(),
-which selected columns such as:
-
-    resume_url
-
-Your database does not have resume_url.
-
-For deletion we only need the actual storage-path
-columns:
-
-    profile_photo_path
-    resume_path
-
-Therefore we query only those columns.
-
 ========================================================= */
 
 export async function deleteDeveloperApplication(
@@ -411,10 +392,6 @@ export async function deleteDeveloperApplication(
   }
 
   await getCurrentAdmin();
-
-  /* -------------------------------------------------------
-     LOAD ONLY COLUMNS REQUIRED FOR DELETION
-  ------------------------------------------------------- */
 
   const {
     data: application,
@@ -447,10 +424,6 @@ export async function deleteDeveloperApplication(
 
   const storageErrors = [];
 
-  /* -------------------------------------------------------
-     DELETE PROFILE PHOTO
-  ------------------------------------------------------- */
-
   if (application.profile_photo_path) {
     const {
       error,
@@ -472,10 +445,6 @@ export async function deleteDeveloperApplication(
     }
   }
 
-  /* -------------------------------------------------------
-     DELETE RESUME
-  ------------------------------------------------------- */
-
   if (application.resume_path) {
     const {
       error,
@@ -494,10 +463,6 @@ export async function deleteDeveloperApplication(
       storageErrors.push("resume");
     }
   }
-
-  /* -------------------------------------------------------
-     DELETE DATABASE RECORD
-  ------------------------------------------------------- */
 
   const {
     error: deleteError,
@@ -738,4 +703,76 @@ export async function reactivateDeveloper(
     developerId,
     DEVELOPER_PROFILE_STATUSES.APPROVED
   );
+}
+
+/* =========================================================
+   DELETE DEVELOPER ACCOUNT
+========================================================= */
+
+export async function deleteDeveloper(
+  developerUserId
+) {
+  if (!developerUserId) {
+    throw new Error(
+      "Developer user ID is required."
+    );
+  }
+
+  await getCurrentAdmin();
+
+  const {
+    data,
+    error,
+  } = await supabase.functions.invoke(
+    "delete-developer",
+    {
+      body: {
+        developer_user_id:
+          developerUserId,
+      },
+    }
+  );
+
+  if (error) {
+    console.error(
+      "Delete developer Edge Function failed:",
+      error
+    );
+
+    throw new Error(
+      error.message ||
+        "Unable to delete developer."
+    );
+  }
+
+  if (!data?.success) {
+    throw new Error(
+      data?.error ||
+        "Unable to delete developer."
+    );
+  }
+
+  return {
+    success: true,
+
+    developer_id:
+      data.developer_id ||
+      null,
+
+    user_id:
+      data.user_id ||
+      developerUserId,
+
+    email:
+      data.email ||
+      null,
+
+    storage_errors:
+      data.storage_errors ||
+      [],
+
+    message:
+      data.message ||
+      "Developer account deleted successfully.",
+  };
 }

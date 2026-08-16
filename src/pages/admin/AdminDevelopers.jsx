@@ -19,6 +19,7 @@ import {
   User,
   Globe,
   Trash2,
+  UserX,
 } from "lucide-react";
 
 import {
@@ -26,8 +27,8 @@ import {
   approveDeveloperApplication,
   rejectDeveloperApplication,
   deleteDeveloperApplication,
+  deleteDeveloper,
 } from "../../services/admin/adminDeveloperService";
-
 
 export default function AdminDevelopers() {
   const [applications, setApplications] = useState([]);
@@ -47,7 +48,6 @@ export default function AdminDevelopers() {
   const [rejectionReason, setRejectionReason] =
     useState("");
 
-
   /* =========================================================
      LOAD APPLICATIONS
   ========================================================= */
@@ -56,26 +56,18 @@ export default function AdminDevelopers() {
     setLoading(true);
 
     try {
-      const data =
-        await getDeveloperApplications();
+      const data = await getDeveloperApplications();
 
       setApplications(data || []);
-
-      /*
-       * Keep the currently opened application
-       * synchronized after refresh.
-       */
 
       setSelectedApplication((current) => {
         if (!current) {
           return null;
         }
 
-        const updated =
-          (data || []).find(
-            (item) =>
-              item.id === current.id
-          );
+        const updated = (data || []).find(
+          (item) => item.id === current.id
+        );
 
         return updated || null;
       });
@@ -94,7 +86,6 @@ export default function AdminDevelopers() {
     }
   }
 
-
   /* =========================================================
      INITIAL LOAD
   ========================================================= */
@@ -103,97 +94,64 @@ export default function AdminDevelopers() {
     loadApplications();
   }, []);
 
-
   /* =========================================================
      SEARCH + FILTER
   ========================================================= */
 
-  const filteredApplications =
-    applications.filter(
-      (application) => {
-        const value =
-          search.trim().toLowerCase();
+  const filteredApplications = applications.filter(
+    (application) => {
+      const value = search.trim().toLowerCase();
 
-        /*
-         * Status is already filtered from the
-         * database list in the UI below.
-         */
+      const matchesStatus =
+        statusFilter === "all" ||
+        application.status === statusFilter;
 
-        const matchesStatus =
-          statusFilter === "all" ||
-          application.status ===
-            statusFilter;
-
-        if (!matchesStatus) {
-          return false;
-        }
-
-        if (!value) {
-          return true;
-        }
-
-        const name =
-          application.full_name
-            ?.toLowerCase() || "";
-
-        const email =
-          application.email
-            ?.toLowerCase() || "";
-
-        const phone =
-          application.phone
-            ?.toLowerCase() || "";
-
-        const city =
-          application.city
-            ?.toLowerCase() || "";
-
-        const education =
-          application.education
-            ?.toLowerCase() || "";
-
-        const roles =
-          Array.isArray(
-            application.primary_roles
-          )
-            ? application.primary_roles
-                .join(" ")
-                .toLowerCase()
-            : String(
-                application.primary_roles ||
-                  ""
-              ).toLowerCase();
-
-        return (
-          name.includes(value) ||
-          email.includes(value) ||
-          phone.includes(value) ||
-          city.includes(value) ||
-          education.includes(value) ||
-          roles.includes(value)
-        );
+      if (!matchesStatus) {
+        return false;
       }
-    );
 
+      if (!value) {
+        return true;
+      }
+
+      const name =
+        application.full_name?.toLowerCase() || "";
+
+      const email =
+        application.email?.toLowerCase() || "";
+
+      const phone =
+        application.phone?.toLowerCase() || "";
+
+      const city =
+        application.city?.toLowerCase() || "";
+
+      const education =
+        application.education?.toLowerCase() || "";
+
+      const roles = Array.isArray(
+        application.primary_roles
+      )
+        ? application.primary_roles
+            .join(" ")
+            .toLowerCase()
+        : String(
+            application.primary_roles || ""
+          ).toLowerCase();
+
+      return (
+        name.includes(value) ||
+        email.includes(value) ||
+        phone.includes(value) ||
+        city.includes(value) ||
+        education.includes(value) ||
+        roles.includes(value)
+      );
+    }
+  );
 
   /* =========================================================
      ACCEPT APPLICATION
-  =========================================================
-
-     IMPORTANT:
-
-     There is NO direct Supabase update here.
-
-     This calls:
-
-        approveDeveloperApplication()
-
-     which calls:
-
-        approve-developer
-
-     Edge Function.
-
   ========================================================= */
 
   async function acceptApplication() {
@@ -212,22 +170,13 @@ export default function AdminDevelopers() {
       const updatedApplication =
         result.application;
 
-      /*
-       * Update table.
-       */
-
       setApplications((previous) =>
         previous.map((item) =>
-          item.id ===
-          updatedApplication.id
+          item.id === updatedApplication.id
             ? updatedApplication
             : item
         )
       );
-
-      /*
-       * Update modal.
-       */
 
       setSelectedApplication(
         updatedApplication
@@ -252,27 +201,8 @@ export default function AdminDevelopers() {
     }
   }
 
-
   /* =========================================================
      REJECT APPLICATION
-  =========================================================
-
-     IMPORTANT:
-
-     Rejection DOES NOT delete the application.
-
-     It changes:
-
-        pending → rejected
-
-     The rejection reason is preserved.
-
-     The service calls:
-
-        reject-developer
-
-     Edge Function.
-
   ========================================================= */
 
   async function rejectApplication() {
@@ -293,7 +223,10 @@ export default function AdminDevelopers() {
 
     const confirmed =
       window.confirm(
-        `Reject ${selectedApplication.full_name || "this applicant"}'s application?\n\nReason: ${reason}`
+        `Reject ${
+          selectedApplication.full_name ||
+          "this applicant"
+        }'s application?\n\nReason: ${reason}`
       );
 
     if (!confirmed) {
@@ -312,23 +245,13 @@ export default function AdminDevelopers() {
       const updatedApplication =
         result.application;
 
-      /*
-       * Update the existing row.
-       */
-
       setApplications((previous) =>
         previous.map((item) =>
-          item.id ===
-          updatedApplication.id
+          item.id === updatedApplication.id
             ? updatedApplication
             : item
         )
       );
-
-      /*
-       * Keep modal open and show
-       * the newly rejected application.
-       */
 
       setSelectedApplication(
         updatedApplication
@@ -356,23 +279,8 @@ export default function AdminDevelopers() {
     }
   }
 
-
   /* =========================================================
      DELETE APPLICATION
-  =========================================================
-
-     Delete is a separate permanent action.
-
-     This calls:
-
-        deleteDeveloperApplication()
-
-     The service removes:
-
-        1. Profile photo
-        2. Resume
-        3. Application database record
-
   ========================================================= */
 
   async function deleteApplication() {
@@ -385,7 +293,7 @@ export default function AdminDevelopers() {
         `Delete the application from ${
           selectedApplication.full_name ||
           "this applicant"
-        }?\n\nThis will permanently remove the application and uploaded documents.`
+        }?\n\nThis will permanently remove the application and uploaded documents.\n\nThis does NOT delete an existing developer account.`
       );
 
     if (!confirmed) {
@@ -403,20 +311,12 @@ export default function AdminDevelopers() {
           applicationId
         );
 
-      /*
-       * Remove from table.
-       */
-
       setApplications((previous) =>
         previous.filter(
           (item) =>
             item.id !== applicationId
         )
       );
-
-      /*
-       * Close modal.
-       */
 
       setSelectedApplication(null);
       setShowRejectBox(false);
@@ -426,7 +326,7 @@ export default function AdminDevelopers() {
         result.storageErrors?.length
       ) {
         alert(
-          `Application deleted successfully.\n\nHowever, these files could not be removed: ${result.storageErrors.join(
+          `Application deleted successfully.\n\nHowever, these files could not be removed:\n${result.storageErrors.join(
             ", "
           )}`
         );
@@ -450,6 +350,129 @@ export default function AdminDevelopers() {
     }
   }
 
+  /* =========================================================
+     REMOVE DEVELOPER ACCOUNT
+  ========================================================= */
+
+  async function removeDeveloper() {
+    if (!selectedApplication) {
+      return;
+    }
+
+    if (
+      selectedApplication.status !==
+      "accepted"
+    ) {
+      alert(
+        "Only an accepted developer can be removed from EXCWA."
+      );
+
+      return;
+    }
+
+    const developerUserId =
+      selectedApplication.developer_user_id;
+
+    if (!developerUserId) {
+      alert(
+        "This developer does not have a linked authentication user ID."
+      );
+
+      return;
+    }
+
+    const developerName =
+      selectedApplication.full_name ||
+      "this developer";
+
+    const developerEmail =
+      selectedApplication.email ||
+      "";
+
+    const firstConfirmation =
+      window.confirm(
+        `PERMANENTLY REMOVE DEVELOPER\n\n` +
+          `${developerName}\n` +
+          `${developerEmail}\n\n` +
+          `This will permanently delete the developer's EXCWA account, including:\n\n` +
+          `• Authentication account\n` +
+          `• Profile\n` +
+          `• Developer profile\n` +
+          `• Developer skills\n` +
+          `• Opportunity applications\n` +
+          `• Project assignments\n` +
+          `• Project submissions\n\n` +
+          `This action cannot be undone.\n\n` +
+          `Continue?`
+      );
+
+    if (!firstConfirmation) {
+      return;
+    }
+
+    const secondConfirmation =
+      window.confirm(
+        `FINAL CONFIRMATION\n\n` +
+          `You are about to permanently delete:\n\n` +
+          `${developerName}\n` +
+          `${developerEmail}\n\n` +
+          `Delete this developer account permanently?`
+      );
+
+    if (!secondConfirmation) {
+      return;
+    }
+
+    setActionLoading(true);
+
+    try {
+      const result =
+        await deleteDeveloper(
+          developerUserId
+        );
+
+      setApplications((previous) =>
+        previous.filter(
+          (item) =>
+            item.developer_user_id !==
+            developerUserId
+        )
+      );
+
+      setSelectedApplication(null);
+      setShowRejectBox(false);
+      setRejectionReason("");
+
+      if (
+        result.storage_errors?.length
+      ) {
+        alert(
+          `Developer account deleted successfully.\n\n` +
+            `However, these storage items could not be removed:\n` +
+            result.storage_errors.join(
+              ", "
+            )
+        );
+      } else {
+        alert(
+          result.message ||
+            "Developer account deleted successfully."
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Failed to remove developer account:",
+        error
+      );
+
+      alert(
+        error?.message ||
+          "Unable to remove developer account."
+      );
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
   /* =========================================================
      OPEN APPLICATION
@@ -466,7 +489,6 @@ export default function AdminDevelopers() {
     setRejectionReason("");
   }
 
-
   /* =========================================================
      CLOSE APPLICATION
   ========================================================= */
@@ -481,17 +503,13 @@ export default function AdminDevelopers() {
     setRejectionReason("");
   }
 
-
   /* =========================================================
      STATUS CLASS
   ========================================================= */
 
-  function getStatusClass(
-    status
-  ) {
+  function getStatusClass(status) {
     return `developer-status developer-status-${status}`;
   }
-
 
   /* =========================================================
      FORMAT DATE
@@ -522,17 +540,12 @@ export default function AdminDevelopers() {
     );
   }
 
-
   /* =========================================================
      UI
   ========================================================= */
 
   return (
     <div className="admin-developers-page">
-
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
 
       <div className="admin-page-header">
 
@@ -569,11 +582,6 @@ export default function AdminDevelopers() {
 
       </div>
 
-
-      {/* =====================================================
-          SEARCH / FILTER
-      ===================================================== */}
-
       <div className="developer-controls">
 
         <div className="developer-search">
@@ -592,7 +600,6 @@ export default function AdminDevelopers() {
           />
 
         </div>
-
 
         <select
           value={statusFilter}
@@ -621,11 +628,6 @@ export default function AdminDevelopers() {
         </select>
 
       </div>
-
-
-      {/* =====================================================
-          TABLE
-      ===================================================== */}
 
       <div className="developer-table-card">
 
@@ -664,7 +666,6 @@ export default function AdminDevelopers() {
             <table className="developer-table">
 
               <thead>
-
                 <tr>
 
                   <th>
@@ -696,9 +697,7 @@ export default function AdminDevelopers() {
                   </th>
 
                 </tr>
-
               </thead>
-
 
               <tbody>
 
@@ -710,8 +709,6 @@ export default function AdminDevelopers() {
                         application.id
                       }
                     >
-
-                      {/* APPLICANT */}
 
                       <td>
 
@@ -731,9 +728,6 @@ export default function AdminDevelopers() {
 
                       </td>
 
-
-                      {/* CONTACT */}
-
                       <td>
                         {
                           application.phone ||
@@ -741,18 +735,12 @@ export default function AdminDevelopers() {
                         }
                       </td>
 
-
-                      {/* LOCATION */}
-
                       <td>
                         {
                           application.city ||
                           "—"
                         }
                       </td>
-
-
-                      {/* ROLES */}
 
                       <td>
 
@@ -804,9 +792,6 @@ export default function AdminDevelopers() {
 
                       </td>
 
-
-                      {/* STATUS */}
-
                       <td>
 
                         <span
@@ -821,19 +806,11 @@ export default function AdminDevelopers() {
 
                       </td>
 
-
-                      {/* DATE */}
-
                       <td>
-
                         {formatDate(
                           application.created_at
                         )}
-
                       </td>
-
-
-                      {/* VIEW */}
 
                       <td>
 
@@ -872,7 +849,6 @@ export default function AdminDevelopers() {
 
       </div>
 
-
       {/* =====================================================
           APPLICATION DETAILS MODAL
       ===================================================== */}
@@ -893,10 +869,6 @@ export default function AdminDevelopers() {
             }
           >
 
-            {/* =================================================
-                MODAL HEADER
-            ================================================= */}
-
             <div className="developer-modal-header">
 
               <div>
@@ -914,7 +886,6 @@ export default function AdminDevelopers() {
 
               </div>
 
-
               <button
                 type="button"
                 className="developer-modal-close"
@@ -929,11 +900,6 @@ export default function AdminDevelopers() {
               </button>
 
             </div>
-
-
-            {/* =================================================
-                PROFILE
-            ================================================= */}
 
             <div className="developer-profile-section">
 
@@ -963,7 +929,6 @@ export default function AdminDevelopers() {
 
               )}
 
-
               <div className="developer-profile-main">
 
                 <h3>
@@ -972,7 +937,6 @@ export default function AdminDevelopers() {
                     "—"
                   }
                 </h3>
-
 
                 <div className="developer-profile-contact">
 
@@ -985,7 +949,6 @@ export default function AdminDevelopers() {
                     }
                   </span>
 
-
                   <span>
                     <Phone size={14} />
 
@@ -994,7 +957,6 @@ export default function AdminDevelopers() {
                       "—"
                     }
                   </span>
-
 
                   <span>
                     <MapPin size={14} />
@@ -1006,7 +968,6 @@ export default function AdminDevelopers() {
                   </span>
 
                 </div>
-
 
                 <span
                   className={getStatusClass(
@@ -1021,11 +982,6 @@ export default function AdminDevelopers() {
               </div>
 
             </div>
-
-
-            {/* =================================================
-                PERSONAL INFORMATION
-            ================================================= */}
 
             <ApplicationSection
               icon={
@@ -1064,11 +1020,6 @@ export default function AdminDevelopers() {
 
             </ApplicationSection>
 
-
-            {/* =================================================
-                PROFESSIONAL INFORMATION
-            ================================================= */}
-
             <ApplicationSection
               icon={
                 <Briefcase size={18} />
@@ -1087,7 +1038,6 @@ export default function AdminDevelopers() {
                   selectedApplication.education
                 }
               />
-
 
               <div className="developer-detail-full">
 
@@ -1122,11 +1072,6 @@ export default function AdminDevelopers() {
 
             </ApplicationSection>
 
-
-            {/* =================================================
-                ONLINE PROFILES
-            ================================================= */}
-
             <ApplicationSection
               icon={
                 <Globe size={18} />
@@ -1153,7 +1098,6 @@ export default function AdminDevelopers() {
 
                 )}
 
-
                 {selectedApplication.linkedin_url ? (
 
                   <ProfileLink
@@ -1170,7 +1114,6 @@ export default function AdminDevelopers() {
                   />
 
                 )}
-
 
                 {selectedApplication.portfolio_url ? (
 
@@ -1192,11 +1135,6 @@ export default function AdminDevelopers() {
               </div>
 
             </ApplicationSection>
-
-
-            {/* =================================================
-                DOCUMENTS
-            ================================================= */}
 
             <ApplicationSection
               icon={
@@ -1230,7 +1168,6 @@ export default function AdminDevelopers() {
 
                 )}
 
-
                 {selectedApplication.resume_url && (
 
                   <a
@@ -1256,7 +1193,6 @@ export default function AdminDevelopers() {
 
                 )}
 
-
                 {!selectedApplication.profile_photo_url &&
                   !selectedApplication.resume_url && (
 
@@ -1271,11 +1207,6 @@ export default function AdminDevelopers() {
 
             </ApplicationSection>
 
-
-            {/* =================================================
-                APPLICATION INFORMATION
-            ================================================= */}
-
             <ApplicationSection
               icon={
                 <Calendar size={18} />
@@ -1287,6 +1218,13 @@ export default function AdminDevelopers() {
                 label="Application ID"
                 value={
                   selectedApplication.id
+                }
+              />
+
+              <Detail
+                label="Developer User ID"
+                value={
+                  selectedApplication.developer_user_id
                 }
               />
 
@@ -1311,7 +1249,6 @@ export default function AdminDevelopers() {
                 )}
               />
 
-
               {selectedApplication.reviewed_at && (
 
                 <Detail
@@ -1322,7 +1259,6 @@ export default function AdminDevelopers() {
                 />
 
               )}
-
 
               {selectedApplication.rejection_reason && (
 
@@ -1343,7 +1279,6 @@ export default function AdminDevelopers() {
               )}
 
             </ApplicationSection>
-
 
             {/* =================================================
                 PENDING ACTIONS
@@ -1379,7 +1314,6 @@ export default function AdminDevelopers() {
 
                     </button>
 
-
                     <button
                       type="button"
                       className="developer-accept-button"
@@ -1411,7 +1345,6 @@ export default function AdminDevelopers() {
                       Rejection Reason
                     </label>
 
-
                     <textarea
                       value={
                         rejectionReason
@@ -1428,14 +1361,12 @@ export default function AdminDevelopers() {
                       }
                     />
 
-
                     <p>
                       The application will be
                       marked as rejected and the
                       rejection reason will be
                       preserved.
                     </p>
-
 
                     <div className="developer-reject-actions">
 
@@ -1456,7 +1387,6 @@ export default function AdminDevelopers() {
                       >
                         Cancel
                       </button>
-
 
                       <button
                         type="button"
@@ -1485,9 +1415,78 @@ export default function AdminDevelopers() {
 
             )}
 
+            {/* =================================================
+                ACCEPTED DEVELOPER ACCOUNT ACTION
+            ================================================= */}
+
+            {selectedApplication.status ===
+              "accepted" && (
+
+              <div className="developer-account-section">
+
+                <div className="developer-account-warning">
+
+                  <UserX
+                    size={20}
+                  />
+
+                  <div>
+
+                    <strong>
+                      Developer Account
+                    </strong>
+
+                    <p>
+                      This application belongs to
+                      an active EXCWA developer account.
+                      Removing the account permanently
+                      deletes the developer and related
+                      project data.
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="developer-remove-account-button"
+                  onClick={
+                    removeDeveloper
+                  }
+                  disabled={
+                    actionLoading ||
+                    !selectedApplication.developer_user_id
+                  }
+                >
+
+                  <UserX
+                    size={17}
+                  />
+
+                  {actionLoading
+                    ? "Removing Developer..."
+                    : "Remove Developer Account"}
+
+                </button>
+
+                {!selectedApplication.developer_user_id && (
+
+                  <p className="developer-account-error">
+                    Developer user ID is missing.
+                    This account cannot be removed
+                    until the application is linked
+                    to its authentication user.
+                  </p>
+
+                )}
+
+              </div>
+
+            )}
 
             {/* =================================================
-                MANUAL DELETE
+                DELETE APPLICATION
             ================================================= */}
 
             <div className="developer-delete-section">
@@ -1523,7 +1522,6 @@ export default function AdminDevelopers() {
   );
 }
 
-
 /* =============================================================
    APPLICATION SECTION
 ============================================================= */
@@ -1546,7 +1544,6 @@ function ApplicationSection({
 
       </div>
 
-
       <div className="developer-section-content">
 
         {children}
@@ -1556,7 +1553,6 @@ function ApplicationSection({
     </section>
   );
 }
-
 
 /* =============================================================
    DETAIL
@@ -1578,7 +1574,6 @@ function Detail({
 
       </span>
 
-
       <strong>
         {value || "—"}
       </strong>
@@ -1586,7 +1581,6 @@ function Detail({
     </div>
   );
 }
-
 
 /* =============================================================
    PROFILE LINK
@@ -1615,7 +1609,6 @@ function ProfileLink({
     </a>
   );
 }
-
 
 /* =============================================================
    UNAVAILABLE LINK
