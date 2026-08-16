@@ -2,38 +2,154 @@ import { supabase } from "../../lib/supabase";
 
 /*
 =========================================================
+ EXCWA TECH
  ADMIN DEVELOPER SERVICE
 =========================================================
 
-Responsibilities:
+This is the single frontend service for the admin
+developer application workflow.
 
-1. Get developer applications
-2. Get single application
-3. Approve application
-4. Reject application
-5. Suspend developer
-6. Get developer profiles
-7. Get single developer profile
+RESPONSIBILITIES
 
-IMPORTANT:
-The actual Supabase Auth user creation must NOT happen
-from the browser using the service-role key.
+1. Load developer applications
+2. Load one developer application
+3. Approve developer application
+4. Reject developer application
+5. Delete developer application
+6. Load existing developer profiles
+7. Load individual developer profiles
+8. Update existing developer status
+9. Suspend developer
+10. Reactivate developer
 
-The approval flow will eventually be:
+IMPORTANT
 
-developer_application
-        ↓
-     accepted
-        ↓
-create Auth user
-        ↓
-create developer_profiles row
-        ↓
-developer_status = approved
-        ↓
-developer can login
+Approval and rejection NEVER happen through a direct
+browser database UPDATE.
+
+Approval:
+    browser
+       ↓
+    approve-developer Edge Function
+       ↓
+    server verifies admin
+       ↓
+    Auth user
+       ↓
+    profiles
+       ↓
+    developer_profiles
+       ↓
+    activation link
+       ↓
+    application = accepted
+
+Rejection:
+    browser
+       ↓
+    reject-developer Edge Function
+       ↓
+    server verifies admin
+       ↓
+    application = rejected
+
 =========================================================
 */
+
+
+/* =========================================================
+   APPLICATION STATUS CONSTANTS
+========================================================= */
+
+export const DEVELOPER_APPLICATION_STATUSES = {
+  PENDING: "pending",
+  ACCEPTED: "accepted",
+  REJECTED: "rejected",
+};
+
+
+/* =========================================================
+   DEVELOPER PROFILE STATUS CONSTANTS
+========================================================= */
+
+export const DEVELOPER_PROFILE_STATUSES = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  SUSPENDED: "suspended",
+};
+
+
+/* =========================================================
+   STORAGE CONSTANTS
+========================================================= */
+
+const PROFILE_PHOTO_BUCKET = "profile-photos";
+const DEVELOPER_RESUME_BUCKET = "developer-resumes";
+
+
+/* =========================================================
+   GET CURRENT ADMIN
+========================================================= */
+
+async function getCurrentAdmin() {
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError) {
+    console.error(
+      "Failed to get current authenticated user:",
+      authError
+    );
+
+    throw new Error(
+      "Unable to verify your administrator session."
+    );
+  }
+
+  if (!user) {
+    throw new Error(
+      "You must be logged in as an administrator."
+    );
+  }
+
+  const {
+    data: profile,
+    error: profileError,
+  } = await supabase
+    .from("profiles")
+    .select("id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    console.error(
+      "Failed to verify administrator profile:",
+      profileError
+    );
+
+    throw new Error(
+      profileError.message ||
+        "Unable to verify administrator."
+    );
+  }
+
+  if (!profile) {
+    throw new Error(
+      "Administrator profile not found."
+    );
+  }
+
+  if (profile.role !== "admin") {
+    throw new Error(
+      "Administrator access is required."
+    );
+  }
+
+  return user;
+}
 
 
 /* =========================================================
@@ -41,9 +157,36 @@ developer can login
 ========================================================= */
 
 export async function getDeveloperApplications() {
-  const { data, error } = await supabase
+  await getCurrentAdmin();
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_applications")
-    .select("*")
+    .select(`
+      id,
+      full_name,
+      phone,
+      email,
+      city,
+      education,
+      github_url,
+      linkedin_url,
+      portfolio_url,
+      primary_roles,
+      profile_photo_path,
+      profile_photo_url,
+      resume_path,
+      resume_url,
+      status,
+      rejection_reason,
+      reviewed_by,
+      reviewed_at,
+      created_at,
+      updated_at,
+      developer_user_id
+    `)
     .order("created_at", {
       ascending: false,
     });
@@ -65,21 +208,50 @@ export async function getDeveloperApplications() {
 
 
 /* =========================================================
-   GET SINGLE APPLICATION
+   GET SINGLE DEVELOPER APPLICATION
 ========================================================= */
 
-export async function getDeveloperApplication(applicationId) {
+export async function getDeveloperApplication(
+  applicationId
+) {
   if (!applicationId) {
     throw new Error(
       "Developer application ID is required."
     );
   }
 
-  const { data, error } = await supabase
+  await getCurrentAdmin();
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_applications")
-    .select("*")
+    .select(`
+      id,
+      full_name,
+      phone,
+      email,
+      city,
+      education,
+      github_url,
+      linkedin_url,
+      portfolio_url,
+      primary_roles,
+      profile_photo_path,
+      profile_photo_url,
+      resume_path,
+      resume_url,
+      status,
+      rejection_reason,
+      reviewed_by,
+      reviewed_at,
+      created_at,
+      updated_at,
+      developer_user_id
+    `)
     .eq("id", applicationId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error(
@@ -90,6 +262,12 @@ export async function getDeveloperApplication(applicationId) {
     throw new Error(
       error.message ||
         "Unable to load developer application."
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      "Developer application not found."
     );
   }
 
@@ -110,67 +288,69 @@ export async function approveDeveloperApplication(
     );
   }
 
-  /*
-   * Get currently logged-in admin.
-   */
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    throw new Error(
-      "You must be logged in as an administrator."
-    );
-  }
+  await getCurrentAdmin();
 
   /*
-   * Get application.
+   * Load the application first so the service can
+   * validate the requested state transition.
    */
 
   const application =
-    await getDeveloperApplication(applicationId);
+    await getDeveloperApplication(
+      applicationId
+    );
 
-  if (application.status === "accepted") {
+  if (
+    application.status ===
+    DEVELOPER_APPLICATION_STATUSES.ACCEPTED
+  ) {
     throw new Error(
-      "This application has already been approved."
+      "This developer application has already been accepted."
     );
   }
 
-  if (application.status === "rejected") {
+  if (
+    application.status ===
+    DEVELOPER_APPLICATION_STATUSES.REJECTED
+  ) {
     throw new Error(
-      "A rejected application cannot be approved directly."
+      "A rejected application cannot be accepted directly."
+    );
+  }
+
+  if (
+    application.status !==
+    DEVELOPER_APPLICATION_STATUSES.PENDING
+  ) {
+    throw new Error(
+      `Cannot accept an application with status "${application.status}".`
     );
   }
 
   /*
-   * Update application status.
+   * IMPORTANT:
    *
-   * app_status enum:
+   * The browser does NOT update the application.
    *
-   * pending
-   * under_review
-   * accepted
-   * rejected
+   * The Edge Function performs the complete approval
+   * transaction on the server.
    */
 
-  const { data, error } = await supabase
-    .from("developer_applications")
-    .update({
-      status: "accepted",
-      reviewed_by: user.id,
-      reviewed_at: new Date().toISOString(),
-      rejection_reason: null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", applicationId)
-    .select()
-    .single();
+  const {
+    data,
+    error,
+  } = await supabase.functions.invoke(
+    "approve-developer",
+    {
+      body: {
+        application_id: applicationId,
+      },
+    }
+  );
 
   if (error) {
     console.error(
-      "Failed to approve developer application:",
+      "Approve developer Edge Function failed:",
       error
     );
 
@@ -180,16 +360,29 @@ export async function approveDeveloperApplication(
     );
   }
 
-  /*
-   * IMPORTANT
-   *
-   * We DO NOT create auth.users here.
-   *
-   * That must be handled by a secure server-side
-   * Edge Function using the Supabase service role.
-   */
+  if (!data?.success) {
+    throw new Error(
+      data?.error ||
+        "Unable to approve developer application."
+    );
+  }
 
-  return data;
+  if (!data?.application) {
+    throw new Error(
+      "Developer approval completed, but no updated application was returned."
+    );
+  }
+
+  return {
+    success: true,
+    application: data.application,
+    user_id: data.user_id || null,
+    activation_link:
+      data.activation_link || null,
+    message:
+      data.message ||
+      "Developer application accepted successfully.",
+  };
 }
 
 
@@ -207,34 +400,78 @@ export async function rejectDeveloperApplication(
     );
   }
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  await getCurrentAdmin();
 
-  if (authError || !user) {
+  /*
+   * Load application and validate transition.
+   */
+
+  const application =
+    await getDeveloperApplication(
+      applicationId
+    );
+
+  if (
+    application.status ===
+    DEVELOPER_APPLICATION_STATUSES.ACCEPTED
+  ) {
     throw new Error(
-      "You must be logged in as an administrator."
+      "An accepted developer application cannot be rejected."
     );
   }
 
-  const { data, error } = await supabase
-    .from("developer_applications")
-    .update({
-      status: "rejected",
-      rejection_reason:
-        rejectionReason?.trim() || null,
-      reviewed_by: user.id,
-      reviewed_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", applicationId)
-    .select()
-    .single();
+  if (
+    application.status ===
+    DEVELOPER_APPLICATION_STATUSES.REJECTED
+  ) {
+    throw new Error(
+      "This developer application is already rejected."
+    );
+  }
+
+  if (
+    application.status !==
+    DEVELOPER_APPLICATION_STATUSES.PENDING
+  ) {
+    throw new Error(
+      `Cannot reject an application with status "${application.status}".`
+    );
+  }
+
+  const reason =
+    typeof rejectionReason === "string"
+      ? rejectionReason.trim()
+      : "";
+
+  if (!reason) {
+    throw new Error(
+      "A rejection reason is required."
+    );
+  }
+
+  /*
+   * IMPORTANT:
+   *
+   * The browser does NOT directly UPDATE
+   * developer_applications.
+   */
+
+  const {
+    data,
+    error,
+  } = await supabase.functions.invoke(
+    "reject-developer",
+    {
+      body: {
+        application_id: applicationId,
+        rejection_reason: reason,
+      },
+    }
+  );
 
   if (error) {
     console.error(
-      "Failed to reject developer application:",
+      "Reject developer Edge Function failed:",
       error
     );
 
@@ -244,15 +481,44 @@ export async function rejectDeveloperApplication(
     );
   }
 
-  return data;
+  if (!data?.success) {
+    throw new Error(
+      data?.error ||
+        "Unable to reject developer application."
+    );
+  }
+
+  if (!data?.application) {
+    throw new Error(
+      "Developer rejection completed, but no updated application was returned."
+    );
+  }
+
+  return {
+    success: true,
+    application: data.application,
+    message:
+      data.message ||
+      "Developer application rejected successfully.",
+  };
 }
 
 
 /* =========================================================
-   SET APPLICATION UNDER REVIEW
+   DELETE DEVELOPER APPLICATION
+=========================================================
+
+Delete is intentionally separate from rejection.
+
+Reject:
+    pending → rejected
+
+Delete:
+    permanently removes application
+
 ========================================================= */
 
-export async function markApplicationUnderReview(
+export async function deleteDeveloperApplication(
   applicationId
 ) {
   if (!applicationId) {
@@ -261,35 +527,92 @@ export async function markApplicationUnderReview(
     );
   }
 
+  await getCurrentAdmin();
+
+  const application =
+    await getDeveloperApplication(
+      applicationId
+    );
+
+  const storageErrors = [];
+
+
+  /* -------------------------------------------------------
+     DELETE PROFILE PHOTO
+  ------------------------------------------------------- */
+
+  if (application.profile_photo_path) {
+    const {
+      error,
+    } = await supabase.storage
+      .from(PROFILE_PHOTO_BUCKET)
+      .remove([
+        application.profile_photo_path,
+      ]);
+
+    if (error) {
+      console.error(
+        "Failed to delete developer profile photo:",
+        error
+      );
+
+      storageErrors.push("profile photo");
+    }
+  }
+
+
+  /* -------------------------------------------------------
+     DELETE RESUME
+  ------------------------------------------------------- */
+
+  if (application.resume_path) {
+    const {
+      error,
+    } = await supabase.storage
+      .from(DEVELOPER_RESUME_BUCKET)
+      .remove([
+        application.resume_path,
+      ]);
+
+    if (error) {
+      console.error(
+        "Failed to delete developer resume:",
+        error
+      );
+
+      storageErrors.push("resume");
+    }
+  }
+
+
+  /* -------------------------------------------------------
+     DELETE DATABASE RECORD
+  ------------------------------------------------------- */
+
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    throw new Error(
-      "You must be logged in as an administrator."
-    );
-  }
-
-  const { data, error } = await supabase
+    error: deleteError,
+  } = await supabase
     .from("developer_applications")
-    .update({
-      status: "under_review",
-      reviewed_by: user.id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", applicationId)
-    .select()
-    .single();
+    .delete()
+    .eq("id", applicationId);
 
-  if (error) {
+  if (deleteError) {
+    console.error(
+      "Failed to delete developer application:",
+      deleteError
+    );
+
     throw new Error(
-      error.message ||
-        "Unable to update application status."
+      deleteError.message ||
+        "Unable to delete developer application."
     );
   }
 
-  return data;
+  return {
+    success: true,
+    applicationId,
+    storageErrors,
+  };
 }
 
 
@@ -298,7 +621,12 @@ export async function markApplicationUnderReview(
 ========================================================= */
 
 export async function getDevelopers() {
-  const { data, error } = await supabase
+  await getCurrentAdmin();
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_profiles")
     .select("*")
     .order("created_at", {
@@ -325,18 +653,25 @@ export async function getDevelopers() {
    GET SINGLE DEVELOPER
 ========================================================= */
 
-export async function getDeveloper(developerId) {
+export async function getDeveloper(
+  developerId
+) {
   if (!developerId) {
     throw new Error(
       "Developer ID is required."
     );
   }
 
-  const { data, error } = await supabase
+  await getCurrentAdmin();
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_profiles")
     .select("*")
     .eq("id", developerId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error(
@@ -350,22 +685,35 @@ export async function getDeveloper(developerId) {
     );
   }
 
+  if (!data) {
+    throw new Error(
+      "Developer not found."
+    );
+  }
+
   return data;
 }
 
 
 /* =========================================================
-   GET DEVELOPER BY USER ID
+   GET DEVELOPER BY AUTH USER ID
 ========================================================= */
 
-export async function getDeveloperByUserId(userId) {
+export async function getDeveloperByUserId(
+  userId
+) {
   if (!userId) {
     throw new Error(
       "User ID is required."
     );
   }
 
-  const { data, error } = await supabase
+  await getCurrentAdmin();
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_profiles")
     .select("*")
     .eq("user_id", userId)
@@ -389,6 +737,12 @@ export async function getDeveloperByUserId(userId) {
 
 /* =========================================================
    UPDATE DEVELOPER STATUS
+=========================================================
+
+This is for EXISTING developer profiles.
+
+It does NOT modify developer_applications.
+
 ========================================================= */
 
 export async function updateDeveloperStatus(
@@ -402,11 +756,13 @@ export async function updateDeveloperStatus(
     );
   }
 
+  await getCurrentAdmin();
+
   const allowedStatuses = [
-    "pending",
-    "approved",
-    "rejected",
-    "suspended",
+    DEVELOPER_PROFILE_STATUSES.PENDING,
+    DEVELOPER_PROFILE_STATUSES.APPROVED,
+    DEVELOPER_PROFILE_STATUSES.REJECTED,
+    DEVELOPER_PROFILE_STATUSES.SUSPENDED,
   ];
 
   if (!allowedStatuses.includes(status)) {
@@ -417,17 +773,26 @@ export async function updateDeveloperStatus(
 
   const update = {
     status,
-    updated_at: new Date().toISOString(),
+    updated_at:
+      new Date().toISOString(),
   };
 
-  if (status === "rejected") {
+  if (
+    status ===
+    DEVELOPER_PROFILE_STATUSES.REJECTED
+  ) {
     update.rejection_reason =
-      rejectionReason?.trim() || null;
+      typeof rejectionReason === "string"
+        ? rejectionReason.trim() || null
+        : null;
   } else {
     update.rejection_reason = null;
   }
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_profiles")
     .update(update)
     .eq("id", developerId)
@@ -459,7 +824,7 @@ export async function suspendDeveloper(
 ) {
   return updateDeveloperStatus(
     developerId,
-    "suspended"
+    DEVELOPER_PROFILE_STATUSES.SUSPENDED
   );
 }
 
@@ -473,40 +838,6 @@ export async function reactivateDeveloper(
 ) {
   return updateDeveloperStatus(
     developerId,
-    "approved"
+    DEVELOPER_PROFILE_STATUSES.APPROVED
   );
-}
-
-
-/* =========================================================
-   DELETE DEVELOPER PROFILE
-========================================================= */
-
-export async function deleteDeveloper(
-  developerId
-) {
-  if (!developerId) {
-    throw new Error(
-      "Developer ID is required."
-    );
-  }
-
-  const { error } = await supabase
-    .from("developer_profiles")
-    .delete()
-    .eq("id", developerId);
-
-  if (error) {
-    console.error(
-      "Failed to delete developer:",
-      error
-    );
-
-    throw new Error(
-      error.message ||
-        "Unable to delete developer."
-    );
-  }
-
-  return true;
 }

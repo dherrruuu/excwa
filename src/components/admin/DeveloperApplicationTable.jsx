@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import {
   RefreshCw,
   Search,
@@ -8,35 +9,38 @@ import {
 
 import {
   getDeveloperApplications,
-  markApplicationUnderReview,
   approveDeveloperApplication,
   rejectDeveloperApplication,
   deleteDeveloperApplication,
-} from "../../services/admin/adminReviewService";
+} from "../../services/developer/adminDeveloperService";
 
 import DeveloperApplicationRow from "./DeveloperApplicationRow";
 import DeveloperApplicationDetails from "./DeveloperApplicationDetails";
 
+
 export default function DeveloperApplicationTable() {
   const [applications, setApplications] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("pending");
+  const [statusFilter, setStatusFilter] =
+    useState("pending");
 
   const [selectedApplication, setSelectedApplication] =
     useState(null);
 
   const [error, setError] = useState("");
 
-  /*
-   * =========================================================
-   * FETCH APPLICATIONS
-   * =========================================================
-   */
 
-  const fetchApplications = async (showRefresh = false) => {
+  /* =========================================================
+     FETCH APPLICATIONS
+  ========================================================= */
+
+  const fetchApplications = async (
+    showRefresh = false
+  ) => {
     try {
       setError("");
 
@@ -46,9 +50,29 @@ export default function DeveloperApplicationTable() {
         setLoading(true);
       }
 
-      const data = await getDeveloperApplications();
+      const data =
+        await getDeveloperApplications();
 
-      setApplications(data);
+      setApplications(data || []);
+
+      /*
+       * Keep the open modal synchronized if the same
+       * application still exists after refresh.
+       */
+
+      setSelectedApplication((current) => {
+        if (!current) {
+          return null;
+        }
+
+        const updated =
+          (data || []).find(
+            (application) =>
+              application.id === current.id
+          );
+
+        return updated || null;
+      });
     } catch (err) {
       console.error(
         "Failed to fetch developer applications:",
@@ -65,105 +89,116 @@ export default function DeveloperApplicationTable() {
     }
   };
 
+
+  /* =========================================================
+     INITIAL LOAD
+  ========================================================= */
+
   useEffect(() => {
     fetchApplications();
   }, []);
 
-  /*
-   * =========================================================
-   * FILTER
-   * =========================================================
-   */
+
+  /* =========================================================
+     SEARCH + STATUS FILTER
+  ========================================================= */
 
   const filteredApplications = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query =
+      search.trim().toLowerCase();
 
-    return applications.filter((application) => {
-      const matchesStatus =
-        statusFilter === "all" ||
-        application.status === statusFilter;
+    return applications.filter(
+      (application) => {
+        /*
+         * STATUS
+         */
 
-      if (!matchesStatus) {
-        return false;
+        const matchesStatus =
+          statusFilter === "all" ||
+          application.status ===
+            statusFilter;
+
+        if (!matchesStatus) {
+          return false;
+        }
+
+        /*
+         * SEARCH
+         */
+
+        if (!query) {
+          return true;
+        }
+
+        const name =
+          application.full_name
+            ?.toLowerCase() || "";
+
+        const email =
+          application.email
+            ?.toLowerCase() || "";
+
+        const phone =
+          application.phone
+            ?.toLowerCase() || "";
+
+        const city =
+          application.city
+            ?.toLowerCase() || "";
+
+        const education =
+          application.education
+            ?.toLowerCase() || "";
+
+        const roles = Array.isArray(
+          application.primary_roles
+        )
+          ? application.primary_roles
+              .join(" ")
+              .toLowerCase()
+          : String(
+              application.primary_roles || ""
+            ).toLowerCase();
+
+        return (
+          name.includes(query) ||
+          email.includes(query) ||
+          phone.includes(query) ||
+          city.includes(query) ||
+          education.includes(query) ||
+          roles.includes(query)
+        );
       }
-
-      if (!query) {
-        return true;
-      }
-
-      const name =
-        application.full_name?.toLowerCase() || "";
-
-      const email =
-        application.email?.toLowerCase() || "";
-
-      const phone =
-        application.phone?.toLowerCase() || "";
-
-      const city =
-        application.city?.toLowerCase() || "";
-
-      return (
-        name.includes(query) ||
-        email.includes(query) ||
-        phone.includes(query) ||
-        city.includes(query)
-      );
-    });
+    );
   }, [
     applications,
     search,
     statusFilter,
   ]);
 
-  /*
-   * =========================================================
-   * STATUS CHANGE
-   * =========================================================
-   */
 
-  const handleStatusChange = async (
-    applicationId,
-    status
+  /* =========================================================
+     APPROVE APPLICATION
+  ========================================================= */
+
+  const approveApplication = async (
+    applicationId
   ) => {
     try {
       setError("");
 
-      let updatedApplication;
-
-      if (status === "approved") {
-        updatedApplication =
-          await approveDeveloperApplication(
-            applicationId
-          );
-      } else if (status === "rejected") {
-        const reason = window.prompt(
-          "Reason for rejection (optional):"
+      const result =
+        await approveDeveloperApplication(
+          applicationId
         );
 
-        if (reason === null) {
-          return;
-        }
+      const updatedApplication =
+        result.application;
 
-        updatedApplication =
-          await rejectDeveloperApplication(
-            applicationId,
-            reason
-          );
-      } else if (status === "under_review") {
-        updatedApplication =
-          await markApplicationUnderReview(
-            applicationId
-          );
-      } else {
-        throw new Error(
-          `Unsupported application status: ${status}`
-        );
-      }
-
-      setApplications((prev) =>
-        prev.map((application) =>
-          application.id === applicationId
+      setApplications((previous) =>
+        previous.map((application) =>
+          application.id ===
+          applicationId
             ? updatedApplication
             : application
         )
@@ -172,31 +207,95 @@ export default function DeveloperApplicationTable() {
       setSelectedApplication(
         updatedApplication
       );
+
+      return result;
     } catch (err) {
       console.error(
-        "Failed to update application:",
+        "Failed to approve developer application:",
         err
       );
 
       setError(
         err?.message ||
-          "Unable to update application."
+          "Unable to approve developer application."
       );
+
+      throw err;
     }
   };
 
-  /*
-   * =========================================================
-   * DELETE
-   * =========================================================
-   */
 
-  const handleDelete = async (
+  /* =========================================================
+     REJECT APPLICATION
+  ========================================================= */
+
+  const rejectApplication = async (
+    applicationId,
+    rejectionReason
+  ) => {
+    try {
+      setError("");
+
+      const result =
+        await rejectDeveloperApplication(
+          applicationId,
+          rejectionReason
+        );
+
+      const updatedApplication =
+        result.application;
+
+      setApplications((previous) =>
+        previous.map((application) =>
+          application.id ===
+          applicationId
+            ? updatedApplication
+            : application
+        )
+      );
+
+      setSelectedApplication(
+        updatedApplication
+      );
+
+      return result;
+    } catch (err) {
+      console.error(
+        "Failed to reject developer application:",
+        err
+      );
+
+      setError(
+        err?.message ||
+          "Unable to reject developer application."
+      );
+
+      throw err;
+    }
+  };
+
+
+  /* =========================================================
+     DELETE APPLICATION
+  ========================================================= */
+
+  const deleteApplication = async (
     applicationId
   ) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this application? This action cannot be undone."
-    );
+    const application =
+      applications.find(
+        (item) =>
+          item.id === applicationId
+      );
+
+    if (!application) {
+      return;
+    }
+
+    const confirmed =
+      window.confirm(
+        `Delete ${application.full_name || "this applicant"}'s application?\n\nThis will permanently remove the application record and uploaded files.`
+      );
 
     if (!confirmed) {
       return;
@@ -209,32 +308,102 @@ export default function DeveloperApplicationTable() {
         applicationId
       );
 
-      setApplications((prev) =>
-        prev.filter(
-          (application) =>
-            application.id !== applicationId
+      setApplications((previous) =>
+        previous.filter(
+          (item) =>
+            item.id !== applicationId
         )
       );
 
       setSelectedApplication(null);
     } catch (err) {
       console.error(
-        "Failed to delete application:",
+        "Failed to delete developer application:",
         err
       );
 
       setError(
         err?.message ||
-          "Unable to delete application."
+          "Unable to delete developer application."
       );
+
+      throw err;
     }
   };
 
-  /*
-   * =========================================================
-   * LOADING
-   * =========================================================
-   */
+
+  /* =========================================================
+     STATUS CHANGE
+  =========================================================
+
+  This is the ONLY status callback exposed to the modal.
+
+  ACCEPT:
+      onStatusChange("accepted")
+
+  REJECT:
+      onStatusChange("rejected", reason)
+
+  The modal does not know anything about Supabase
+  Edge Functions.
+
+  ========================================================= */
+
+  const handleStatusChange = async (
+    newStatus,
+    rejectionReason = ""
+  ) => {
+    if (!selectedApplication?.id) {
+      throw new Error(
+        "Developer application ID is missing."
+      );
+    }
+
+    if (newStatus === "accepted") {
+      return approveApplication(
+        selectedApplication.id
+      );
+    }
+
+    if (newStatus === "rejected") {
+      return rejectApplication(
+        selectedApplication.id,
+        rejectionReason
+      );
+    }
+
+    throw new Error(
+      `Unsupported developer application status: ${newStatus}`
+    );
+  };
+
+
+  /* =========================================================
+     OPEN APPLICATION
+  ========================================================= */
+
+  const openApplication = (
+    application
+  ) => {
+    setError("");
+    setSelectedApplication(
+      application
+    );
+  };
+
+
+  /* =========================================================
+     CLOSE APPLICATION
+  ========================================================= */
+
+  const closeApplication = () => {
+    setSelectedApplication(null);
+  };
+
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
 
   if (loading) {
     return (
@@ -248,16 +417,21 @@ export default function DeveloperApplicationTable() {
     );
   }
 
-  /*
-   * =========================================================
-   * UI
-   * =========================================================
-   */
+
+  /* =========================================================
+     UI
+  ========================================================= */
 
   return (
     <div className="developer-applications-container">
 
+      {/* =====================================================
+          TOOLBAR
+      ===================================================== */}
+
       <div className="developer-applications-toolbar">
+
+        {/* REFRESH */}
 
         <button
           type="button"
@@ -281,34 +455,38 @@ export default function DeveloperApplicationTable() {
             : "Refresh"}
         </button>
 
-        <div className="developer-application-search">
 
+        {/* SEARCH */}
+
+        <div className="developer-application-search">
           <Search size={17} />
 
           <input
             type="text"
-            placeholder="Search by name, email, phone or city..."
+            placeholder="Search by name, email, phone, city or role..."
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
+            onChange={(event) =>
+              setSearch(
+                event.target.value
+              )
             }
           />
-
         </div>
+
+
+        {/* STATUS FILTER */}
 
         <select
           className="developer-application-filter"
           value={statusFilter}
-          onChange={(e) =>
-            setStatusFilter(e.target.value)
+          onChange={(event) =>
+            setStatusFilter(
+              event.target.value
+            )
           }
         >
           <option value="pending">
             Pending
-          </option>
-
-          <option value="under_review">
-            Under Review
           </option>
 
           <option value="accepted">
@@ -326,12 +504,25 @@ export default function DeveloperApplicationTable() {
 
       </div>
 
+
+      {/* =====================================================
+          ERROR
+      ===================================================== */}
+
       {error && (
         <div className="developer-application-admin-error">
           <AlertCircle size={18} />
-          <span>{error}</span>
+
+          <span>
+            {error}
+          </span>
         </div>
       )}
+
+
+      {/* =====================================================
+          EMPTY
+      ===================================================== */}
 
       {filteredApplications.length === 0 ? (
         <div className="developer-applications-empty">
@@ -347,24 +538,54 @@ export default function DeveloperApplicationTable() {
           <p>
             {search
               ? "Try changing your search or filter."
-              : "There are currently no applications matching this status."}
+              : statusFilter === "pending"
+                ? "There are currently no pending developer applications."
+                : statusFilter === "accepted"
+                  ? "There are currently no accepted developer applications."
+                  : statusFilter === "rejected"
+                    ? "There are currently no rejected developer applications."
+                    : "There are currently no developer applications."}
           </p>
 
         </div>
       ) : (
+        /* ===================================================
+           TABLE
+        =================================================== */
+
         <div className="developer-application-table-wrapper">
 
           <table className="developer-application-table">
 
             <thead>
               <tr>
-                <th>Applicant</th>
-                <th>Contact</th>
-                <th>Location</th>
-                <th>Roles</th>
-                <th>Applied</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>
+                  Applicant
+                </th>
+
+                <th>
+                  Contact
+                </th>
+
+                <th>
+                  Location
+                </th>
+
+                <th>
+                  Roles
+                </th>
+
+                <th>
+                  Applied
+                </th>
+
+                <th>
+                  Status
+                </th>
+
+                <th>
+                  Action
+                </th>
               </tr>
             </thead>
 
@@ -373,9 +594,11 @@ export default function DeveloperApplicationTable() {
                 (application) => (
                   <DeveloperApplicationRow
                     key={application.id}
-                    application={application}
+                    application={
+                      application
+                    }
                     onView={() =>
-                      setSelectedApplication(
+                      openApplication(
                         application
                       )
                     }
@@ -389,20 +612,28 @@ export default function DeveloperApplicationTable() {
         </div>
       )}
 
+
+      {/* =====================================================
+          DETAILS MODAL
+      ===================================================== */}
+
       {selectedApplication && (
         <DeveloperApplicationDetails
-          application={selectedApplication}
-          onClose={() =>
-            setSelectedApplication(null)
+          application={
+            selectedApplication
+          }
+          onClose={
+            closeApplication
           }
           onStatusChange={
             handleStatusChange
           }
-          onDelete={handleDelete}
+          onDelete={
+            deleteApplication
+          }
         />
       )}
 
     </div>
   );
 }
-

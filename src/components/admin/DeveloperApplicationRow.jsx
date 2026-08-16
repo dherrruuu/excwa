@@ -11,6 +11,10 @@ export default function DeveloperApplicationRow({
   application,
   onView,
 }) {
+  if (!application) {
+    return null;
+  }
+
   const {
     full_name,
     email,
@@ -23,37 +27,26 @@ export default function DeveloperApplicationRow({
     created_at,
   } = application;
 
-  /*
-   * =========================================================
-   * PROFILE PHOTO
-   * =========================================================
-   */
+  // =========================================================
+  // PROFILE PHOTO
+  // =========================================================
 
   let photoUrl = null;
 
   if (profile_photo_path) {
-    const {
-      data,
-    } = supabase.storage
+    const { data } = supabase.storage
       .from("profile-photos")
-      .getPublicUrl(
-        profile_photo_path
-      );
+      .getPublicUrl(profile_photo_path);
 
-    photoUrl =
-      data?.publicUrl || null;
+    photoUrl = data?.publicUrl || null;
   }
 
-  /*
-   * =========================================================
-   * DATE
-   * =========================================================
-   */
+  // =========================================================
+  // DATE
+  // =========================================================
 
   const formattedDate = created_at
-    ? new Date(
-        created_at
-      ).toLocaleDateString(
+    ? new Date(created_at).toLocaleDateString(
         "en-IN",
         {
           day: "2-digit",
@@ -63,25 +56,32 @@ export default function DeveloperApplicationRow({
       )
     : "—";
 
-  /*
-   * =========================================================
-   * STATUS
-   * =========================================================
-   */
+  // =========================================================
+  // STATUS
+  // =========================================================
 
-  const statusLabel =
-    status
-      ? status
-          .replaceAll("_", " ")
-          .replace(/\b\w/g, (char) =>
-            char.toUpperCase()
-          )
-      : "Pending";
+  const statusLabel = status
+    ? status
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, (char) =>
+          char.toUpperCase()
+        )
+    : "Pending";
+
+  // =========================================================
+  // ROLES
+  // =========================================================
+
+  const roles = Array.isArray(primary_roles)
+    ? primary_roles
+    : [];
 
   return (
     <tr className="developer-application-row">
 
-      {/* APPLICANT */}
+      {/* =====================================================
+          APPLICANT
+          ===================================================== */}
 
       <td>
         <div className="developer-applicant-cell">
@@ -103,13 +103,11 @@ export default function DeveloperApplicationRow({
           <div className="developer-applicant-info">
 
             <strong>
-              {full_name ||
-                "Unnamed Applicant"}
+              {full_name || "Unnamed Applicant"}
             </strong>
 
             <span>
-              {education ||
-                "Education not provided"}
+              {education || "Education not provided"}
             </span>
 
           </div>
@@ -117,13 +115,16 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
-      {/* CONTACT */}
+      {/* =====================================================
+          CONTACT
+          ===================================================== */}
 
       <td>
         <div className="developer-contact-cell">
 
           <div>
             <Mail size={13} />
+
             <span>
               {email || "—"}
             </span>
@@ -131,6 +132,7 @@ export default function DeveloperApplicationRow({
 
           <div>
             <Phone size={13} />
+
             <span>
               {phone || "—"}
             </span>
@@ -139,7 +141,9 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
-      {/* LOCATION */}
+      {/* =====================================================
+          LOCATION
+          ===================================================== */}
 
       <td>
         <div className="developer-city-cell">
@@ -153,30 +157,27 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
-      {/* ROLES */}
+      {/* =====================================================
+          ROLES
+          ===================================================== */}
 
       <td>
         <div className="developer-row-roles">
 
-          {Array.isArray(
-            primary_roles
-          ) &&
-          primary_roles.length > 0 ? (
+          {roles.length > 0 ? (
             <>
-              {primary_roles
-                .slice(0, 2)
-                .map((role) => (
-                  <span
-                    key={role}
-                    className="developer-role-tag"
-                  >
-                    {role}
-                  </span>
-                ))}
+              {roles.slice(0, 2).map((role) => (
+                <span
+                  key={role}
+                  className="developer-role-tag"
+                >
+                  {role}
+                </span>
+              ))}
 
-              {primary_roles.length > 2 && (
+              {roles.length > 2 && (
                 <span className="developer-role-more">
-                  +{primary_roles.length - 2}
+                  +{roles.length - 2}
                 </span>
               )}
             </>
@@ -189,7 +190,9 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
-      {/* DATE */}
+      {/* =====================================================
+          APPLIED
+          ===================================================== */}
 
       <td>
         <span className="developer-application-date">
@@ -197,11 +200,15 @@ export default function DeveloperApplicationRow({
         </span>
       </td>
 
-      {/* STATUS */}
+      {/* =====================================================
+          STATUS
+          ===================================================== */}
 
       <td>
         <span
-          className={`developer-status-badge ${status}`}
+          className={`developer-status-badge ${
+            status || "pending"
+          }`}
         >
           <span className="developer-status-dot" />
 
@@ -209,15 +216,18 @@ export default function DeveloperApplicationRow({
         </span>
       </td>
 
-      {/* ACTION */}
+      {/* =====================================================
+          ACTION
+          ===================================================== */}
 
       <td>
         <button
           type="button"
           className="developer-view-btn"
-          onClick={onView}
+          onClick={() => onView?.(application)}
         >
           <Eye size={15} />
+
           View
         </button>
       </td>
