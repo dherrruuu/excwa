@@ -49,7 +49,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      FORM CHANGE
-     ========================================================= */
+  ========================================================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,7 +66,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      ROLE SELECTION
-     ========================================================= */
+  ========================================================= */
 
   const handleRoleChange = (role) => {
     setForm((prev) => {
@@ -85,7 +85,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      PROFILE PHOTO
-     ========================================================= */
+  ========================================================= */
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
@@ -112,7 +112,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      RESUME
-     ========================================================= */
+  ========================================================= */
 
   const handleResumeChange = (e) => {
     const file = e.target.files?.[0];
@@ -155,7 +155,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      VALIDATION
-     ========================================================= */
+  ========================================================= */
 
   const validate = () => {
     if (!form.full_name.trim()) {
@@ -178,6 +178,14 @@ export default function DeveloperApplicationForm({ onClose }) {
       return "Please enter your education.";
     }
 
+    if (!form.github_url.trim()) {
+      return "Please enter your GitHub profile.";
+    }
+
+    if (!form.linkedin_url.trim()) {
+      return "Please enter your LinkedIn profile.";
+    }
+
     if (form.primary_roles.length === 0) {
       return "Please select at least one developer role.";
     }
@@ -195,7 +203,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      SUBMIT APPLICATION
-     ========================================================= */
+  ========================================================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -216,21 +224,14 @@ export default function DeveloperApplicationForm({ onClose }) {
     setLoading(true);
 
     try {
-      /*
-       * The service is responsible for:
-       *
-       * 1. Uploading profile photo
-       * 2. Uploading resume
-       * 3. Creating developer_applications row
-       *
-       * It does NOT create an Auth account.
-       * It does NOT create developer_profiles.
-       */
-
       await createDeveloperApplication({
         ...form,
 
         email: form.email.trim().toLowerCase(),
+
+        github_url: form.github_url.trim(),
+        linkedin_url: form.linkedin_url.trim(),
+        portfolio_url: form.portfolio_url.trim(),
 
         profilePhoto,
         resume,
@@ -254,7 +255,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      SUCCESS SCREEN
-     ========================================================= */
+  ========================================================= */
 
   if (success) {
     return (
@@ -314,7 +315,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
   /* =========================================================
      APPLICATION FORM
-     ========================================================= */
+  ========================================================= */
 
   return (
     <div className="developer-application-overlay">
@@ -387,6 +388,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   placeholder="Your full name"
                   autoComplete="name"
                   disabled={loading}
+                  required
                 />
 
               </div>
@@ -405,6 +407,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   placeholder="+91 XXXXX XXXXX"
                   autoComplete="tel"
                   disabled={loading}
+                  required
                 />
 
               </div>
@@ -423,6 +426,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   placeholder="you@example.com"
                   autoComplete="email"
                   disabled={loading}
+                  required
                 />
 
               </div>
@@ -441,6 +445,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   placeholder="Your city"
                   autoComplete="address-level2"
                   disabled={loading}
+                  required
                 />
 
               </div>
@@ -458,6 +463,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   onChange={handleChange}
                   placeholder="B.Tech / BCA / MCA / Diploma / Self-taught / etc."
                   disabled={loading}
+                  required
                 />
 
               </div>
@@ -473,7 +479,7 @@ export default function DeveloperApplicationForm({ onClose }) {
           <div className="developer-form-section">
 
             <h3>
-              Profile Photo
+              Profile Photo *
             </h3>
 
             <label className="developer-upload-box">
@@ -514,13 +520,15 @@ export default function DeveloperApplicationForm({ onClose }) {
 
             <div className="developer-form-grid">
 
+              {/* GITHUB */}
+
               <div className="developer-form-field">
 
                 <label>
                   <span style={{ fontWeight: 700 }}>
                     GH
                   </span>
-                  GitHub
+                  GitHub *
                 </label>
 
                 <input
@@ -530,9 +538,12 @@ export default function DeveloperApplicationForm({ onClose }) {
                   onChange={handleChange}
                   placeholder="https://github.com/username"
                   disabled={loading}
+                  required
                 />
 
               </div>
+
+              {/* LINKEDIN */}
 
               <div className="developer-form-field">
 
@@ -540,7 +551,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   <span style={{ fontWeight: 700 }}>
                     in
                   </span>
-                  LinkedIn
+                  LinkedIn *
                 </label>
 
                 <input
@@ -550,9 +561,12 @@ export default function DeveloperApplicationForm({ onClose }) {
                   onChange={handleChange}
                   placeholder="https://linkedin.com/in/username"
                   disabled={loading}
+                  required
                 />
 
               </div>
+
+              {/* PORTFOLIO */}
 
               <div className="developer-form-field full-width">
 
