@@ -35,7 +35,7 @@ export default function Contact() {
                   <Mail size={13} />
                   Email
                 </span>
-                <b>[official email]</b>
+                <b>Coming Soon!</b>
               </div>
 
               <div>
@@ -43,7 +43,7 @@ export default function Contact() {
                   <Phone size={13} />
                   Phone
                 </span>
-                <b>[official phone]</b>
+                <b>Coming Soon!</b>
               </div>
 
               <div>
@@ -51,7 +51,7 @@ export default function Contact() {
                   <MessageCircle size={13} />
                   WhatsApp
                 </span>
-                <b>[official WhatsApp]</b>
+                <b>Coming Soon!</b>
               </div>
 
             </div>
