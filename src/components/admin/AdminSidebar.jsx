@@ -4,6 +4,7 @@ import {
   Settings,
   ExternalLink,
   Users,
+  ClipboardCheck,
   BriefcaseBusiness,
 } from "lucide-react";
 
@@ -24,14 +25,12 @@ export default function AdminSidebar() {
 
       {/* BRAND */}
       <div className="admin-sidebar-brand">
-
         <ExcwaLogo size={32} />
 
         <div>
           <strong>EXCWA</strong>
           <span>Tech Admin</span>
         </div>
-
       </div>
 
       {/* NAVIGATION LABEL */}
@@ -95,6 +94,19 @@ export default function AdminSidebar() {
           Opportunities
         </NavLink>
 
+        {/* WORK REVIEWS */}
+        <NavLink
+          to="/admin/reviews"
+          className={({ isActive }) =>
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
+          }
+        >
+          <ClipboardCheck size={18} />
+          Work Reviews
+        </NavLink>
+
         {/* SETTINGS */}
         <NavLink
           to="/admin/settings"
@@ -113,6 +125,7 @@ export default function AdminSidebar() {
       {/* BOTTOM */}
       <div className="admin-sidebar-bottom">
 
+        {/* VIEW WEBSITE */}
         <a
           href="/"
           target="_blank"
@@ -123,6 +136,7 @@ export default function AdminSidebar() {
           View Website
         </a>
 
+        {/* SIGN OUT */}
         <button
           onClick={logout}
           className="admin-logout"

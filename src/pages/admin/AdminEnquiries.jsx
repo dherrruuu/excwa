@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import "../styles/admin-enquiries.css";
+
+import "../../styles/admin/admin-enquiries.css";
+
 import {
   Search,
   RefreshCcw,
@@ -10,10 +12,10 @@ import {
   getEnquiries,
   updateEnquiryStatus,
   deleteEnquiry,
-} from "../services/enquiryService";
+} from "../../services/client/enquiryService";
 
-import StatusBadge from "../components/admin/StatusBadge";
-import EnquiryDetails from "../components/admin/EnquiryDetails";
+import StatusBadge from "../../components/admin/StatusBadge";
+import EnquiryDetails from "../../components/admin/EnquiryDetails";
 
 export default function AdminEnquiries() {
 

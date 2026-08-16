@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   ArrowRight,
   ShieldCheck,
@@ -9,10 +10,11 @@ import {
   EyeOff,
   Sparkles,
 } from "lucide-react";
-import "../styles/admin-auth.css";
 
-import ExcwaLogo from "../components/common/ExcwaLogo";
-import { supabase } from "../lib/supabase";
+import "../../styles/admin/admin-auth.css";
+
+import ExcwaLogo from "../../components/common/ExcwaLogo";
+import { supabase } from "../../lib/supabase";
 
 export default function AdminLogin() {
   const navigate = useNavigate();

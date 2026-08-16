@@ -1,26 +1,29 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// =========================================================
+// ============================================================
 // PUBLIC
-// =========================================================
+// ============================================================
+
 import Home from "./pages/Home";
 
-// =========================================================
+// ============================================================
 // ADMIN
-// =========================================================
-import AdminLogin from "./pages/AdminLogin";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminEnquiries from "./pages/AdminEnquiries";
-import AdminDevelopers from "./pages/AdminDevelopers";
-import AdminOpportunities from "./pages/AdminOpportunities";
-import AdminSettings from "./pages/AdminSettings";
+// ============================================================
 
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminEnquiries from "./pages/admin/AdminEnquiries";
+import AdminDevelopers from "./pages/admin/AdminDevelopers";
+import AdminOpportunities from "./pages/admin/AdminOpportunities";
+import AdminReviews from "./pages/admin/AdminReviews";
+import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 
-// =========================================================
+// ============================================================
 // DEVELOPER
-// =========================================================
+// ============================================================
+
 import DevRegister from "./pages/developer/DevRegister";
 import DevLogin from "./pages/developer/DevLogin";
 import DevProfile from "./pages/developer/DevProfile";
@@ -31,15 +34,19 @@ import DevDashboard from "./pages/developer/DevDashboard";
 
 import DevProtectedRoute from "./components/developer/DevProtectedRoute";
 
+
+// ============================================================
+// APP
+// ============================================================
+
 export default function App() {
   return (
     <BrowserRouter>
-
       <Routes>
 
-        {/* =====================================================
+        {/* ====================================================
             PUBLIC WEBSITE
-            ===================================================== */}
+            ==================================================== */}
 
         <Route
           path="/"
@@ -47,18 +54,18 @@ export default function App() {
         />
 
 
-        {/* =====================================================
+        {/* ====================================================
             DEVELOPER AUTH
-            ===================================================== */}
-
-        <Route
-          path="/developer/register"
-          element={<DevRegister />}
-        />
+            ==================================================== */}
 
         <Route
           path="/developer/login"
           element={<DevLogin />}
+        />
+
+        <Route
+          path="/developer/register"
+          element={<DevRegister />}
         />
 
         <Route
@@ -82,9 +89,9 @@ export default function App() {
         />
 
 
-        {/* =====================================================
+        {/* ====================================================
             DEVELOPER PROTECTED ROUTES
-            ===================================================== */}
+            ==================================================== */}
 
         <Route element={<DevProtectedRoute />}>
 
@@ -96,9 +103,9 @@ export default function App() {
         </Route>
 
 
-        {/* =====================================================
+        {/* ====================================================
             ADMIN LOGIN
-            ===================================================== */}
+            ==================================================== */}
 
         <Route
           path="/admin/login"
@@ -106,9 +113,9 @@ export default function App() {
         />
 
 
-        {/* =====================================================
+        {/* ====================================================
             ADMIN PROTECTED ROUTES
-            ===================================================== */}
+            ==================================================== */}
 
         <Route element={<AdminProtectedRoute />}>
 
@@ -117,7 +124,7 @@ export default function App() {
             element={<AdminLayout />}
           >
 
-            {/* Admin Dashboard */}
+            {/* Dashboard */}
             <Route
               index
               element={<AdminDashboard />}
@@ -129,7 +136,7 @@ export default function App() {
               element={<AdminEnquiries />}
             />
 
-            {/* Developer Applications */}
+            {/* Developers */}
             <Route
               path="developers"
               element={<AdminDevelopers />}
@@ -139,6 +146,12 @@ export default function App() {
             <Route
               path="opportunities"
               element={<AdminOpportunities />}
+            />
+
+            {/* Reviews */}
+            <Route
+              path="reviews"
+              element={<AdminReviews />}
             />
 
             {/* Settings */}
@@ -152,7 +165,6 @@ export default function App() {
         </Route>
 
       </Routes>
-
     </BrowserRouter>
   );
 }

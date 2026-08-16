@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
-import "../styles/admin-opportunities.css";
+
+import { supabase } from "../../lib/supabase";
+
+import "../../styles/admin/admin-opportunities.css";
+
 import {
   Plus,
   X,

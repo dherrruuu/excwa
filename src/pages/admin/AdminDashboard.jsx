@@ -7,12 +7,15 @@ import {
   CheckCircle2,
   ArrowRight,
 } from "lucide-react";
-import "../styles/admin-dashboard.css";
-import { getEnquiries } from "../services/enquiryService";
-import StatCard from "../components/admin/StatCard";
-import StatusBadge from "../components/admin/StatusBadge";
 
 import { useNavigate } from "react-router-dom";
+
+import "../../styles/admin/admin-dashboard.css";
+
+import { getEnquiries } from "../../services/client/enquiryService";
+
+import StatCard from "../../components/admin/StatCard";
+import StatusBadge from "../../components/admin/StatusBadge";
 
 export default function AdminDashboard() {
 

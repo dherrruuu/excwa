@@ -1,0 +1,2118 @@
+/* ============================================================
+   EXCWA TECH
+   DEVELOPER DASHBOARD
+   GLOBAL STYLES
+   ============================================================ */
+
+/* ============================================================
+   ROOT VARIABLES
+   ============================================================ */
+
+:root {
+  --dev-bg: #080b10;
+  --dev-surface: #0d1118;
+  --dev-surface-2: #11161f;
+  --dev-surface-3: #151b25;
+
+  --dev-border: rgba(255, 255, 255, 0.07);
+  --dev-border-hover: rgba(255, 255, 255, 0.13);
+
+  --dev-text: #f4f7fb;
+  --dev-text-soft: #c7ced9;
+  --dev-muted: #7d8796;
+  --dev-muted-2: #5f6978;
+
+  --dev-cyan: #62e2ff;
+  --dev-green: #69e5b7;
+  --dev-yellow: #ffca70;
+  --dev-red: #ff8585;
+  --dev-purple: #9d8cff;
+
+  --dev-radius: 12px;
+  --dev-transition: 0.2s ease;
+}
+
+
+/* ============================================================
+   GLOBAL BOX SIZING
+   ============================================================ */
+
+html {
+  /*
+    Always reserve scrollbar space.
+
+    This prevents the whole dashboard from moving
+    left/right when changing between tabs with different
+    content heights.
+  */
+  overflow-y: scroll;
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--dev-bg);
+  color: var(--dev-text);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   DEVELOPER DASHBOARD ROOT
+   ============================================================ */
+
+.developer-dashboard {
+  width: 100%;
+  max-width: 100%;
+
+  min-height: 100vh;
+
+  background: var(--dev-bg);
+  color: var(--dev-text);
+
+  overflow-x: hidden;
+}
+
+
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+
+.developer-dashboard button,
+.developer-dashboard input,
+.developer-dashboard textarea,
+.developer-dashboard select {
+  font: inherit;
+}
+
+.developer-dashboard button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.developer-dashboard a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* ============================================================
+   DASHBOARD LAYOUT
+   ============================================================ */
+
+.developer-layout {
+  width: 100%;
+  max-width: 100%;
+
+  min-height: 100vh;
+
+  display: flex;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(98, 226, 255, 0.025),
+      transparent 30%
+    ),
+    #080b10;
+
+  overflow-x: hidden;
+}
+
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+
+.developer-sidebar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 230px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 20px 14px;
+
+  background: #0a0d12;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+
+  z-index: 100;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: none;
+}
+
+.developer-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.developer-sidebar-logo {
+  padding: 2px 8px 25px;
+}
+
+
+/* ============================================================
+   SIDEBAR NAVIGATION
+   ============================================================ */
+
+.developer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.developer-nav-item {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-height: 38px;
+
+  padding: 0 11px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #747f8e;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition:
+    background var(--dev-transition),
+    color var(--dev-transition),
+    border-color var(--dev-transition);
+}
+
+.developer-nav-item svg {
+  width: 15px;
+  height: 15px;
+
+  flex-shrink: 0;
+}
+
+.developer-nav-item:hover {
+  background: rgba(255, 255, 255, 0.035);
+  color: #cbd3dd;
+}
+
+.developer-nav-item.active {
+  background: rgba(98, 226, 255, 0.055);
+
+  border-color: rgba(98, 226, 255, 0.1);
+
+  color: var(--dev-cyan);
+}
+
+
+/* ============================================================
+   SIDEBAR USER
+   ============================================================ */
+
+.developer-sidebar-user {
+  margin-top: auto;
+
+  padding: 14px 8px 5px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.developer-user-name {
+  color: #dbe2eb;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.developer-user-role {
+  margin-top: 3px;
+
+  color: #606b7a;
+
+  font-size: 9px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+
+.developer-main {
+  width: calc(100% - 230px);
+  max-width: calc(100% - 230px);
+
+  min-height: 100vh;
+
+  margin-left: 230px;
+
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(98, 226, 255, 0.018),
+      transparent 28%
+    ),
+    #080b10;
+
+  overflow-x: hidden;
+}
+
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+
+.developer-topbar {
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 28px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+
+  background: rgba(8, 11, 16, 0.82);
+
+  backdrop-filter: blur(14px);
+
+  position: sticky;
+  top: 0;
+
+  z-index: 50;
+
+  min-width: 0;
+}
+
+.developer-topbar-title {
+  color: #eef2f7;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.developer-topbar-subtitle {
+  margin-top: 3px;
+
+  color: #626d7c;
+
+  font-size: 9px;
+}
+
+
+/* ============================================================
+   CONTENT AREA
+   ============================================================ */
+
+.developer-content {
+  width: 100%;
+  max-width: 1500px;
+
+  margin: 0 auto;
+
+  padding: 28px 32px 50px;
+
+  min-width: 0;
+
+  overflow-x: hidden;
+}
+
+
+/* ============================================================
+   GENERIC SECTION
+   ============================================================ */
+
+.developer-section {
+  margin-bottom: 28px;
+
+  min-width: 0;
+}
+
+.developer-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 18px;
+
+  min-width: 0;
+}
+
+.developer-section-title {
+  margin: 0;
+
+  color: #f4f7fb;
+
+  font-size: 20px;
+  font-weight: 620;
+
+  letter-spacing: -0.3px;
+}
+
+.developer-section-description {
+  margin: 6px 0 0;
+
+  color: #737e8d;
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   GENERIC CARD
+   ============================================================ */
+
+.developer-card {
+  min-width: 0;
+
+  border: 1px solid var(--dev-border);
+  border-radius: var(--dev-radius);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+
+/* ============================================================
+   STAT CARDS
+   ============================================================ */
+
+.developer-stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.developer-stat-card {
+  min-width: 0;
+  min-height: 110px;
+
+  padding: 16px;
+
+  border: 1px solid var(--dev-border);
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  transition:
+    transform var(--dev-transition),
+    border-color var(--dev-transition);
+}
+
+.developer-stat-card:hover {
+  transform: translateY(-1px);
+
+  border-color: var(--dev-border-hover);
+}
+
+.developer-stat-label {
+  color: #657080;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.developer-stat-value {
+  margin-top: 10px;
+
+  color: #f1f4f8;
+
+  font-size: 24px;
+  font-weight: 650;
+
+  letter-spacing: -0.5px;
+}
+
+.developer-stat-meta {
+  margin-top: 5px;
+
+  color: #687383;
+
+  font-size: 9px;
+}
+
+
+/* ============================================================
+   OPPORTUNITIES PAGE
+   ============================================================ */
+
+.developer-opportunities-page {
+  width: 100%;
+  max-width: 100%;
+
+  min-height: 0;
+
+  padding: 28px 32px 50px;
+
+  color: #ffffff;
+
+  overflow: visible;
+}
+
+
+/* ============================================================
+   OPPORTUNITIES HEADER
+   ============================================================ */
+
+.developer-opportunities-header {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 28px;
+
+  min-width: 0;
+}
+
+.developer-section-label {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  margin-bottom: 9px;
+
+  color: var(--dev-cyan);
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.developer-section-label svg {
+  width: 14px;
+  height: 14px;
+}
+
+.developer-opportunities-header h1 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 26px;
+  line-height: 1.2;
+
+  font-weight: 650;
+
+  letter-spacing: -0.5px;
+}
+
+.developer-opportunities-header p {
+  margin: 7px 0 0;
+
+  color: #7d8797;
+
+  font-size: 12px;
+
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   OPPORTUNITY COUNT
+   ============================================================ */
+
+.developer-opportunity-count {
+  min-width: 92px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 11px 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  flex-shrink: 0;
+}
+
+.developer-opportunity-count strong {
+  color: #ffffff;
+
+  font-size: 20px;
+
+  line-height: 1;
+
+  font-weight: 650;
+}
+
+.developer-opportunity-count span {
+  margin-top: 5px;
+
+  color: #687384;
+
+  font-size: 9px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.04em;
+}
+
+
+/* ============================================================
+   OPPORTUNITY LOADING
+   ============================================================ */
+
+.developer-opportunities-loading {
+  min-height: 300px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  color: #727d8d;
+
+  font-size: 12px;
+}
+
+.spin {
+  animation: developer-spin 0.8s linear infinite;
+}
+
+@keyframes developer-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ============================================================
+   OPPORTUNITY ALERTS
+   ============================================================ */
+
+.developer-opportunity-alert {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 18px;
+
+  padding: 11px 13px;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+
+  min-width: 0;
+}
+
+.developer-opportunity-alert.error {
+  border: 1px solid rgba(255, 92, 92, 0.15);
+
+  background: rgba(255, 92, 92, 0.045);
+
+  color: var(--dev-red);
+}
+
+.developer-opportunity-alert.success {
+  justify-content: flex-start;
+
+  border: 1px solid rgba(105, 229, 183, 0.16);
+
+  background: rgba(105, 229, 183, 0.045);
+
+  color: var(--dev-green);
+}
+
+.developer-opportunity-alert button {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 6px 9px;
+
+  border: 1px solid currentColor;
+
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: inherit;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+}
+
+.developer-opportunity-alert button:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+
+/* ============================================================
+   OPPORTUNITY GRID
+   ============================================================ */
+
+.developer-opportunities-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 16px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+
+/* ============================================================
+   OPPORTUNITY CARD
+   ============================================================ */
+
+.opportunity-card {
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-width: 0;
+  max-width: 100%;
+
+  padding: 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.opportunity-card:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(98, 226, 255, 0.15);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.018)
+    );
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+
+/* ============================================================
+   OPPORTUNITY CARD TOP
+   ============================================================ */
+
+.opportunity-card-top {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-bottom: 13px;
+
+  min-width: 0;
+}
+
+.opportunity-type {
+  display: inline-flex;
+
+  align-items: center;
+
+  padding: 5px 8px;
+
+  border: 1px solid rgba(98, 226, 255, 0.14);
+
+  border-radius: 6px;
+
+  background: rgba(98, 226, 255, 0.055);
+
+  color: var(--dev-cyan);
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+
+  max-width: 100%;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   OPPORTUNITY TITLE
+   ============================================================ */
+
+.opportunity-card-title {
+  min-width: 0;
+}
+
+.opportunity-card-title h2 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  line-height: 1.35;
+
+  font-weight: 620;
+
+  letter-spacing: -0.25px;
+
+  overflow-wrap: anywhere;
+}
+
+.opportunity-card-title p {
+  margin: 8px 0 0;
+
+  color: #858f9f;
+
+  font-size: 11px;
+
+  line-height: 1.65;
+
+  display: -webkit-box;
+
+  -webkit-box-orient: vertical;
+
+  -webkit-line-clamp: 3;
+
+  overflow: hidden;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   OPPORTUNITY INFO
+   ============================================================ */
+
+.opportunity-info-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+
+  margin-top: 17px;
+
+  padding: 11px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+
+  border-radius: 9px;
+
+  background: rgba(0, 0, 0, 0.13);
+
+  min-width: 0;
+}
+
+.opportunity-info-item {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 7px;
+
+  min-width: 0;
+}
+
+.opportunity-info-icon {
+  width: 27px;
+  height: 27px;
+
+  flex: 0 0 27px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+
+  border-radius: 7px;
+
+  background: rgba(255, 255, 255, 0.035);
+
+  color: #718093;
+}
+
+.opportunity-info-item > div:last-child {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.opportunity-info-item span {
+  display: block;
+
+  color: #5f6a7a;
+
+  font-size: 8px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.opportunity-info-item strong {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #d8dee7;
+
+  font-size: 10px;
+
+  line-height: 1.35;
+
+  font-weight: 550;
+
+  overflow-wrap: anywhere;
+}
+
+.opportunity-info-item.payout strong {
+  color: var(--dev-green);
+
+  font-size: 11px;
+
+  font-weight: 650;
+}
+
+
+/* ============================================================
+   OPPORTUNITY SECTIONS
+   ============================================================ */
+
+.opportunity-section {
+  margin-top: 15px;
+
+  min-width: 0;
+}
+
+.opportunity-section-heading {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  margin-bottom: 7px;
+
+  color: #737e8e;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+.opportunity-section-heading svg {
+  width: 13px;
+  height: 13px;
+
+  color: var(--dev-cyan);
+
+  flex-shrink: 0;
+}
+
+
+/* ============================================================
+   OPPORTUNITY TAGS
+   ============================================================ */
+
+.opportunity-tags {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 5px;
+
+  min-width: 0;
+}
+
+.opportunity-tag {
+  display: inline-flex;
+
+  align-items: center;
+
+  max-width: 100%;
+
+  padding: 4px 7px;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+
+  border-radius: 5px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #9aa5b5;
+
+  font-size: 8px;
+
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+.opportunity-tag:hover {
+  border-color: rgba(98, 226, 255, 0.12);
+
+  color: #c1cbd7;
+}
+
+
+/* ============================================================
+   DELIVERABLES
+   ============================================================ */
+
+.opportunity-deliverables {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin: 0;
+
+  padding: 0;
+
+  list-style: none;
+
+  min-width: 0;
+}
+
+.opportunity-deliverables li {
+  position: relative;
+
+  padding-left: 13px;
+
+  color: #818c9c;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+.opportunity-deliverables li::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 6px;
+
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+
+  background: var(--dev-cyan);
+}
+
+
+/* ============================================================
+   OPPORTUNITY FOOTER
+   ============================================================ */
+
+.opportunity-card-footer {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 18px;
+
+  padding-top: 13px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+
+  min-width: 0;
+}
+
+.opportunity-posted {
+  color: #596474;
+
+  font-size: 9px;
+
+  min-width: 0;
+}
+
+
+/* ============================================================
+   APPLY BUTTON
+   ============================================================ */
+
+.opportunity-apply-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  min-width: 82px;
+
+  height: 32px;
+
+  padding: 0 12px;
+
+  border: 1px solid rgba(105, 229, 183, 0.18);
+
+  border-radius: 7px;
+
+  background: rgba(105, 229, 183, 0.065);
+
+  color: var(--dev-green);
+
+  font-size: 10px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.15s ease,
+    opacity 0.18s ease;
+
+  flex-shrink: 0;
+}
+
+.opportunity-apply-button:hover:not(:disabled) {
+  background: rgba(105, 229, 183, 0.12);
+
+  border-color: rgba(105, 229, 183, 0.35);
+
+  transform: translateY(-1px);
+}
+
+.opportunity-apply-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.opportunity-apply-button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   EMPTY OPPORTUNITIES
+   ============================================================ */
+
+.developer-opportunities-empty {
+  min-height: 320px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 35px;
+
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+
+  border-radius: 13px;
+
+  background: rgba(255, 255, 255, 0.012);
+
+  text-align: center;
+
+  min-width: 0;
+}
+
+.developer-empty-icon {
+  width: 48px;
+  height: 48px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 14px;
+
+  border: 1px solid rgba(98, 226, 255, 0.1);
+
+  border-radius: 11px;
+
+  background: rgba(98, 226, 255, 0.045);
+
+  color: var(--dev-cyan);
+}
+
+.developer-opportunities-empty h2 {
+  margin: 0;
+
+  color: #dce3ec;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+.developer-opportunities-empty p {
+  max-width: 390px;
+
+  margin: 7px 0 17px;
+
+  color: #687384;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+.developer-refresh-button {
+  height: 32px;
+
+  padding: 0 13px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 7px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #9ba6b5;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.developer-refresh-button:hover {
+  background: rgba(255, 255, 255, 0.055);
+
+  border-color: rgba(255, 255, 255, 0.14);
+
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+
+.developer-profile-card {
+  padding: 22px;
+
+  min-width: 0;
+}
+
+.developer-profile-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+
+  min-width: 0;
+}
+
+.developer-profile-avatar {
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 1px solid rgba(98, 226, 255, 0.12);
+
+  border-radius: 12px;
+
+  background: rgba(98, 226, 255, 0.045);
+
+  color: var(--dev-cyan);
+
+  overflow: hidden;
+}
+
+.developer-profile-avatar img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.developer-profile-name {
+  color: #f1f4f8;
+
+  font-size: 15px;
+
+  font-weight: 620;
+
+  overflow-wrap: anywhere;
+}
+
+.developer-profile-role {
+  margin-top: 4px;
+
+  color: #687383;
+
+  font-size: 10px;
+}
+
+
+/* ============================================================
+   PROFILE DETAILS
+   ============================================================ */
+
+.developer-profile-details {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-top: 18px;
+
+  min-width: 0;
+}
+
+.developer-profile-detail {
+  min-width: 0;
+
+  padding: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.developer-profile-detail span {
+  display: block;
+
+  color: #5e6877;
+
+  font-size: 8px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.developer-profile-detail strong {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #cbd3dd;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   ASSIGNMENT
+   ============================================================ */
+
+.developer-assignment-card {
+  padding: 21px;
+
+  min-width: 0;
+}
+
+.developer-assignment-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 5px 8px;
+
+  border: 1px solid rgba(105, 229, 183, 0.14);
+
+  border-radius: 6px;
+
+  background: rgba(105, 229, 183, 0.05);
+
+  color: var(--dev-green);
+
+  font-size: 8px;
+
+  font-weight: 650;
+
+  letter-spacing: 0.07em;
+
+  text-transform: uppercase;
+}
+
+.developer-assignment-title {
+  margin: 12px 0 0;
+
+  color: #ffffff;
+
+  font-size: 17px;
+
+  font-weight: 620;
+
+  overflow-wrap: anywhere;
+}
+
+.developer-assignment-description {
+  margin: 8px 0 0;
+
+  color: #7b8696;
+
+  font-size: 11px;
+
+  line-height: 1.65;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   SUBMIT WORK
+   ============================================================ */
+
+.developer-submit-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+
+  min-width: 0;
+}
+
+.developer-form-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.developer-form-group label {
+  color: #8994a4;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+}
+
+.developer-form-group input,
+.developer-form-group textarea,
+.developer-form-group select {
+  width: 100%;
+  max-width: 100%;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #e5eaf0;
+
+  font-size: 11px;
+
+  transition:
+    border-color var(--dev-transition),
+    background var(--dev-transition);
+}
+
+.developer-form-group input,
+.developer-form-group select {
+  height: 36px;
+
+  padding: 0 11px;
+}
+
+.developer-form-group textarea {
+  min-height: 100px;
+
+  padding: 10px 11px;
+
+  resize: vertical;
+
+  line-height: 1.5;
+}
+
+.developer-form-group input:focus,
+.developer-form-group textarea:focus,
+.developer-form-group select:focus {
+  border-color: rgba(98, 226, 255, 0.25);
+
+  background: rgba(98, 226, 255, 0.018);
+}
+
+.developer-form-group input::placeholder,
+.developer-form-group textarea::placeholder {
+  color: #4f5968;
+}
+
+
+/* ============================================================
+   PRIMARY BUTTON
+   ============================================================ */
+
+.developer-primary-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 36px;
+
+  padding: 0 15px;
+
+  border: 1px solid rgba(98, 226, 255, 0.18);
+
+  border-radius: 8px;
+
+  background: rgba(98, 226, 255, 0.07);
+
+  color: var(--dev-cyan);
+
+  font-size: 10px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background var(--dev-transition),
+    border-color var(--dev-transition),
+    transform 0.15s ease;
+}
+
+.developer-primary-button:hover:not(:disabled) {
+  background: rgba(98, 226, 255, 0.12);
+
+  border-color: rgba(98, 226, 255, 0.3);
+
+  transform: translateY(-1px);
+}
+
+.developer-primary-button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   SECONDARY BUTTON
+   ============================================================ */
+
+.developer-secondary-button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 36px;
+
+  padding: 0 15px;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #9ca6b5;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background var(--dev-transition),
+    border-color var(--dev-transition),
+    color var(--dev-transition);
+}
+
+.developer-secondary-button:hover {
+  background: rgba(255, 255, 255, 0.055);
+
+  border-color: rgba(255, 255, 255, 0.13);
+
+  color: #ffffff;
+}
+
+
+/* ============================================================
+   SUCCESS / ERROR STATES
+   ============================================================ */
+
+.developer-success {
+  padding: 11px 13px;
+
+  border: 1px solid rgba(105, 229, 183, 0.14);
+
+  border-radius: 8px;
+
+  background: rgba(105, 229, 183, 0.045);
+
+  color: var(--dev-green);
+
+  font-size: 10px;
+
+  overflow-wrap: anywhere;
+}
+
+.developer-error {
+  padding: 11px 13px;
+
+  border: 1px solid rgba(255, 92, 92, 0.14);
+
+  border-radius: 8px;
+
+  background: rgba(255, 92, 92, 0.045);
+
+  color: var(--dev-red);
+
+  font-size: 10px;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+
+.developer-divider {
+  width: 100%;
+  max-width: 100%;
+
+  height: 1px;
+
+  margin: 18px 0;
+
+  background: rgba(255, 255, 255, 0.055);
+}
+
+
+/* ============================================================
+   DEVELOPER DASHBOARD TAB PANEL
+   IMPORTANT:
+   NO INNER SCROLLBAR
+   ============================================================ */
+
+.dev-dashboard-shell {
+  width: 100%;
+  max-width: 100%;
+
+  min-height: 100vh;
+
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.dev-dashboard-content {
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+
+  overflow-x: hidden;
+  overflow-y: visible;
+
+  height: auto;
+  max-height: none;
+}
+
+.dev-dashboard-panel {
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  overflow: visible !important;
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+}
+
+
+/* ============================================================
+   TAB CONTENT — PREVENT WIDTH EXPANSION
+   ============================================================ */
+
+.dev-dashboard-panel > * {
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+}
+
+.dev-dashboard-panel img,
+.dev-dashboard-panel video,
+.dev-dashboard-panel iframe {
+  max-width: 100%;
+}
+
+.dev-dashboard-panel a,
+.dev-dashboard-panel p,
+.dev-dashboard-panel h1,
+.dev-dashboard-panel h2,
+.dev-dashboard-panel h3,
+.dev-dashboard-panel h4,
+.dev-dashboard-panel span,
+.dev-dashboard-panel strong {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+
+/* ============================================================
+   HIDE INNER SCROLLBARS
+   ============================================================ */
+
+.dev-dashboard-panel,
+.dev-dashboard-panel *,
+.dev-dashboard-content,
+.dev-dashboard-content * {
+  scrollbar-width: none;
+}
+
+.dev-dashboard-panel::-webkit-scrollbar,
+.dev-dashboard-panel *::-webkit-scrollbar,
+.dev-dashboard-content::-webkit-scrollbar,
+.dev-dashboard-content *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+
+  display: none;
+}
+
+
+/* ============================================================
+   DEVELOPER DASHBOARD — TABS
+   ============================================================ */
+
+.dev-tabs {
+  width: 100%;
+  max-width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  min-width: 0;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: none;
+}
+
+.dev-tabs::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.dev-tab {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 36px;
+
+  padding: 0 13px;
+
+  border: 1px solid transparent;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #7d8796;
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background var(--dev-transition),
+    border-color var(--dev-transition),
+    color var(--dev-transition);
+}
+
+.dev-tab:hover {
+  color: #d7dee8;
+
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.dev-tab.active {
+  color: var(--dev-cyan);
+
+  background: rgba(98, 226, 255, 0.055);
+
+  border-color: rgba(98, 226, 255, 0.1);
+}
+
+
+/* ============================================================
+   RESPONSIVE — TABLET
+   ============================================================ */
+
+@media (max-width: 1100px) {
+  .developer-stats-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .developer-opportunities-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE — MOBILE
+   ============================================================ */
+
+@media (max-width: 750px) {
+  .developer-sidebar {
+    width: 64px;
+
+    padding: 15px 8px;
+  }
+
+  .developer-sidebar-logo {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .developer-nav-item {
+    justify-content: center;
+
+    padding: 0;
+  }
+
+  .developer-nav-item span {
+    display: none;
+  }
+
+  .developer-sidebar-user {
+    display: none;
+  }
+
+  .developer-main {
+    width: calc(100% - 64px);
+    max-width: calc(100% - 64px);
+
+    margin-left: 64px;
+  }
+
+  .developer-topbar {
+    padding: 0 18px;
+  }
+
+  .developer-content {
+    padding: 22px 18px 40px;
+  }
+
+  .developer-opportunities-page {
+    padding: 22px 18px 40px;
+  }
+
+  .developer-opportunities-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .developer-opportunity-count {
+    flex-direction: row;
+
+    gap: 8px;
+
+    min-width: auto;
+  }
+
+  .developer-opportunity-count span {
+    margin-top: 0;
+  }
+
+  .opportunity-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .developer-profile-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE — SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 500px) {
+  .developer-main {
+    width: 100%;
+    max-width: 100%;
+
+    margin-left: 0;
+  }
+
+  .developer-sidebar {
+    display: none;
+  }
+
+  .developer-topbar {
+    height: 58px;
+
+    padding: 0 14px;
+  }
+
+  .developer-content {
+    padding: 18px 14px 35px;
+  }
+
+  .developer-opportunities-page {
+    padding: 18px 14px 35px;
+  }
+
+  .developer-opportunities-header h1 {
+    font-size: 23px;
+  }
+
+  .developer-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .opportunity-card {
+    padding: 17px;
+  }
+
+  .opportunity-card-footer {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .opportunity-apply-button {
+    width: 100%;
+  }
+
+  .developer-section-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+}
+
+
+/* ============================================================
+   FINAL WIDTH SAFETY
+   ============================================================ */
+
+.developer-dashboard,
+.developer-dashboard *,
+.dev-dashboard-shell,
+.dev-dashboard-content,
+.dev-dashboard-panel {
+  max-width: 100%;
+}
+
+.developer-dashboard input,
+.developer-dashboard textarea,
+.developer-dashboard select,
+.developer-dashboard button {
+  max-width: 100%;
+}

@@ -5,7 +5,7 @@ import {
   ChevronDown,
   ShieldCheck,
 } from "lucide-react";
-import { createEnquiry } from "../../services/enquiryService";
+import { createEnquiry } from "../../services/client/enquiryService";
 
 const serviceOptions = [
   "Website",

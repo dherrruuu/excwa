@@ -21,10 +21,14 @@ async function getCurrentUser() {
   return user;
 }
 
+
 async function getCurrentDeveloperProfile() {
   const user = await getCurrentUser();
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_profiles")
     .select("*")
     .eq("user_id", user.id)
@@ -43,6 +47,7 @@ async function getCurrentDeveloperProfile() {
   return data;
 }
 
+
 // ============================================================
 // REGISTRATION
 // ============================================================
@@ -52,16 +57,18 @@ export async function registerDeveloper({
   email,
   password,
 }) {
-  const { data: authData, error: authError } =
-    await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name,
-        },
+  const {
+    data: authData,
+    error: authError,
+  } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name,
       },
-    });
+    },
+  });
 
   if (authError) {
     throw authError;
@@ -69,16 +76,21 @@ export async function registerDeveloper({
 
   return {
     user: authData?.user || null,
-    emailConfirmationRequired: !authData?.session,
+    emailConfirmationRequired:
+      !authData?.session,
   };
 }
+
 
 // ============================================================
 // SKILLS
 // ============================================================
 
 export async function getAllSkills() {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("skills")
     .select("*")
     .order("name", {
@@ -92,51 +104,250 @@ export async function getAllSkills() {
   return data || [];
 }
 
+
 // ============================================================
-// OPPORTUNITIES
+// OPEN OPPORTUNITIES
 // ============================================================
 
 export async function getOpenOpportunities() {
-  const developerProfile = await getCurrentDeveloperProfile();
+  const developerProfile =
+    await getCurrentDeveloperProfile();
 
-  const { data: opportunities, error: opportunitiesError } =
-    await supabase
-      .from("opportunities")
-      .select("*")
-      .eq("status", "open")
-      .order("created_at", {
+
+  // ----------------------------------------------------------
+  // CHECK ACTIVE ASSIGNMENT
+  // ----------------------------------------------------------
+
+  const {
+    data: activeAssignment,
+    error: assignmentError,
+  } = await supabase
+    .from("project_assignments")
+    .select(`
+      id,
+      opportunity_id,
+      assigned_at,
+      started_at,
+      completed_at
+    `)
+    .eq(
+      "developer_id",
+      developerProfile.id
+    )
+    .is(
+      "completed_at",
+      null
+    )
+    .maybeSingle();
+
+
+  if (assignmentError) {
+    throw assignmentError;
+  }
+
+
+  // Developer already has a project.
+  // No new opportunities should be shown.
+  if (activeAssignment) {
+    return [];
+  }
+
+
+  // ----------------------------------------------------------
+  // GET OPEN OPPORTUNITIES
+  // ----------------------------------------------------------
+
+  const {
+    data: opportunities,
+    error: opportunitiesError,
+  } = await supabase
+    .from("opportunities")
+    .select(`
+      id,
+      title,
+      description,
+      category,
+      project_type,
+      required_roles,
+      required_skills,
+      tech_stack,
+      deliverables,
+      deadline,
+      application_deadline,
+      freelancer_payout,
+      attachment_path,
+      status,
+      created_at
+    `)
+    .eq(
+      "status",
+      "open"
+    )
+    .order(
+      "created_at",
+      {
         ascending: false,
-      });
+      }
+    );
+
 
   if (opportunitiesError) {
     throw opportunitiesError;
   }
 
-  if (!opportunities?.length) {
-    return [];
-  }
 
-  const { data: applications, error: applicationsError } =
-    await supabase
-      .from("opportunity_applications")
-      .select("opportunity_id")
-      .eq("developer_id", developerProfile.id);
+  // ----------------------------------------------------------
+  // GET APPLICATIONS MADE BY THIS DEVELOPER
+  // ----------------------------------------------------------
+
+  const {
+    data: applications,
+    error: applicationsError,
+  } = await supabase
+    .from("opportunity_applications")
+    .select(`
+      opportunity_id,
+      status
+    `)
+    .eq(
+      "developer_id",
+      developerProfile.id
+    );
+
 
   if (applicationsError) {
     throw applicationsError;
   }
 
-  const appliedOpportunityIds = new Set(
-    (applications || []).map(
-      (application) => application.opportunity_id
-    )
-  );
 
-  return opportunities.filter(
-    (opportunity) =>
-      !appliedOpportunityIds.has(opportunity.id)
-  );
+  // ----------------------------------------------------------
+  // BUILD SET OF ALREADY APPLIED OPPORTUNITIES
+  // ----------------------------------------------------------
+
+  const appliedOpportunityIds =
+    new Set(
+      (applications || []).map(
+        (application) =>
+          application.opportunity_id
+      )
+    );
+
+
+  // ----------------------------------------------------------
+  // REMOVE ALREADY APPLIED OPPORTUNITIES
+  // ----------------------------------------------------------
+
+  const availableOpportunities =
+    (opportunities || []).filter(
+      (opportunity) =>
+        !appliedOpportunityIds.has(
+          opportunity.id
+        )
+    );
+
+
+  return availableOpportunities;
 }
+
+
+// ============================================================
+// MY CURRENT PROJECT
+// ============================================================
+
+export async function getMyCurrentAssignment(
+  developerId
+) {
+  const user =
+    await getCurrentUser();
+
+
+  // ----------------------------------------------------------
+  // VERIFY DEVELOPER OWNERSHIP
+  // ----------------------------------------------------------
+
+  const {
+    data: developerProfile,
+    error: profileError,
+  } = await supabase
+    .from("developer_profiles")
+    .select("id")
+    .eq(
+      "id",
+      developerId
+    )
+    .eq(
+      "user_id",
+      user.id
+    )
+    .maybeSingle();
+
+
+  if (profileError) {
+    throw profileError;
+  }
+
+
+  if (!developerProfile) {
+    throw new Error(
+      "You are not authorized to view this project."
+    );
+  }
+
+
+  // ----------------------------------------------------------
+  // GET ACTIVE ASSIGNMENT
+  // ----------------------------------------------------------
+
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("project_assignments")
+    .select(`
+      *,
+      opportunities (
+        id,
+        title,
+        description,
+        category,
+        project_type,
+        required_roles,
+        required_skills,
+        tech_stack,
+        deliverables,
+        deadline,
+        application_deadline,
+        budget,
+        freelancer_payout,
+        attachment_path,
+        status
+      ),
+      project_submissions (
+        id,
+        github_url,
+        submission_notes,
+        status
+      )
+    `)
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .is(
+      "completed_at",
+      null
+    )
+    .maybeSingle();
+
+
+  if (error) {
+    throw error;
+  }
+
+
+  return data || null;
+}
+
 
 // ============================================================
 // APPLY TO OPPORTUNITY
@@ -148,131 +359,265 @@ export async function applyToOpportunity({
   coverMessage,
   estimatedDays,
 }) {
-  // ----------------------------------------------------------
-  // Make sure the user is authenticated
-  // ----------------------------------------------------------
+  const user =
+    await getCurrentUser();
 
-  const user = await getCurrentUser();
 
   // ----------------------------------------------------------
-  // Get developer profile belonging to current auth user
+  // VERIFY DEVELOPER OWNERSHIP
   // ----------------------------------------------------------
 
-  const { data: developerProfile, error: profileError } =
-    await supabase
-      .from("developer_profiles")
-      .select("id, user_id, full_name")
-      .eq("id", developerId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+  const {
+    data: developerProfile,
+    error: profileError,
+  } = await supabase
+    .from("developer_profiles")
+    .select(`
+      id,
+      user_id,
+      full_name,
+      status
+    `)
+    .eq(
+      "id",
+      developerId
+    )
+    .eq(
+      "user_id",
+      user.id
+    )
+    .maybeSingle();
+
 
   if (profileError) {
     throw profileError;
   }
 
+
   if (!developerProfile) {
     throw new Error(
-      "You are not authorized to apply with this developer profile."
+      "Developer profile not found."
     );
   }
 
+
   // ----------------------------------------------------------
-  // Check opportunity exists and is open
+  // CHECK APPROVAL
   // ----------------------------------------------------------
 
-  const { data: opportunity, error: opportunityError } =
-    await supabase
-      .from("opportunities")
-      .select("id, title, status")
-      .eq("id", opportunityId)
-      .maybeSingle();
+  if (
+    developerProfile.status !==
+    "approved"
+  ) {
+    throw new Error(
+      "Your developer account is not approved."
+    );
+  }
+
+
+  // ----------------------------------------------------------
+  // CHECK ACTIVE PROJECT
+  // ----------------------------------------------------------
+
+  const {
+    data: activeAssignment,
+    error: activeAssignmentError,
+  } = await supabase
+    .from("project_assignments")
+    .select("id")
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .is(
+      "completed_at",
+      null
+    )
+    .maybeSingle();
+
+
+  if (activeAssignmentError) {
+    throw activeAssignmentError;
+  }
+
+
+  if (activeAssignment) {
+    throw new Error(
+      "You already have an active project."
+    );
+  }
+
+
+  // ----------------------------------------------------------
+  // VERIFY OPPORTUNITY
+  // ----------------------------------------------------------
+
+  const {
+    data: opportunity,
+    error: opportunityError,
+  } = await supabase
+    .from("opportunities")
+    .select(`
+      id,
+      title,
+      status
+    `)
+    .eq(
+      "id",
+      opportunityId
+    )
+    .maybeSingle();
+
 
   if (opportunityError) {
     throw opportunityError;
   }
 
-  if (!opportunity) {
-    throw new Error("Opportunity not found.");
-  }
 
-  if (opportunity.status !== "open") {
+  if (!opportunity) {
     throw new Error(
-      "This opportunity is no longer accepting applications."
+      "Opportunity not found."
     );
   }
 
+
+  if (
+    opportunity.status !==
+    "open"
+  ) {
+    throw new Error(
+      "This opportunity is no longer available."
+    );
+  }
+
+
   // ----------------------------------------------------------
-  // Check if already applied
+  // CHECK DUPLICATE APPLICATION
+  // ----------------------------------------------------------
+
+  const {
+    data: existingApplication,
+    error: existingApplicationError,
+  } = await supabase
+    .from("opportunity_applications")
+    .select(`
+      id,
+      status
+    `)
+    .eq(
+      "opportunity_id",
+      opportunityId
+    )
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .maybeSingle();
+
+
+  if (existingApplicationError) {
+    throw existingApplicationError;
+  }
+
+
+  if (existingApplication) {
+    throw new Error(
+      "You have already applied for this opportunity."
+    );
+  }
+
+
+  // ----------------------------------------------------------
+  // CREATE APPLICATION
   //
   // IMPORTANT:
-  // Do NOT use .single() here.
-  // .single() returns 406 when zero rows exist.
+  // This does NOT assign the project.
+  //
+  // Flow:
+  //
+  // Developer applies
+  //       ↓
+  // Admin reviews
+  //       ↓
+  // Admin assigns developer
+  //
   // ----------------------------------------------------------
 
-  const { data: existing, error: existingError } =
-    await supabase
-      .from("opportunity_applications")
-      .select("id, status")
-      .eq("opportunity_id", opportunityId)
-      .eq("developer_id", developerId)
-      .maybeSingle();
-
-  if (existingError) {
-    throw existingError;
-  }
-
-  if (existing) {
-    throw new Error(
-      "You have already applied to this opportunity."
-    );
-  }
-
-  // ----------------------------------------------------------
-  // Insert application
-  // ----------------------------------------------------------
-
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("opportunity_applications")
     .insert({
-      opportunity_id: opportunityId,
-      developer_id: developerId,
+      opportunity_id:
+        opportunityId,
+
+      developer_id:
+        developerId,
+
       cover_message:
-        coverMessage?.trim() || null,
+        coverMessage?.trim() ||
+        null,
+
       estimated_days:
         estimatedDays
-          ? Number(estimatedDays)
+          ? Number(
+              estimatedDays
+            )
           : null,
-      status: "pending",
+
+      status:
+        "pending",
     })
     .select()
     .single();
+
 
   if (error) {
     throw error;
   }
 
+
   return data;
 }
+
 
 // ============================================================
 // MY APPLICATIONS
 // ============================================================
 
-export async function getMyApplications(developerId) {
-  const user = await getCurrentUser();
+export async function getMyApplications(
+  developerId
+) {
+  const user =
+    await getCurrentUser();
 
-  // Verify developer profile belongs to logged-in user
-  const { data: developerProfile, error: profileError } =
-    await supabase
-      .from("developer_profiles")
-      .select("id")
-      .eq("id", developerId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+
+  // ----------------------------------------------------------
+  // VERIFY OWNERSHIP
+  // ----------------------------------------------------------
+
+  const {
+    data: developerProfile,
+    error: profileError,
+  } = await supabase
+    .from("developer_profiles")
+    .select("id")
+    .eq(
+      "id",
+      developerId
+    )
+    .eq(
+      "user_id",
+      user.id
+    )
+    .maybeSingle();
+
 
   if (profileError) {
     throw profileError;
   }
+
 
   if (!developerProfile) {
     throw new Error(
@@ -280,7 +625,15 @@ export async function getMyApplications(developerId) {
     );
   }
 
-  const { data, error } = await supabase
+
+  // ----------------------------------------------------------
+  // GET APPLICATIONS
+  // ----------------------------------------------------------
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("opportunity_applications")
     .select(`
       *,
@@ -290,65 +643,103 @@ export async function getMyApplications(developerId) {
         category,
         tech_stack,
         budget,
+        freelancer_payout,
         deadline,
         status
       )
     `)
-    .eq("developer_id", developerId)
-    .order("applied_at", {
-      ascending: false,
-    });
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .order(
+      "applied_at",
+      {
+        ascending: false,
+      }
+    );
+
 
   if (error) {
     throw error;
   }
 
+
   return data || [];
 }
 
+
 // ============================================================
-// ASSIGNMENTS
+// MY ASSIGNMENT
 // ============================================================
 
 export async function getMyAssignment(
   developerId,
   opportunityId
 ) {
-  const user = await getCurrentUser();
+  const user =
+    await getCurrentUser();
 
-  // Verify ownership
-  const { data: developerProfile, error: profileError } =
-    await supabase
-      .from("developer_profiles")
-      .select("id")
-      .eq("id", developerId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+
+  // ----------------------------------------------------------
+  // VERIFY OWNERSHIP
+  // ----------------------------------------------------------
+
+  const {
+    data: developerProfile,
+    error: profileError,
+  } = await supabase
+    .from("developer_profiles")
+    .select("id")
+    .eq(
+      "id",
+      developerId
+    )
+    .eq(
+      "user_id",
+      user.id
+    )
+    .maybeSingle();
+
 
   if (profileError) {
     throw profileError;
   }
 
+
   if (!developerProfile) {
     return null;
   }
 
-  const { data, error } = await supabase
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("project_assignments")
     .select("*")
-    .eq("developer_id", developerId)
-    .eq("opportunity_id", opportunityId)
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .eq(
+      "opportunity_id",
+      opportunityId
+    )
     .maybeSingle();
+
 
   if (error) {
     throw error;
   }
 
+
   return data || null;
 }
 
+
 // ============================================================
-// SUBMISSIONS
+// SUBMIT WORK
 // ============================================================
 
 export async function submitWork({
@@ -357,23 +748,35 @@ export async function submitWork({
   githubUrl,
   notes,
 }) {
-  const user = await getCurrentUser();
+  const user =
+    await getCurrentUser();
+
 
   // ----------------------------------------------------------
-  // Verify developer profile belongs to current user
+  // VERIFY DEVELOPER OWNERSHIP
   // ----------------------------------------------------------
 
-  const { data: developerProfile, error: profileError } =
-    await supabase
-      .from("developer_profiles")
-      .select("id")
-      .eq("id", developerId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+  const {
+    data: developerProfile,
+    error: profileError,
+  } = await supabase
+    .from("developer_profiles")
+    .select("id")
+    .eq(
+      "id",
+      developerId
+    )
+    .eq(
+      "user_id",
+      user.id
+    )
+    .maybeSingle();
+
 
   if (profileError) {
     throw profileError;
   }
+
 
   if (!developerProfile) {
     throw new Error(
@@ -381,21 +784,36 @@ export async function submitWork({
     );
   }
 
+
   // ----------------------------------------------------------
-  // Verify assignment belongs to developer
+  // VERIFY ASSIGNMENT
   // ----------------------------------------------------------
 
-  const { data: assignment, error: assignmentError } =
-    await supabase
-      .from("project_assignments")
-      .select("id, developer_id, opportunity_id")
-      .eq("id", assignmentId)
-      .eq("developer_id", developerId)
-      .maybeSingle();
+  const {
+    data: assignment,
+    error: assignmentError,
+  } = await supabase
+    .from("project_assignments")
+    .select(`
+      id,
+      developer_id,
+      opportunity_id
+    `)
+    .eq(
+      "id",
+      assignmentId
+    )
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .maybeSingle();
+
 
   if (assignmentError) {
     throw assignmentError;
   }
+
 
   if (!assignment) {
     throw new Error(
@@ -403,92 +821,147 @@ export async function submitWork({
     );
   }
 
+
   // ----------------------------------------------------------
-  // Check existing submission
+  // CHECK EXISTING SUBMISSION
   // ----------------------------------------------------------
 
-  const { data: existing, error: existingError } =
-    await supabase
-      .from("project_submissions")
-      .select("id")
-      .eq("assignment_id", assignmentId)
-      .maybeSingle();
+  const {
+    data: existing,
+    error: existingError,
+  } = await supabase
+    .from("project_submissions")
+    .select("id")
+    .eq(
+      "assignment_id",
+      assignmentId
+    )
+    .maybeSingle();
+
 
   if (existingError) {
     throw existingError;
   }
 
+
   // ----------------------------------------------------------
-  // UPDATE existing submission
+  // UPDATE EXISTING SUBMISSION
   // ----------------------------------------------------------
 
   if (existing) {
-    const { data, error } = await supabase
+    const {
+      data,
+      error,
+    } = await supabase
       .from("project_submissions")
       .update({
         github_url:
-          githubUrl?.trim() || null,
+          githubUrl?.trim() ||
+          null,
+
         submission_notes:
-          notes?.trim() || null,
-        status: "submitted",
+          notes?.trim() ||
+          null,
+
+        status:
+          "submitted",
+
         submitted_at:
           new Date().toISOString(),
       })
-      .eq("id", existing.id)
+      .eq(
+        "id",
+        existing.id
+      )
       .select()
       .single();
+
 
     if (error) {
       throw error;
     }
 
+
     return data;
   }
 
+
   // ----------------------------------------------------------
-  // INSERT new submission
+  // CREATE SUBMISSION
   // ----------------------------------------------------------
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("project_submissions")
     .insert({
-      assignment_id: assignmentId,
-      developer_id: developerId,
+      assignment_id:
+        assignmentId,
+
+      developer_id:
+        developerId,
+
       github_url:
-        githubUrl?.trim() || null,
+        githubUrl?.trim() ||
+        null,
+
       submission_notes:
-        notes?.trim() || null,
-      status: "submitted",
+        notes?.trim() ||
+        null,
+
+      status:
+        "submitted",
     })
     .select()
     .single();
+
 
   if (error) {
     throw error;
   }
 
+
   return data;
 }
+
 
 // ============================================================
 // MY SUBMISSIONS
 // ============================================================
 
-export async function getMySubmissions(developerId) {
-  const user = await getCurrentUser();
+export async function getMySubmissions(
+  developerId
+) {
+  const user =
+    await getCurrentUser();
 
-  // Verify developer ownership
-  const { data: developerProfile, error: profileError } =
-    await supabase
-      .from("developer_profiles")
-      .select("id")
-      .eq("id", developerId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+
+  // ----------------------------------------------------------
+  // VERIFY OWNERSHIP
+  // ----------------------------------------------------------
+
+  const {
+    data: developerProfile,
+    error: profileError,
+  } = await supabase
+    .from("developer_profiles")
+    .select("id")
+    .eq(
+      "id",
+      developerId
+    )
+    .eq(
+      "user_id",
+      user.id
+    )
+    .maybeSingle();
+
 
   if (profileError) {
     throw profileError;
   }
+
 
   if (!developerProfile) {
     throw new Error(
@@ -496,7 +969,15 @@ export async function getMySubmissions(developerId) {
     );
   }
 
-  const { data, error } = await supabase
+
+  // ----------------------------------------------------------
+  // GET SUBMISSIONS
+  // ----------------------------------------------------------
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("project_submissions")
     .select(`
       *,
@@ -512,24 +993,36 @@ export async function getMySubmissions(developerId) {
         )
       )
     `)
-    .eq("developer_id", developerId)
-    .order("submitted_at", {
-      ascending: false,
-    });
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .order(
+      "submitted_at",
+      {
+        ascending: false,
+      }
+    );
+
 
   if (error) {
     throw error;
   }
 
+
   return data || [];
 }
+
 
 // ============================================================
 // ADMIN: DEVELOPER MANAGEMENT
 // ============================================================
 
 export async function getAllDevelopers() {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_profiles")
     .select(`
       *,
@@ -540,16 +1033,26 @@ export async function getAllDevelopers() {
         )
       )
     `)
-    .order("created_at", {
-      ascending: false,
-    });
+    .order(
+      "created_at",
+      {
+        ascending: false,
+      }
+    );
+
 
   if (error) {
     throw error;
   }
 
+
   return data || [];
 }
+
+
+// ============================================================
+// ADMIN: UPDATE DEVELOPER STATUS
+// ============================================================
 
 export async function updateDeveloperStatus(
   devProfileId,
@@ -558,83 +1061,130 @@ export async function updateDeveloperStatus(
 ) {
   const update = {
     status,
+    rejection_reason:
+      rejectionReason || null,
   };
 
-  if (rejectionReason) {
-    update.rejection_reason = rejectionReason;
-  } else {
-    update.rejection_reason = null;
-  }
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_profiles")
     .update(update)
-    .eq("id", devProfileId)
+    .eq(
+      "id",
+      devProfileId
+    )
     .select()
     .single();
+
 
   if (error) {
     throw error;
   }
+
 
   return data;
 }
 
+
 // ============================================================
-// ADMIN: OPPORTUNITIES
+// ADMIN: ALL OPPORTUNITIES
 // ============================================================
 
 export async function getAllOpportunities() {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("opportunities")
     .select("*")
-    .order("created_at", {
-      ascending: false,
-    });
+    .order(
+      "created_at",
+      {
+        ascending: false,
+      }
+    );
+
 
   if (error) {
     throw error;
   }
 
+
   return data || [];
 }
 
-export async function createOpportunity(payload) {
-  const { data, error } = await supabase
+
+// ============================================================
+// ADMIN: CREATE OPPORTUNITY
+// ============================================================
+
+export async function createOpportunity(
+  payload
+) {
+  const {
+    data,
+    error,
+  } = await supabase
     .from("opportunities")
     .insert(payload)
     .select()
     .single();
 
+
   if (error) {
     throw error;
   }
 
+
   return data;
 }
+
+
+// ============================================================
+// ADMIN: UPDATE OPPORTUNITY
+// ============================================================
 
 export async function updateOpportunity(
   id,
   payload
 ) {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("opportunities")
     .update(payload)
-    .eq("id", id)
+    .eq(
+      "id",
+      id
+    )
     .select()
     .single();
+
 
   if (error) {
     throw error;
   }
 
+
   return data;
 }
+
+
+// ============================================================
+// ADMIN: OPPORTUNITY APPLICATIONS
+// ============================================================
 
 export async function getOpportunityApplications(
   opportunityId
 ) {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("opportunity_applications")
     .select(`
       *,
@@ -653,17 +1203,26 @@ export async function getOpportunityApplications(
         )
       )
     `)
-    .eq("opportunity_id", opportunityId)
-    .order("applied_at", {
-      ascending: false,
-    });
+    .eq(
+      "opportunity_id",
+      opportunityId
+    )
+    .order(
+      "applied_at",
+      {
+        ascending: false,
+      }
+    );
+
 
   if (error) {
     throw error;
   }
 
+
   return data || [];
 }
+
 
 // ============================================================
 // ADMIN: ASSIGN DEVELOPER
@@ -675,85 +1234,128 @@ export async function assignDeveloper({
   applicationId,
   adminId,
 }) {
+
   // ----------------------------------------------------------
-  // 1. Create assignment
+  // CREATE ASSIGNMENT
   // ----------------------------------------------------------
 
-  const { data: assignment, error: assignError } =
-    await supabase
-      .from("project_assignments")
-      .insert({
-        opportunity_id: opportunityId,
-        developer_id: developerId,
-        assigned_by: adminId,
-        payment_status: "pending",
-      })
-      .select()
-      .single();
+  const {
+    data: assignment,
+    error: assignError,
+  } = await supabase
+    .from("project_assignments")
+    .insert({
+      opportunity_id:
+        opportunityId,
+
+      developer_id:
+        developerId,
+
+      assigned_by:
+        adminId,
+
+      payment_status:
+        "pending",
+    })
+    .select()
+    .single();
+
 
   if (assignError) {
     throw assignError;
   }
 
+
   // ----------------------------------------------------------
-  // 2. Mark selected application
+  // SELECT APPLICATION
   // ----------------------------------------------------------
 
-  const { error: selectedError } =
-    await supabase
-      .from("opportunity_applications")
-      .update({
-        status: "selected",
-      })
-      .eq("id", applicationId)
-      .eq("opportunity_id", opportunityId);
+  const {
+    error: selectedError,
+  } = await supabase
+    .from("opportunity_applications")
+    .update({
+      status:
+        "selected",
+    })
+    .eq(
+      "id",
+      applicationId
+    )
+    .eq(
+      "opportunity_id",
+      opportunityId
+    );
+
 
   if (selectedError) {
     throw selectedError;
   }
 
+
   // ----------------------------------------------------------
-  // 3. Reject other applications
+  // REJECT OTHER APPLICATIONS
   // ----------------------------------------------------------
 
-  const { error: rejectedError } =
-    await supabase
-      .from("opportunity_applications")
-      .update({
-        status: "rejected",
-      })
-      .eq("opportunity_id", opportunityId)
-      .neq("id", applicationId);
+  const {
+    error: rejectedError,
+  } = await supabase
+    .from("opportunity_applications")
+    .update({
+      status:
+        "rejected",
+    })
+    .eq(
+      "opportunity_id",
+      opportunityId
+    )
+    .neq(
+      "id",
+      applicationId
+    );
+
 
   if (rejectedError) {
     throw rejectedError;
   }
 
+
   // ----------------------------------------------------------
-  // 4. Close opportunity
+  // CLOSE OPPORTUNITY
   // ----------------------------------------------------------
 
-  const { error: opportunityError } =
-    await supabase
-      .from("opportunities")
-      .update({
-        status: "assigned",
-      })
-      .eq("id", opportunityId);
+  const {
+    error: opportunityError,
+  } = await supabase
+    .from("opportunities")
+    .update({
+      status:
+        "assigned",
+    })
+    .eq(
+      "id",
+      opportunityId
+    );
+
 
   if (opportunityError) {
     throw opportunityError;
   }
 
+
   return assignment;
 }
+
 
 // ============================================================
 // ADMIN: ALL ASSIGNMENTS
 // ============================================================
 
 export async function getAllAssignments() {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("project_assignments")
     .select(`
       *,
@@ -769,16 +1371,22 @@ export async function getAllAssignments() {
       ),
       project_submissions (*)
     `)
-    .order("assigned_at", {
-      ascending: false,
-    });
+    .order(
+      "assigned_at",
+      {
+        ascending: false,
+      }
+    );
+
 
   if (error) {
     throw error;
   }
 
+
   return data || [];
 }
+
 
 // ============================================================
 // ADMIN: REVIEW SUBMISSION
@@ -791,51 +1399,76 @@ export async function reviewSubmission({
   reviewerId,
   opportunityId,
 }) {
+
   // ----------------------------------------------------------
-  // 1. Update submission
+  // UPDATE SUBMISSION
   // ----------------------------------------------------------
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("project_submissions")
     .update({
       status,
+
       review_message:
-        reviewMessage?.trim() || null,
+        reviewMessage?.trim() ||
+        null,
+
       reviewed_at:
         new Date().toISOString(),
-      reviewed_by: reviewerId,
+
+      reviewed_by:
+        reviewerId,
     })
-    .eq("id", submissionId)
+    .eq(
+      "id",
+      submissionId
+    )
     .select()
     .single();
+
 
   if (error) {
     throw error;
   }
 
+
   // ----------------------------------------------------------
-  // 2. If approved, complete opportunity
+  // APPROVED
   // ----------------------------------------------------------
 
   if (
     status === "approved" &&
     opportunityId
   ) {
+
+    // --------------------------------------------------------
+    // COMPLETE OPPORTUNITY
+    // --------------------------------------------------------
+
     const {
       error: opportunityError,
     } = await supabase
       .from("opportunities")
       .update({
-        status: "completed",
+        status:
+          "completed",
       })
-      .eq("id", opportunityId);
+      .eq(
+        "id",
+        opportunityId
+      );
+
 
     if (opportunityError) {
       throw opportunityError;
     }
 
+
     // --------------------------------------------------------
-    // 3. Mark payment as due
+    // MARK PAYMENT DUE
     // --------------------------------------------------------
 
     const {
@@ -843,16 +1476,23 @@ export async function reviewSubmission({
     } = await supabase
       .from("project_assignments")
       .update({
-        payment_status: "due",
+        payment_status:
+          "due",
+
         completed_at:
           new Date().toISOString(),
       })
-      .eq("opportunity_id", opportunityId);
+      .eq(
+        "opportunity_id",
+        opportunityId
+      );
+
 
     if (paymentError) {
       throw paymentError;
     }
   }
+
 
   return data;
 }

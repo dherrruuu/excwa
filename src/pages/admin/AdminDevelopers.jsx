@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import "../styles/admin-developers.css";
+
+import "../../styles/admin/admin-developers.css";
+
 import {
   Search,
   Eye,
@@ -19,7 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../lib/supabase";
 
 export default function AdminDevelopers() {
   const [applications, setApplications] = useState([]);
