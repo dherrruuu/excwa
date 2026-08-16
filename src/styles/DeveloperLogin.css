@@ -814,79 +814,261 @@
 /* ============================================================
    DEVELOPER ACTIVATION PAGE
    ============================================================ */
+```css
+/* ============================================================
+   DEVELOPER ACTIVATION / RESET PASSWORD PAGE
+   ============================================================ */
 
 .developer-auth-page {
   min-height: 100vh;
   width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 20px;
-  background: #f5f7fb;
+
+  position: relative;
+  overflow: hidden;
+
+  padding: 40px 24px;
+
   box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at 50% -12%,
+      rgba(98, 226, 255, 0.09),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(98, 226, 255, 0.025),
+      transparent 32%
+    ),
+    #080b10;
+
+  color: #f4f7fb;
 }
 
-.developer-auth-card {
-  width: 100%;
-  max-width: 470px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  padding: 38px;
-  box-sizing: border-box;
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+
+/* ============================================================
+   BACKGROUND GLOW
+   ============================================================ */
+
+.developer-auth-page::before {
+  content: "";
+
+  position: absolute;
+  z-index: 0;
+
+  width: 620px;
+  height: 620px;
+
+  top: -390px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background: rgba(98, 226, 255, 0.045);
+
+  filter: blur(100px);
+
+  pointer-events: none;
 }
+
+
+/* ============================================================
+   BACKGROUND GRID
+   ============================================================ */
+
+.developer-auth-page::after {
+  content: "";
+
+  position: absolute;
+  z-index: 0;
+
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px
+    );
+
+  background-size: 55px 55px;
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.38),
+    transparent 72%
+  );
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.38),
+    transparent 72%
+  );
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   AUTH CARD
+   ============================================================ */
+
+.developer-auth-card {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 525px;
+
+  padding: 48px 50px 42px;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 21, 30, 0.98),
+      rgba(10, 13, 18, 0.985)
+    );
+
+  box-shadow:
+    0 35px 90px rgba(0, 0, 0, 0.52),
+    0 12px 35px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+
+/* ============================================================
+   TOP ACCENT
+   ============================================================ */
+
+.developer-auth-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: -1px;
+  left: 27%;
+
+  width: 46%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(98, 226, 255, 0.72),
+      transparent
+    );
+
+  box-shadow:
+    0 0 16px rgba(98, 226, 255, 0.2);
+}
+
+
+/* ============================================================
+   LOGO
+   ============================================================ */
 
 .developer-auth-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 30px;
+
+  margin-bottom: 28px;
 }
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
 
 .developer-auth-header {
   text-align: center;
+
+  margin-bottom: 30px;
 }
 
 .developer-auth-header h1,
 .developer-auth-card > h1 {
-  margin: 16px 0 10px;
-  color: #111827;
-  font-size: 26px;
-  line-height: 1.25;
-  font-weight: 700;
+  margin: 17px 0 10px;
+
+  color: #f4f7fb;
+
+  font-size: 30px;
+  line-height: 1.2;
+
+  font-weight: 650;
+
+  letter-spacing: -0.7px;
 }
 
 .developer-auth-header p,
 .developer-auth-description {
   margin: 0;
-  color: #6b7280;
-  font-size: 14px;
-  line-height: 1.7;
+
+  color: #788394;
+
+  font-size: 13px;
+
+  line-height: 1.65;
 }
 
+
 /* ============================================================
-   ICONS
+   STATUS ICON
    ============================================================ */
 
 .developer-auth-icon {
   width: 58px;
   height: 58px;
+
   margin: 0 auto;
-  border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border-radius: 50%;
 }
 
 .developer-auth-icon.success {
-  color: #15803d;
-  background: #dcfce7;
+  color: #62e2ff;
+
+  background:
+    rgba(98, 226, 255, 0.08);
+
+  border:
+    1px solid rgba(98, 226, 255, 0.18);
+
+  box-shadow:
+    0 0 25px rgba(98, 226, 255, 0.07);
 }
 
 .developer-auth-icon.error {
-  color: #dc2626;
-  background: #fee2e2;
+  color: #ff8585;
+
+  background:
+    rgba(255, 110, 110, 0.07);
+
+  border:
+    1px solid rgba(255, 110, 110, 0.16);
 }
+
 
 /* ============================================================
    LOADING
@@ -894,25 +1076,33 @@
 
 .developer-auth-loading {
   text-align: center;
+
   padding: 20px 0 8px;
 }
 
 .developer-auth-loading h2 {
   margin: 18px 0 8px;
-  color: #111827;
+
+  color: #f4f7fb;
+
   font-size: 20px;
-  font-weight: 700;
+
+  font-weight: 650;
 }
 
 .developer-auth-loading p {
   margin: 0;
-  color: #6b7280;
-  font-size: 14px;
+
+  color: #788394;
+
+  font-size: 13px;
+
   line-height: 1.6;
 }
 
 .developer-auth-spinner {
-  animation: developer-auth-spin 0.9s linear infinite;
+  animation:
+    developer-auth-spin 0.9s linear infinite;
 }
 
 @keyframes developer-auth-spin {
@@ -925,6 +1115,7 @@
   }
 }
 
+
 /* ============================================================
    FORM
    ============================================================ */
@@ -932,96 +1123,231 @@
 .developer-auth-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+
+  gap: 21px;
+
   margin-top: 28px;
 }
+
+
+/* ============================================================
+   FIELD
+   ============================================================ */
 
 .developer-auth-field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+
+  gap: 9px;
 }
 
 .developer-auth-field label {
-  color: #374151;
-  font-size: 14px;
-  font-weight: 600;
+  color: #8c98aa;
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  line-height: 1;
+
+  letter-spacing: 0.065em;
+
+  text-transform: uppercase;
 }
 
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+
 .developer-auth-input-wrapper {
-  min-height: 48px;
+  width: 100%;
+  height: 52px;
+
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 13px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  background: #ffffff;
+
+  gap: 12px;
+
+  padding: 0 15px;
+
   box-sizing: border-box;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
   transition:
     border-color 0.2s ease,
+    background 0.2s ease,
     box-shadow 0.2s ease;
 }
 
+.developer-auth-input-wrapper:hover {
+  border-color:
+    rgba(255, 255, 255, 0.12);
+
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
 .developer-auth-input-wrapper:focus-within {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color:
+    rgba(98, 226, 255, 0.34);
+
+  background:
+    rgba(98, 226, 255, 0.018);
+
+  box-shadow:
+    0 0 0 3px rgba(98, 226, 255, 0.035),
+    0 0 22px rgba(98, 226, 255, 0.025);
 }
 
 .developer-auth-input-wrapper > svg {
+  width: 18px;
+  height: 18px;
+
   flex-shrink: 0;
-  color: #6b7280;
+
+  color: #667384;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
+.developer-auth-input-wrapper:focus-within > svg {
+  color: #62e2ff;
+
+  transform: scale(1.03);
+}
+
+
+/* ============================================================
+   INPUT FIELD
+   ============================================================ */
+
 .developer-auth-input-wrapper input {
-  flex: 1;
+  width: 100%;
+  height: 100%;
+
   min-width: 0;
-  height: 46px;
-  border: none;
-  outline: none;
+
+  padding: 0;
+
+  border: 0;
+  outline: 0;
+
   background: transparent;
-  color: #111827;
-  font-size: 14px;
+
+  color: #e9edf3;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 450;
+
+  caret-color: #62e2ff;
 }
 
 .developer-auth-input-wrapper input::placeholder {
-  color: #9ca3af;
+  color: #515d6c;
+
+  opacity: 1;
 }
 
 .developer-auth-input-wrapper input:disabled {
   cursor: not-allowed;
-  opacity: 0.7;
+
+  opacity: 0.55;
 }
+
+
+/* ============================================================
+   AUTOFILL
+   ============================================================ */
+
+.developer-auth-input-wrapper input:-webkit-autofill,
+.developer-auth-input-wrapper input:-webkit-autofill:hover,
+.developer-auth-input-wrapper input:-webkit-autofill:focus,
+.developer-auth-input-wrapper input:-webkit-autofill:active {
+  -webkit-text-fill-color: #e9edf3;
+
+  caret-color: #62e2ff;
+
+  -webkit-box-shadow:
+    0 0 0 1000px #11161f inset;
+
+  box-shadow:
+    0 0 0 1000px #11161f inset;
+
+  transition:
+    background-color 9999s ease-in-out 0s;
+}
+
+
+/* ============================================================
+   PASSWORD TOGGLE
+   ============================================================ */
 
 .developer-auth-password-toggle {
   width: 34px;
   height: 34px;
+
   flex-shrink: 0;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 0;
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  cursor: pointer;
+
+  border: 0;
+
   border-radius: 7px;
+
+  background: transparent;
+
+  color: #667384;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.developer-auth-password-toggle:hover {
-  background: #f3f4f6;
-  color: #111827;
+.developer-auth-password-toggle:hover:not(:disabled) {
+  background:
+    rgba(255, 255, 255, 0.045);
+
+  color: #62e2ff;
 }
 
 .developer-auth-password-toggle:disabled {
+  opacity: 0.45;
+
   cursor: not-allowed;
-  opacity: 0.5;
 }
 
+
+/* ============================================================
+   FIELD HINT
+   ============================================================ */
+
 .developer-auth-field-hint {
-  color: #9ca3af;
-  font-size: 12px;
+  color: #515d6c;
+
+  font-size: 11px;
+
+  line-height: 1.4;
 }
+
 
 /* ============================================================
    MESSAGES
@@ -1030,85 +1356,175 @@
 .developer-auth-message {
   display: flex;
   align-items: flex-start;
+
   gap: 10px;
-  margin-top: 22px;
+
+  margin-top: 20px;
+
   padding: 12px 14px;
-  border-radius: 10px;
-  font-size: 13px;
+
+  border-radius: 8px;
+
+  font-size: 11px;
+
   line-height: 1.5;
 }
 
 .developer-auth-message svg {
   flex-shrink: 0;
+
   margin-top: 1px;
 }
 
 .developer-auth-message.error {
-  color: #991b1b;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  color: #ff8585;
+
+  background:
+    rgba(255, 110, 110, 0.045);
+
+  border:
+    1px solid rgba(255, 110, 110, 0.16);
 }
 
 .developer-auth-message.success {
-  color: #166534;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  color: #72e5a1;
+
+  background:
+    rgba(80, 220, 140, 0.045);
+
+  border:
+    1px solid rgba(80, 220, 140, 0.15);
 }
 
+
 /* ============================================================
-   BUTTONS
+   PRIMARY BUTTON
    ============================================================ */
 
-.developer-auth-primary-button,
-.developer-auth-secondary-button {
+.developer-auth-primary-button {
   width: 100%;
-  min-height: 48px;
+  min-height: 50px;
+
+  margin-top: 3px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  box-sizing: border-box;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.1s ease;
-}
 
-.developer-auth-primary-button {
-  border: 1px solid #2563eb;
-  background: #2563eb;
+  gap: 9px;
+
+  box-sizing: border-box;
+
+  border: 0;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      105deg,
+      #48d9f5 0%,
+      #5c9cf7 48%,
+      #9d4bea 100%
+    );
+
   color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px rgba(89, 119, 241, 0.17);
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .developer-auth-primary-button:hover:not(:disabled) {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  transform: translateY(-1px);
+
+  filter: brightness(1.06);
+
+  box-shadow:
+    0 13px 32px rgba(89, 119, 241, 0.25);
 }
 
 .developer-auth-primary-button:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translateY(0);
+
+  filter: brightness(0.98);
 }
 
 .developer-auth-primary-button:disabled {
-  opacity: 0.65;
+  opacity: 0.5;
+
   cursor: not-allowed;
+
+  box-shadow: none;
 }
 
+.developer-auth-primary-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+
+/* ============================================================
+   SECONDARY BUTTON
+   ============================================================ */
+
 .developer-auth-secondary-button {
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  color: #374151;
+  width: 100%;
+  min-height: 48px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  color: #8c98aa;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  text-decoration: none;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .developer-auth-secondary-button:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+  border-color:
+    rgba(255, 255, 255, 0.13);
+
+  background:
+    rgba(255, 255, 255, 0.035);
+
+  color: #f4f7fb;
 }
+
 
 /* ============================================================
    INVALID LINK ACTIONS
@@ -1117,9 +1533,12 @@
 .developer-auth-actions {
   display: flex;
   flex-direction: column;
+
   gap: 10px;
+
   margin-top: 26px;
 }
+
 
 /* ============================================================
    FOOTER
@@ -1127,50 +1546,173 @@
 
 .developer-auth-footer {
   display: flex;
+
   justify-content: center;
   align-items: center;
+
   flex-wrap: wrap;
+
   gap: 5px;
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px solid #f0f0f0;
-  color: #6b7280;
-  font-size: 13px;
+
+  margin-top: 28px;
+  padding-top: 23px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.055);
+
+  color: #667282;
+
+  font-size: 11px;
+
+  text-align: center;
 }
 
 .developer-auth-footer a {
-  color: #2563eb;
-  font-weight: 600;
+  color: #9aa5b5;
+
+  font-weight: 650;
+
   text-decoration: none;
+
+  transition: color 0.2s ease;
 }
 
 .developer-auth-footer a:hover {
+  color: #62e2ff;
+
   text-decoration: underline;
+
+  text-underline-offset: 3px;
 }
+
 
 /* ============================================================
    MOBILE
    ============================================================ */
 
-@media (max-width: 560px) {
+@media (max-width: 700px) {
   .developer-auth-page {
-    align-items: flex-start;
-    padding: 20px 14px;
+    padding: 30px 20px;
   }
 
   .developer-auth-card {
+    max-width: 470px;
+
+    padding: 44px 38px 38px;
+  }
+}
+
+
+@media (max-width: 520px) {
+  .developer-auth-page {
+    align-items: flex-start;
+
+    padding: 24px 16px;
+  }
+
+  .developer-auth-card {
+    max-width: 100%;
+
     margin-top: 20px;
-    padding: 28px 20px;
-    border-radius: 14px;
+
+    padding: 38px 28px 32px;
+
+    border-radius: 13px;
+  }
+
+  .developer-auth-header {
+    margin-bottom: 26px;
   }
 
   .developer-auth-header h1,
   .developer-auth-card > h1 {
-    font-size: 23px;
+    font-size: 27px;
   }
 
-  .developer-auth-logo {
-    margin-bottom: 24px;
+  .developer-auth-header p,
+  .developer-auth-description {
+    font-size: 12px;
+  }
+
+  .developer-auth-input-wrapper {
+    height: 50px;
+  }
+
+  .developer-auth-primary-button {
+    min-height: 49px;
   }
 }
 
+
+@media (max-width: 380px) {
+  .developer-auth-page {
+    padding: 18px 12px;
+  }
+
+  .developer-auth-card {
+    margin-top: 12px;
+
+    padding: 34px 21px 30px;
+
+    border-radius: 11px;
+  }
+
+  .developer-auth-header h1,
+  .developer-auth-card > h1 {
+    font-size: 24px;
+  }
+
+  .developer-auth-header p,
+  .developer-auth-description {
+    font-size: 11px;
+  }
+
+  .developer-auth-field label {
+    font-size: 10px;
+  }
+
+  .developer-auth-input-wrapper {
+    height: 48px;
+  }
+
+  .developer-auth-input-wrapper input {
+    font-size: 12px;
+  }
+
+  .developer-auth-primary-button {
+    min-height: 48px;
+
+    font-size: 12px;
+  }
+
+  .developer-auth-footer {
+    flex-direction: column;
+
+    gap: 5px;
+
+    margin-top: 25px;
+
+    padding-top: 21px;
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .developer-auth-input-wrapper,
+  .developer-auth-input-wrapper > svg,
+  .developer-auth-password-toggle,
+  .developer-auth-primary-button,
+  .developer-auth-secondary-button,
+  .developer-auth-footer a {
+    transition: none;
+  }
+
+  .developer-auth-spinner {
+    animation: none;
+  }
+}
+```
