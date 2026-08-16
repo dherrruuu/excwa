@@ -2,8 +2,33 @@ import { supabase } from "../../lib/supabase";
 
 /* =========================================================
    DEVELOPER APPLICATION SERVICE
+
    Public developer application
+
+   Flow:
+   1. Validate application
+   2. Upload profile photo
+   3. Upload resume
+   4. Save storage paths
+   5. Create developer_applications row
    ========================================================= */
+
+
+/* =========================================================
+   STORAGE CONFIGURATION
+   ========================================================= */
+
+/*
+ * IMPORTANT:
+ *
+ * These bucket names must exactly match the buckets
+ * you created in Supabase Storage.
+ *
+ * If your bucket names are different, change them here.
+ */
+
+const PROFILE_PHOTO_BUCKET = "developer-profile-photos";
+const RESUME_BUCKET = "developer-resumes";
 
 
 /* =========================================================
@@ -14,6 +39,10 @@ export async function createDeveloperApplication(form) {
   if (!form) {
     throw new Error("Application data is required.");
   }
+
+  /* ---------------------------------------------------------
+     BASIC DATA
+     --------------------------------------------------------- */
 
   const full_name = String(
     form.full_name ?? form.fullName ?? ""
@@ -48,23 +77,14 @@ export async function createDeveloperApplication(form) {
     form.portfolio_url ?? form.portfolioUrl ?? ""
   ).trim();
 
-  const profile_photo_path = String(
-    form.profile_photo_path ??
-    form.profilePhotoPath ??
-    ""
-  ).trim();
 
-  const profile_photo_url = String(
-    form.profile_photo_url ??
-    form.profilePhotoUrl ??
-    ""
-  ).trim();
+  /* ---------------------------------------------------------
+     FILES
+     --------------------------------------------------------- */
 
-  const resume_path = String(
-    form.resume_path ??
-    form.resumePath ??
-    ""
-  ).trim();
+  const profilePhoto = form.profilePhoto;
+  const resume = form.resume;
+
 
   /* ---------------------------------------------------------
      PRIMARY ROLES
@@ -86,9 +106,10 @@ export async function createDeveloperApplication(form) {
     primary_roles = [];
   }
 
-  /* ---------------------------------------------------------
+
+  /* =========================================================
      VALIDATION
-     --------------------------------------------------------- */
+     ========================================================= */
 
   if (!full_name) {
     throw new Error("Full name is required.");
@@ -110,19 +131,214 @@ export async function createDeveloperApplication(form) {
     throw new Error("Education is required.");
   }
 
-  if (primary_roles.length === 0) {
-    throw new Error("Please select at least one primary role.");
+  if (!github_url) {
+    throw new Error("GitHub profile is required.");
   }
 
-  if (!resume_path) {
+  if (!linkedin_url) {
+    throw new Error("LinkedIn profile is required.");
+  }
+
+  if (primary_roles.length === 0) {
+    throw new Error(
+      "Please select at least one primary role."
+    );
+  }
+
+  if (!profilePhoto) {
+    throw new Error("Profile photo is required.");
+  }
+
+  if (!(profilePhoto instanceof File)) {
+    throw new Error("Invalid profile photo.");
+  }
+
+  if (!resume) {
     throw new Error("Resume is required.");
   }
 
-  /* ---------------------------------------------------------
-     INSERT
-     --------------------------------------------------------- */
+  if (!(resume instanceof File)) {
+    throw new Error("Invalid resume file.");
+  }
 
-  const { data, error } = await supabase
+
+  /* =========================================================
+     FILE VALIDATION
+     ========================================================= */
+
+  /* PROFILE PHOTO */
+
+  if (!profilePhoto.type.startsWith("image/")) {
+    throw new Error(
+      "Profile photo must be an image."
+    );
+  }
+
+  if (profilePhoto.size > 5 * 1024 * 1024) {
+    throw new Error(
+      "Profile photo must be less than 5MB."
+    );
+  }
+
+
+  /* RESUME */
+
+  const allowedResumeTypes = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
+
+  const resumeExtension =
+    `.${resume.name.split(".").pop()?.toLowerCase()}`;
+
+  const allowedResumeExtensions = [
+    ".pdf",
+    ".doc",
+    ".docx",
+  ];
+
+  const validResumeType =
+    allowedResumeTypes.includes(resume.type) ||
+    allowedResumeExtensions.includes(resumeExtension);
+
+  if (!validResumeType) {
+    throw new Error(
+      "Resume must be PDF, DOC, or DOCX."
+    );
+  }
+
+  if (resume.size > 10 * 1024 * 1024) {
+    throw new Error(
+      "Resume must be less than 10MB."
+    );
+  }
+
+
+  /* =========================================================
+     UNIQUE FILE ID
+  ========================================================= */
+
+  const applicationId =
+    crypto.randomUUID();
+
+
+  /* =========================================================
+     FILE PATHS
+  ========================================================= */
+
+  const safeName = full_name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const photoExtension =
+    profilePhoto.name
+      .split(".")
+      .pop()
+      ?.toLowerCase() || "jpg";
+
+  const resumeExtensionClean =
+    resume.name
+      .split(".")
+      .pop()
+      ?.toLowerCase() || "pdf";
+
+
+  const profilePhotoPath =
+    `${applicationId}/${safeName}-profile.${photoExtension}`;
+
+  const resumePath =
+    `${applicationId}/${safeName}-resume.${resumeExtensionClean}`;
+
+
+  /* =========================================================
+     UPLOAD PROFILE PHOTO
+  ========================================================= */
+
+  const {
+    error: profilePhotoUploadError,
+  } = await supabase.storage
+    .from(PROFILE_PHOTO_BUCKET)
+    .upload(
+      profilePhotoPath,
+      profilePhoto,
+      {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: profilePhoto.type,
+      }
+    );
+
+  if (profilePhotoUploadError) {
+    console.error(
+      "Profile photo upload failed:",
+      profilePhotoUploadError
+    );
+
+    throw new Error(
+      profilePhotoUploadError.message ||
+      "Failed to upload profile photo."
+    );
+  }
+
+
+  /* =========================================================
+     UPLOAD RESUME
+  ========================================================= */
+
+  const {
+    error: resumeUploadError,
+  } = await supabase.storage
+    .from(RESUME_BUCKET)
+    .upload(
+      resumePath,
+      resume,
+      {
+        cacheControl: "3600",
+        upsert: false,
+        contentType:
+          resume.type ||
+          "application/octet-stream",
+      }
+    );
+
+
+  /* =========================================================
+     RESUME UPLOAD ERROR
+  ========================================================= */
+
+  if (resumeUploadError) {
+
+    console.error(
+      "Resume upload failed:",
+      resumeUploadError
+    );
+
+    /*
+     * Clean up the profile photo if resume upload
+     * failed so we don't leave an orphaned file.
+     */
+
+    await supabase.storage
+      .from(PROFILE_PHOTO_BUCKET)
+      .remove([profilePhotoPath]);
+
+    throw new Error(
+      resumeUploadError.message ||
+      "Failed to upload resume."
+    );
+  }
+
+
+  /* =========================================================
+     SAVE APPLICATION
+  ========================================================= */
+
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_applications")
     .insert({
       full_name,
@@ -131,40 +347,61 @@ export async function createDeveloperApplication(form) {
       city,
       education,
 
-      github_url: github_url || null,
-      linkedin_url: linkedin_url || null,
-      portfolio_url: portfolio_url || null,
+      github_url,
+      linkedin_url,
+      portfolio_url:
+        portfolio_url || null,
 
       primary_roles,
 
       profile_photo_path:
-        profile_photo_path || null,
+        profilePhotoPath,
 
       profile_photo_url:
-        profile_photo_url || null,
+        null,
 
-      resume_path,
+      resume_path:
+        resumePath,
 
       status: "pending",
     })
     .select()
     .single();
 
-  /* ---------------------------------------------------------
-     ERROR
-     --------------------------------------------------------- */
+
+  /* =========================================================
+     DATABASE ERROR
+  ========================================================= */
 
   if (error) {
+
     console.error(
-      "Developer application submission failed:",
+      "Developer application database insert failed:",
       error
     );
+
+    /*
+     * Clean up uploaded files if database insertion fails.
+     */
+
+    await supabase.storage
+      .from(PROFILE_PHOTO_BUCKET)
+      .remove([profilePhotoPath]);
+
+    await supabase.storage
+      .from(RESUME_BUCKET)
+      .remove([resumePath]);
 
     throw new Error(
       error.message ||
       "Failed to submit developer application."
     );
   }
+
+
+  /* =========================================================
+     SUCCESS
+  ========================================================= */
 
   return data;
 }
@@ -176,7 +413,10 @@ export async function createDeveloperApplication(form) {
    ========================================================= */
 
 export async function getDeveloperApplications() {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_applications")
     .select("*")
     .order("created_at", {
@@ -193,15 +433,19 @@ export async function getDeveloperApplications() {
 
 /* =========================================================
    GET SINGLE APPLICATION
-   Admin only through RLS
    ========================================================= */
 
 export async function getDeveloperApplication(id) {
   if (!id) {
-    throw new Error("Application ID is required.");
+    throw new Error(
+      "Application ID is required."
+    );
   }
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_applications")
     .select("*")
     .eq("id", id)
@@ -217,7 +461,6 @@ export async function getDeveloperApplication(id) {
 
 /* =========================================================
    UPDATE APPLICATION STATUS
-   Admin only through RLS
    ========================================================= */
 
 export async function updateDeveloperApplicationStatus(
@@ -226,16 +469,21 @@ export async function updateDeveloperApplicationStatus(
   rejectionReason = null
 ) {
   if (!id) {
-    throw new Error("Application ID is required.");
+    throw new Error(
+      "Application ID is required."
+    );
   }
 
   if (!status) {
-    throw new Error("Application status is required.");
+    throw new Error(
+      "Application status is required."
+    );
   }
 
   const update = {
     status,
-    updated_at: new Date().toISOString(),
+    updated_at:
+      new Date().toISOString(),
   };
 
   if (status === "rejected") {
@@ -245,7 +493,10 @@ export async function updateDeveloperApplicationStatus(
     update.rejection_reason = null;
   }
 
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from("developer_applications")
     .update(update)
     .eq("id", id)
@@ -262,15 +513,18 @@ export async function updateDeveloperApplicationStatus(
 
 /* =========================================================
    DELETE APPLICATION
-   Admin only through RLS
    ========================================================= */
 
 export async function deleteDeveloperApplication(id) {
   if (!id) {
-    throw new Error("Application ID is required.");
+    throw new Error(
+      "Application ID is required."
+    );
   }
 
-  const { error } = await supabase
+  const {
+    error,
+  } = await supabase
     .from("developer_applications")
     .delete()
     .eq("id", id);
