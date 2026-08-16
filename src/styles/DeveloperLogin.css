@@ -1,12 +1,52 @@
 /* ============================================================
    EXCWA TECH
-   DEVELOPER LOGIN
+   DEVELOPER AUTHENTICATION
    PREMIUM DARK / FUTURISTIC UI
    ============================================================ */
 
 
 /* ============================================================
-   PAGE
+   SHARED VARIABLES
+   ============================================================ */
+
+.developer-login-page,
+.developer-auth-page {
+  --dev-bg: #080b10;
+  --dev-card-start: rgba(16, 21, 30, 0.98);
+  --dev-card-end: rgba(10, 13, 18, 0.985);
+
+  --dev-text: #f4f7fb;
+  --dev-text-soft: #9aa5b5;
+  --dev-text-muted: #788394;
+  --dev-text-dim: #667282;
+  --dev-text-input: #e9edf3;
+  --dev-placeholder: #515d6c;
+
+  --dev-accent: #62e2ff;
+  --dev-accent-soft: rgba(98, 226, 255, 0.08);
+  --dev-accent-border: rgba(98, 226, 255, 0.34);
+
+  --dev-border: rgba(255, 255, 255, 0.075);
+  --dev-border-hover: rgba(255, 255, 255, 0.12);
+
+  --dev-danger: #ff8585;
+  --dev-danger-bg: rgba(255, 110, 110, 0.045);
+  --dev-danger-border: rgba(255, 110, 110, 0.16);
+
+  --dev-success: #72e5a1;
+  --dev-success-bg: rgba(80, 220, 140, 0.045);
+  --dev-success-border: rgba(80, 220, 140, 0.15);
+
+  --dev-button-start: #48d9f5;
+  --dev-button-middle: #5c9cf7;
+  --dev-button-end: #9d4bea;
+
+  color: var(--dev-text);
+}
+
+
+/* ============================================================
+   LOGIN PAGE
    ============================================================ */
 
 .developer-login-page {
@@ -21,6 +61,7 @@
   overflow: hidden;
 
   padding: 40px 24px;
+  box-sizing: border-box;
 
   background:
     radial-gradient(
@@ -33,789 +74,12 @@
       rgba(98, 226, 255, 0.025),
       transparent 32%
     ),
-    #080b10;
-
-  color: #f4f7fb;
+    var(--dev-bg);
 }
 
 
 /* ============================================================
-   BACKGROUND GLOW
-   ============================================================ */
-
-.developer-login-page::before {
-  content: "";
-
-  position: absolute;
-  z-index: 0;
-
-  width: 620px;
-  height: 620px;
-
-  top: -390px;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  border-radius: 50%;
-
-  background: rgba(98, 226, 255, 0.045);
-
-  filter: blur(100px);
-
-  pointer-events: none;
-}
-
-
-/* ============================================================
-   BACKGROUND GRID
-   ============================================================ */
-
-.developer-login-page::after {
-  content: "";
-
-  position: absolute;
-  z-index: 0;
-
-  inset: 0;
-
-  background-image:
-    linear-gradient(
-      rgba(255, 255, 255, 0.012) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0.012) 1px,
-      transparent 1px
-    );
-
-  background-size: 55px 55px;
-
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.38),
-    transparent 72%
-  );
-
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.38),
-    transparent 72%
-  );
-
-  pointer-events: none;
-}
-
-
-/* ============================================================
-   LOGIN CARD
-   ============================================================ */
-
-.developer-login-card {
-  position: relative;
-  z-index: 2;
-
-  width: 100%;
-  max-width: 525px;
-
-  padding: 58px 50px 50px;
-
-  border: 1px solid rgba(255, 255, 255, 0.075);
-
-  border-radius: 15px;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(16, 21, 30, 0.98),
-      rgba(10, 13, 18, 0.985)
-    );
-
-  box-shadow:
-    0 35px 90px rgba(0, 0, 0, 0.52),
-    0 12px 35px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
-
-  box-sizing: border-box;
-}
-
-
-/* ============================================================
-   CARD TOP ACCENT
-   ============================================================ */
-
-.developer-login-card::before {
-  content: "";
-
-  position: absolute;
-
-  top: -1px;
-  left: 27%;
-
-  width: 46%;
-  height: 1px;
-
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(98, 226, 255, 0.72),
-      transparent
-    );
-
-  box-shadow:
-    0 0 16px rgba(98, 226, 255, 0.2);
-}
-
-
-/* ============================================================
-   HEADER
-   ============================================================ */
-
-.developer-login-header {
-  margin: 0 0 39px;
-}
-
-
-/* ============================================================
-   EYEBROW
-   ============================================================ */
-
-.developer-login-eyebrow {
-  display: inline-block;
-
-  margin: 0 0 15px;
-
-  color: #62e2ff;
-
-  font-size: 11px;
-  font-weight: 750;
-
-  line-height: 1;
-
-  letter-spacing: 0.18em;
-
-  text-transform: uppercase;
-}
-
-
-/* ============================================================
-   TITLE
-   ============================================================ */
-
-.developer-login-header h1 {
-  margin: 0;
-
-  color: #f4f7fb;
-
-  font-size: 32px;
-  line-height: 1.2;
-
-  font-weight: 650;
-
-  letter-spacing: -0.8px;
-}
-
-
-/* ============================================================
-   DESCRIPTION
-   ============================================================ */
-
-.developer-login-header p {
-  margin: 12px 0 0;
-
-  color: #788394;
-
-  font-size: 13px;
-  line-height: 1.6;
-
-  font-weight: 400;
-}
-
-
-/* ============================================================
-   ERROR
-   ============================================================ */
-
-.developer-login-error {
-  margin: 0 0 22px;
-
-  padding: 12px 14px;
-
-  border: 1px solid rgba(255, 110, 110, 0.16);
-
-  border-radius: 8px;
-
-  background: rgba(255, 110, 110, 0.045);
-
-  color: #ff8585;
-
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-
-/* ============================================================
-   FORM
-   ============================================================ */
-
-.developer-login-card form {
-  display: flex;
-  flex-direction: column;
-
-  gap: 22px;
-}
-
-
-/* ============================================================
-   FIELD
-   ============================================================ */
-
-.developer-login-field {
-  display: flex;
-  flex-direction: column;
-
-  gap: 9px;
-}
-
-
-/* ============================================================
-   LABEL
-   ============================================================ */
-
-.developer-login-field label {
-  color: #8c98aa;
-
-  font-size: 11px;
-  font-weight: 650;
-
-  line-height: 1;
-
-  letter-spacing: 0.065em;
-
-  text-transform: uppercase;
-}
-
-
-/* ============================================================
-   INPUT WRAPPER
-   ============================================================ */
-
-.developer-login-input {
-  width: 100%;
-  height: 52px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  padding: 0 15px;
-
-  box-sizing: border-box;
-
-  border: 1px solid rgba(255, 255, 255, 0.075);
-
-  border-radius: 9px;
-
-  background:
-    rgba(255, 255, 255, 0.018);
-
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-
-/* ============================================================
-   INPUT ICON
-   ============================================================ */
-
-.developer-login-input svg {
-  width: 18px;
-  height: 18px;
-
-  flex-shrink: 0;
-
-  color: #667384;
-
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-
-/* ============================================================
-   INPUT
-   ============================================================ */
-
-.developer-login-input input {
-  width: 100%;
-  height: 100%;
-
-  min-width: 0;
-
-  padding: 0;
-
-  border: 0;
-  outline: 0;
-
-  background: transparent;
-
-  color: #e9edf3;
-
-  font-family: inherit;
-
-  font-size: 13px;
-  font-weight: 450;
-
-  caret-color: #62e2ff;
-}
-
-
-/* ============================================================
-   PLACEHOLDER
-   ============================================================ */
-
-.developer-login-input input::placeholder {
-  color: #515d6c;
-
-  opacity: 1;
-}
-
-
-/* ============================================================
-   AUTOFILL FIX
-   Prevent Chrome from turning the input white.
-   ============================================================ */
-
-.developer-login-input input:-webkit-autofill,
-.developer-login-input input:-webkit-autofill:hover,
-.developer-login-input input:-webkit-autofill:focus,
-.developer-login-input input:-webkit-autofill:active {
-  -webkit-text-fill-color: #e9edf3;
-
-  caret-color: #62e2ff;
-
-  -webkit-box-shadow:
-    0 0 0 1000px #11161f inset;
-
-  box-shadow:
-    0 0 0 1000px #11161f inset;
-
-  transition:
-    background-color 9999s ease-in-out 0s;
-}
-
-
-/* ============================================================
-   HOVER
-   ============================================================ */
-
-.developer-login-input:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-
-  background:
-    rgba(255, 255, 255, 0.025);
-}
-
-
-/* ============================================================
-   FOCUS
-   ============================================================ */
-
-.developer-login-input:focus-within {
-  border-color: rgba(98, 226, 255, 0.34);
-
-  background:
-    rgba(98, 226, 255, 0.018);
-
-  box-shadow:
-    0 0 0 3px rgba(98, 226, 255, 0.035),
-    0 0 22px rgba(98, 226, 255, 0.025);
-}
-
-
-.developer-login-input:focus-within svg {
-  color: #62e2ff;
-
-  transform: scale(1.03);
-}
-
-
-/* ============================================================
-   LOGIN BUTTON
-   ============================================================ */
-
-.developer-login-btn {
-  width: 100%;
-  height: 50px;
-
-  margin-top: 3px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 9px;
-
-  border: 0;
-
-  border-radius: 10px;
-
-  background:
-    linear-gradient(
-      105deg,
-      #48d9f5 0%,
-      #5c9cf7 48%,
-      #9d4bea 100%
-    );
-
-  color: #ffffff;
-
-  font-family: inherit;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 10px 28px rgba(89, 119, 241, 0.17);
-
-  transition:
-    transform 0.18s ease,
-    filter 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-
-/* ============================================================
-   BUTTON HOVER
-   ============================================================ */
-
-.developer-login-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-
-  filter: brightness(1.06);
-
-  box-shadow:
-    0 13px 32px rgba(89, 119, 241, 0.25);
-}
-
-
-/* ============================================================
-   BUTTON ACTIVE
-   ============================================================ */
-
-.developer-login-btn:active:not(:disabled) {
-  transform: translateY(0);
-
-  filter: brightness(0.98);
-}
-
-
-/* ============================================================
-   BUTTON DISABLED
-   ============================================================ */
-
-.developer-login-btn:disabled {
-  opacity: 0.5;
-
-  cursor: not-allowed;
-
-  box-shadow: none;
-}
-
-
-/* ============================================================
-   BUTTON ARROW
-   ============================================================ */
-
-.developer-login-btn svg {
-  width: 17px;
-  height: 17px;
-
-  transition:
-    transform 0.2s ease;
-}
-
-
-.developer-login-btn:hover:not(:disabled) svg {
-  transform: translateX(3px);
-}
-
-
-/* ============================================================
-   REGISTER SECTION
-   ============================================================ */
-
-.developer-login-register {
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  gap: 5px;
-
-  margin-top: 31px;
-  padding-top: 27px;
-
-  border-top: 1px solid rgba(255, 255, 255, 0.055);
-
-  text-align: center;
-}
-
-
-/* ============================================================
-   REGISTER TEXT
-   ============================================================ */
-
-.developer-login-register span {
-  color: #667282;
-
-  font-size: 11px;
-
-  line-height: 1.5;
-}
-
-
-/* ============================================================
-   REGISTER BUTTON
-   ============================================================ */
-
-.developer-login-register button {
-  padding: 0;
-
-  border: 0;
-
-  background: transparent;
-
-  color: #9aa5b5;
-
-  font-family: inherit;
-
-  font-size: 11px;
-  font-weight: 650;
-
-  cursor: pointer;
-
-  transition:
-    color 0.2s ease;
-}
-
-
-/* ============================================================
-   REGISTER HOVER
-   ============================================================ */
-
-.developer-login-register button:hover:not(:disabled) {
-  color: #62e2ff;
-
-  text-decoration: underline;
-
-  text-underline-offset: 3px;
-}
-
-
-/* ============================================================
-   REGISTER DISABLED
-   ============================================================ */
-
-.developer-login-register button:disabled {
-  opacity: 0.45;
-
-  cursor: not-allowed;
-}
-
-
-/* ============================================================
-   LOADING SPINNER
-   ============================================================ */
-
-.developer-login-btn .admin-spinner {
-  width: 15px;
-  height: 15px;
-
-  flex-shrink: 0;
-
-  border: 2px solid rgba(255, 255, 255, 0.28);
-
-  border-top-color: #ffffff;
-
-  border-radius: 50%;
-
-  animation:
-    developer-login-spin 0.7s linear infinite;
-}
-
-
-@keyframes developer-login-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-/* ============================================================
-   LOADING PAGE
-   ============================================================ */
-
-.developer-login-page .admin-loading {
-  position: relative;
-  z-index: 2;
-
-  min-height: 100vh;
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  color: #788394;
-
-  font-size: 12px;
-}
-
-
-/* ============================================================
-   TABLET
-   ============================================================ */
-
-@media (max-width: 700px) {
-  .developer-login-page {
-    padding: 30px 20px;
-  }
-
-  .developer-login-card {
-    max-width: 470px;
-
-    padding: 48px 38px 42px;
-  }
-}
-
-
-/* ============================================================
-   MOBILE
-   ============================================================ */
-
-@media (max-width: 520px) {
-  .developer-login-page {
-    padding: 24px 16px;
-  }
-
-  .developer-login-card {
-    max-width: 100%;
-
-    padding: 40px 28px 34px;
-
-    border-radius: 13px;
-  }
-
-  .developer-login-header {
-    margin-bottom: 32px;
-  }
-
-  .developer-login-header h1 {
-    font-size: 28px;
-  }
-
-  .developer-login-header p {
-    font-size: 12px;
-  }
-
-  .developer-login-input {
-    height: 50px;
-  }
-
-  .developer-login-btn {
-    height: 49px;
-  }
-}
-
-
-/* ============================================================
-   SMALL MOBILE
-   ============================================================ */
-
-@media (max-width: 380px) {
-  .developer-login-page {
-    padding: 18px 12px;
-  }
-
-  .developer-login-card {
-    padding: 34px 21px 30px;
-
-    border-radius: 11px;
-  }
-
-  .developer-login-eyebrow {
-    font-size: 9px;
-  }
-
-  .developer-login-header h1 {
-    font-size: 25px;
-  }
-
-  .developer-login-header p {
-    font-size: 11px;
-  }
-
-  .developer-login-field label {
-    font-size: 10px;
-  }
-
-  .developer-login-input {
-    height: 48px;
-  }
-
-  .developer-login-input input {
-    font-size: 12px;
-  }
-
-  .developer-login-btn {
-    height: 48px;
-
-    font-size: 12px;
-  }
-
-  .developer-login-register {
-    flex-direction: column;
-
-    gap: 5px;
-
-    margin-top: 26px;
-    padding-top: 22px;
-  }
-}
-
-
-/* ============================================================
-   REDUCED MOTION
-   ============================================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  .developer-login-input,
-  .developer-login-input svg,
-  .developer-login-btn,
-  .developer-login-btn svg,
-  .developer-login-register button {
-    transition: none;
-  }
-
-  .developer-login-btn .admin-spinner {
-    animation: none;
-  }
-}
-/* ============================================================
-   DEVELOPER ACTIVATION PAGE
-   ============================================================ */
-/* ============================================================
-   DEVELOPER ACTIVATION / RESET PASSWORD PAGE
+   AUTH / ACTIVATION PAGE
    ============================================================ */
 
 .developer-auth-page {
@@ -830,7 +94,6 @@
   overflow: hidden;
 
   padding: 40px 24px;
-
   box-sizing: border-box;
 
   background:
@@ -844,16 +107,15 @@
       rgba(98, 226, 255, 0.025),
       transparent 32%
     ),
-    #080b10;
-
-  color: #f4f7fb;
+    var(--dev-bg);
 }
 
 
 /* ============================================================
-   BACKGROUND GLOW
+   SHARED BACKGROUND GLOW
    ============================================================ */
 
+.developer-login-page::before,
 .developer-auth-page::before {
   content: "";
 
@@ -879,9 +141,10 @@
 
 
 /* ============================================================
-   BACKGROUND GRID
+   SHARED BACKGROUND GRID
    ============================================================ */
 
+.developer-login-page::after,
 .developer-auth-page::after {
   content: "";
 
@@ -903,26 +166,29 @@
 
   background-size: 55px 55px;
 
-  mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.38),
-    transparent 72%
-  );
+  mask-image:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.38),
+      transparent 72%
+    );
 
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.38),
-    transparent 72%
-  );
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.38),
+      transparent 72%
+    );
 
   pointer-events: none;
 }
 
 
 /* ============================================================
-   AUTH CARD
+   SHARED CARD
    ============================================================ */
 
+.developer-login-card,
 .developer-auth-card {
   position: relative;
   z-index: 2;
@@ -930,19 +196,16 @@
   width: 100%;
   max-width: 525px;
 
-  padding: 48px 50px 42px;
-
   box-sizing: border-box;
 
-  border: 1px solid rgba(255, 255, 255, 0.075);
-
+  border: 1px solid var(--dev-border);
   border-radius: 15px;
 
   background:
     linear-gradient(
       145deg,
-      rgba(16, 21, 30, 0.98),
-      rgba(10, 13, 18, 0.985)
+      var(--dev-card-start),
+      var(--dev-card-end)
     );
 
   box-shadow:
@@ -953,9 +216,10 @@
 
 
 /* ============================================================
-   TOP ACCENT
+   CARD TOP ACCENT
    ============================================================ */
 
+.developer-login-card::before,
 .developer-auth-card::before {
   content: "";
 
@@ -981,7 +245,534 @@
 
 
 /* ============================================================
-   LOGO
+   LOGIN CARD
+   ============================================================ */
+
+.developer-login-card {
+  padding: 58px 50px 50px;
+}
+
+
+/* ============================================================
+   LOGIN LOGO
+   ============================================================ */
+
+.developer-login-logo {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 28px;
+}
+
+.developer-login-logo svg {
+  width: 58px;
+  height: 58px;
+
+  display: block;
+}
+
+
+/* ============================================================
+   LOGIN HEADER
+   ============================================================ */
+
+.developer-login-header {
+  margin: 0 0 39px;
+}
+
+
+/* ============================================================
+   LOGIN EYEBROW
+   ============================================================ */
+
+.developer-login-eyebrow {
+  display: inline-block;
+
+  margin: 0 0 15px;
+
+  color: var(--dev-accent);
+
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1;
+
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   LOGIN TITLE
+   ============================================================ */
+
+.developer-login-header h1 {
+  margin: 0;
+
+  color: var(--dev-text);
+
+  font-size: 32px;
+  font-weight: 650;
+  line-height: 1.2;
+
+  letter-spacing: -0.8px;
+}
+
+
+/* ============================================================
+   LOGIN DESCRIPTION
+   ============================================================ */
+
+.developer-login-header p {
+  margin: 12px 0 0;
+
+  color: var(--dev-text-muted);
+
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   LOGIN ERROR
+   ============================================================ */
+
+.developer-login-error {
+  margin: 0 0 22px;
+  padding: 12px 14px;
+
+  border: 1px solid var(--dev-danger-border);
+  border-radius: 8px;
+
+  background: var(--dev-danger-bg);
+
+  color: var(--dev-danger);
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   LOGIN FORM
+   ============================================================ */
+
+.developer-login-card form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+
+/* ============================================================
+   LOGIN FIELD
+   ============================================================ */
+
+.developer-login-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+/* ============================================================
+   LOGIN LABEL
+   ============================================================ */
+
+.developer-login-field label {
+  color: #8c98aa;
+
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1;
+
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   LOGIN INPUT WRAPPER
+   ============================================================ */
+
+.developer-login-input {
+  width: 100%;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 15px;
+
+  box-sizing: border-box;
+
+  border: 1px solid var(--dev-border);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.018);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+
+/* ============================================================
+   LOGIN INPUT ICON
+   ============================================================ */
+
+.developer-login-input svg {
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+
+  color: #667384;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* ============================================================
+   LOGIN INPUT
+   ============================================================ */
+
+.developer-login-input input {
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+
+  padding: 0;
+
+  border: 0;
+  outline: none !important;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: transparent;
+
+  color: var(--dev-text-input);
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 450;
+
+  caret-color: var(--dev-accent);
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+/* ============================================================
+   LOGIN PLACEHOLDER
+   ============================================================ */
+
+.developer-login-input input::placeholder {
+  color: var(--dev-placeholder);
+  opacity: 1;
+}
+
+
+/* ============================================================
+   LOGIN INPUT HOVER
+   ============================================================ */
+
+.developer-login-input:hover {
+  border-color: var(--dev-border-hover);
+
+  background: rgba(255, 255, 255, 0.025);
+}
+
+
+/* ============================================================
+   LOGIN INPUT FOCUS
+   No browser blue rectangle
+   ============================================================ */
+
+.developer-login-input:focus-within {
+  border-color: rgba(77, 219, 255, 0.45);
+
+  background: rgba(98, 226, 255, 0.018);
+
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.developer-login-input input:focus,
+.developer-login-input input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.developer-login-input:focus-within svg {
+  color: var(--dev-accent);
+
+  transform: scale(1.03);
+}
+
+
+/* ============================================================
+   LOGIN AUTOFILL
+   ============================================================ */
+
+.developer-login-input input:-webkit-autofill,
+.developer-login-input input:-webkit-autofill:hover,
+.developer-login-input input:-webkit-autofill:focus,
+.developer-login-input input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--dev-text-input) !important;
+
+  caret-color: var(--dev-accent);
+
+  -webkit-box-shadow:
+    0 0 0 1000px #11161f inset !important;
+
+  box-shadow:
+    0 0 0 1000px #11161f inset !important;
+
+  transition:
+    background-color 9999s ease-out 0s;
+}
+
+
+/* ============================================================
+   LOGIN BUTTON
+   ============================================================ */
+
+.developer-login-btn {
+  width: 100%;
+  height: 50px;
+
+  margin-top: 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      105deg,
+      var(--dev-button-start) 0%,
+      var(--dev-button-middle) 48%,
+      var(--dev-button-end) 100%
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px rgba(89, 119, 241, 0.17);
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+/* ============================================================
+   LOGIN BUTTON HOVER
+   ============================================================ */
+
+.developer-login-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  filter: brightness(1.06);
+
+  box-shadow:
+    0 13px 32px rgba(89, 119, 241, 0.25);
+}
+
+
+/* ============================================================
+   LOGIN BUTTON ACTIVE
+   ============================================================ */
+
+.developer-login-btn:active:not(:disabled) {
+  transform: translateY(0);
+
+  filter: brightness(0.98);
+}
+
+
+/* ============================================================
+   LOGIN BUTTON DISABLED
+   ============================================================ */
+
+.developer-login-btn:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* ============================================================
+   LOGIN BUTTON ICON
+   ============================================================ */
+
+.developer-login-btn svg {
+  width: 17px;
+  height: 17px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.developer-login-btn:hover:not(:disabled) svg {
+  transform: translateX(3px);
+}
+
+
+/* ============================================================
+   LOGIN REGISTER
+   ============================================================ */
+
+.developer-login-register {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  margin-top: 31px;
+  padding-top: 27px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.055);
+
+  text-align: center;
+}
+
+.developer-login-register span {
+  color: var(--dev-text-dim);
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.developer-login-register button {
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--dev-text-soft);
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease;
+}
+
+.developer-login-register button:hover:not(:disabled) {
+  color: var(--dev-accent);
+
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.developer-login-register button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   LOGIN LOADING SPINNER
+   ============================================================ */
+
+.developer-login-btn .admin-spinner {
+  width: 15px;
+  height: 15px;
+
+  flex-shrink: 0;
+
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation:
+    developer-login-spin 0.7s linear infinite;
+}
+
+@keyframes developer-login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ============================================================
+   LOGIN PAGE LOADING
+   ============================================================ */
+
+.developer-login-page .admin-loading {
+  position: relative;
+  z-index: 2;
+
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  color: var(--dev-text-muted);
+
+  font-size: 12px;
+}
+
+
+/* ============================================================
+   ============================================================
+   DEVELOPER AUTH / ACTIVATION / RESET PASSWORD
+   ============================================================
+   ============================================================ */
+
+
+/* ============================================================
+   AUTH CARD
+   ============================================================ */
+
+.developer-auth-card {
+  padding: 48px 50px 42px;
+}
+
+
+/* ============================================================
+   AUTH LOGO
    ============================================================ */
 
 .developer-auth-logo {
@@ -993,7 +784,7 @@
 
 
 /* ============================================================
-   HEADER
+   AUTH HEADER
    ============================================================ */
 
 .developer-auth-header {
@@ -1006,12 +797,11 @@
 .developer-auth-card > h1 {
   margin: 17px 0 10px;
 
-  color: #f4f7fb;
+  color: var(--dev-text);
 
   font-size: 30px;
-  line-height: 1.2;
-
   font-weight: 650;
+  line-height: 1.2;
 
   letter-spacing: -0.7px;
 }
@@ -1020,16 +810,15 @@
 .developer-auth-description {
   margin: 0;
 
-  color: #788394;
+  color: var(--dev-text-muted);
 
   font-size: 13px;
-
   line-height: 1.65;
 }
 
 
 /* ============================================================
-   STATUS ICON
+   AUTH STATUS ICON
    ============================================================ */
 
 .developer-auth-icon {
@@ -1046,7 +835,7 @@
 }
 
 .developer-auth-icon.success {
-  color: #62e2ff;
+  color: var(--dev-accent);
 
   background:
     rgba(98, 226, 255, 0.08);
@@ -1059,18 +848,18 @@
 }
 
 .developer-auth-icon.error {
-  color: #ff8585;
+  color: var(--dev-danger);
 
   background:
     rgba(255, 110, 110, 0.07);
 
   border:
-    1px solid rgba(255, 110, 110, 0.16);
+    1px solid var(--dev-danger-border);
 }
 
 
 /* ============================================================
-   LOADING
+   AUTH LOADING
    ============================================================ */
 
 .developer-auth-loading {
@@ -1082,20 +871,18 @@
 .developer-auth-loading h2 {
   margin: 18px 0 8px;
 
-  color: #f4f7fb;
+  color: var(--dev-text);
 
   font-size: 20px;
-
   font-weight: 650;
 }
 
 .developer-auth-loading p {
   margin: 0;
 
-  color: #788394;
+  color: var(--dev-text-muted);
 
   font-size: 13px;
-
   line-height: 1.6;
 }
 
@@ -1116,7 +903,7 @@
 
 
 /* ============================================================
-   FORM
+   AUTH FORM
    ============================================================ */
 
 .developer-auth-form {
@@ -1130,7 +917,7 @@
 
 
 /* ============================================================
-   FIELD
+   AUTH FIELD
    ============================================================ */
 
 .developer-auth-field {
@@ -1144,19 +931,16 @@
   color: #8c98aa;
 
   font-size: 11px;
-
   font-weight: 650;
-
   line-height: 1;
 
   letter-spacing: 0.065em;
-
   text-transform: uppercase;
 }
 
 
 /* ============================================================
-   INPUT
+   AUTH INPUT WRAPPER
    ============================================================ */
 
 .developer-auth-input-wrapper {
@@ -1172,9 +956,7 @@
 
   box-sizing: border-box;
 
-  border:
-    1px solid rgba(255, 255, 255, 0.075);
-
+  border: 1px solid var(--dev-border);
   border-radius: 9px;
 
   background:
@@ -1182,28 +964,36 @@
 
   transition:
     border-color 0.2s ease,
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+    background 0.2s ease;
 }
 
+
+/* ============================================================
+   AUTH INPUT HOVER
+   ============================================================ */
+
 .developer-auth-input-wrapper:hover {
-  border-color:
-    rgba(255, 255, 255, 0.12);
+  border-color: var(--dev-border-hover);
 
   background:
     rgba(255, 255, 255, 0.025);
 }
 
+
+/* ============================================================
+   AUTH INPUT FOCUS
+   ============================================================ */
+
 .developer-auth-input-wrapper:focus-within {
   border-color:
-    rgba(98, 226, 255, 0.34);
+    rgba(77, 219, 255, 0.45);
 
   background:
     rgba(98, 226, 255, 0.018);
 
-  box-shadow:
-    0 0 0 3px rgba(98, 226, 255, 0.035),
-    0 0 22px rgba(98, 226, 255, 0.025);
+  outline: none !important;
+
+  box-shadow: none !important;
 }
 
 .developer-auth-input-wrapper > svg {
@@ -1220,14 +1010,14 @@
 }
 
 .developer-auth-input-wrapper:focus-within > svg {
-  color: #62e2ff;
+  color: var(--dev-accent);
 
   transform: scale(1.03);
 }
 
 
 /* ============================================================
-   INPUT FIELD
+   AUTH INPUT
    ============================================================ */
 
 .developer-auth-input-wrapper input {
@@ -1239,23 +1029,33 @@
   padding: 0;
 
   border: 0;
-  outline: 0;
+  outline: none !important;
+
+  appearance: none;
+  -webkit-appearance: none;
 
   background: transparent;
 
-  color: #e9edf3;
+  color: var(--dev-text-input);
 
   font-family: inherit;
-
   font-size: 13px;
-
   font-weight: 450;
 
-  caret-color: #62e2ff;
+  caret-color: var(--dev-accent);
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.developer-auth-input-wrapper input:focus,
+.developer-auth-input-wrapper input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .developer-auth-input-wrapper input::placeholder {
-  color: #515d6c;
+  color: var(--dev-placeholder);
 
   opacity: 1;
 }
@@ -1268,25 +1068,25 @@
 
 
 /* ============================================================
-   AUTOFILL
+   AUTH AUTOFILL
    ============================================================ */
 
 .developer-auth-input-wrapper input:-webkit-autofill,
 .developer-auth-input-wrapper input:-webkit-autofill:hover,
 .developer-auth-input-wrapper input:-webkit-autofill:focus,
 .developer-auth-input-wrapper input:-webkit-autofill:active {
-  -webkit-text-fill-color: #e9edf3;
+  -webkit-text-fill-color: var(--dev-text-input) !important;
 
-  caret-color: #62e2ff;
+  caret-color: var(--dev-accent);
 
   -webkit-box-shadow:
-    0 0 0 1000px #11161f inset;
+    0 0 0 1000px #11161f inset !important;
 
   box-shadow:
-    0 0 0 1000px #11161f inset;
+    0 0 0 1000px #11161f inset !important;
 
   transition:
-    background-color 9999s ease-in-out 0s;
+    background-color 9999s ease-out 0s;
 }
 
 
@@ -1307,7 +1107,6 @@
   padding: 0;
 
   border: 0;
-
   border-radius: 7px;
 
   background: transparent;
@@ -1325,7 +1124,7 @@
   background:
     rgba(255, 255, 255, 0.045);
 
-  color: #62e2ff;
+  color: var(--dev-accent);
 }
 
 .developer-auth-password-toggle:disabled {
@@ -1340,16 +1139,15 @@
    ============================================================ */
 
 .developer-auth-field-hint {
-  color: #515d6c;
+  color: var(--dev-placeholder);
 
   font-size: 11px;
-
   line-height: 1.4;
 }
 
 
 /* ============================================================
-   MESSAGES
+   AUTH MESSAGE
    ============================================================ */
 
 .developer-auth-message {
@@ -1359,13 +1157,11 @@
   gap: 10px;
 
   margin-top: 20px;
-
   padding: 12px 14px;
 
   border-radius: 8px;
 
   font-size: 11px;
-
   line-height: 1.5;
 }
 
@@ -1376,28 +1172,28 @@
 }
 
 .developer-auth-message.error {
-  color: #ff8585;
+  color: var(--dev-danger);
 
   background:
-    rgba(255, 110, 110, 0.045);
+    var(--dev-danger-bg);
 
   border:
-    1px solid rgba(255, 110, 110, 0.16);
+    1px solid var(--dev-danger-border);
 }
 
 .developer-auth-message.success {
-  color: #72e5a1;
+  color: var(--dev-success);
 
   background:
-    rgba(80, 220, 140, 0.045);
+    var(--dev-success-bg);
 
   border:
-    1px solid rgba(80, 220, 140, 0.15);
+    1px solid var(--dev-success-border);
 }
 
 
 /* ============================================================
-   PRIMARY BUTTON
+   AUTH PRIMARY BUTTON
    ============================================================ */
 
 .developer-auth-primary-button {
@@ -1415,23 +1211,20 @@
   box-sizing: border-box;
 
   border: 0;
-
   border-radius: 10px;
 
   background:
     linear-gradient(
       105deg,
-      #48d9f5 0%,
-      #5c9cf7 48%,
-      #9d4bea 100%
+      var(--dev-button-start) 0%,
+      var(--dev-button-middle) 48%,
+      var(--dev-button-end) 100%
     );
 
   color: #ffffff;
 
   font-family: inherit;
-
   font-size: 13px;
-
   font-weight: 700;
 
   text-decoration: none;
@@ -1477,7 +1270,7 @@
 
 
 /* ============================================================
-   SECONDARY BUTTON
+   AUTH SECONDARY BUTTON
    ============================================================ */
 
 .developer-auth-secondary-button {
@@ -1489,7 +1282,7 @@
   justify-content: center;
 
   border:
-    1px solid rgba(255, 255, 255, 0.075);
+    1px solid var(--dev-border);
 
   border-radius: 10px;
 
@@ -1499,9 +1292,7 @@
   color: #8c98aa;
 
   font-family: inherit;
-
   font-size: 12px;
-
   font-weight: 600;
 
   text-decoration: none;
@@ -1521,12 +1312,12 @@
   background:
     rgba(255, 255, 255, 0.035);
 
-  color: #f4f7fb;
+  color: var(--dev-text);
 }
 
 
 /* ============================================================
-   INVALID LINK ACTIONS
+   AUTH ACTIONS
    ============================================================ */
 
 .developer-auth-actions {
@@ -1540,14 +1331,13 @@
 
 
 /* ============================================================
-   FOOTER
+   AUTH FOOTER
    ============================================================ */
 
 .developer-auth-footer {
   display: flex;
-
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 
   flex-wrap: wrap;
 
@@ -1559,7 +1349,7 @@
   border-top:
     1px solid rgba(255, 255, 255, 0.055);
 
-  color: #667282;
+  color: var(--dev-text-dim);
 
   font-size: 11px;
 
@@ -1567,21 +1357,46 @@
 }
 
 .developer-auth-footer a {
-  color: #9aa5b5;
+  color: var(--dev-text-soft);
 
   font-weight: 650;
 
   text-decoration: none;
 
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease;
 }
 
 .developer-auth-footer a:hover {
-  color: #62e2ff;
+  color: var(--dev-accent);
 
   text-decoration: underline;
-
   text-underline-offset: 3px;
+}
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .developer-login-page,
+  .developer-auth-page {
+    padding: 30px 20px;
+  }
+
+  .developer-login-card,
+  .developer-auth-card {
+    max-width: 470px;
+  }
+
+  .developer-login-card {
+    padding: 48px 38px 42px;
+  }
+
+  .developer-auth-card {
+    padding: 44px 38px 38px;
+  }
 }
 
 
@@ -1589,38 +1404,43 @@
    MOBILE
    ============================================================ */
 
-@media (max-width: 700px) {
-  .developer-auth-page {
-    padding: 30px 20px;
-  }
-
-  .developer-auth-card {
-    max-width: 470px;
-
-    padding: 44px 38px 38px;
-  }
-}
-
-
 @media (max-width: 520px) {
+  .developer-login-page,
   .developer-auth-page {
-    align-items: flex-start;
-
     padding: 24px 16px;
   }
 
+  .developer-login-card,
   .developer-auth-card {
     max-width: 100%;
-
-    margin-top: 20px;
-
-    padding: 38px 28px 32px;
 
     border-radius: 13px;
   }
 
+  .developer-login-card {
+    padding: 40px 28px 34px;
+  }
+
+  .developer-auth-page {
+    align-items: flex-start;
+  }
+
+  .developer-auth-card {
+    margin-top: 20px;
+
+    padding: 38px 28px 32px;
+  }
+
+  .developer-login-header {
+    margin-bottom: 32px;
+  }
+
   .developer-auth-header {
     margin-bottom: 26px;
+  }
+
+  .developer-login-header h1 {
+    font-size: 28px;
   }
 
   .developer-auth-header h1,
@@ -1628,13 +1448,19 @@
     font-size: 27px;
   }
 
+  .developer-login-header p,
   .developer-auth-header p,
   .developer-auth-description {
     font-size: 12px;
   }
 
+  .developer-login-input,
   .developer-auth-input-wrapper {
     height: 50px;
+  }
+
+  .developer-login-btn {
+    height: 49px;
   }
 
   .developer-auth-primary-button {
@@ -1643,9 +1469,20 @@
 }
 
 
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
 @media (max-width: 380px) {
+  .developer-login-page,
   .developer-auth-page {
     padding: 18px 12px;
+  }
+
+  .developer-login-card {
+    padding: 34px 21px 30px;
+
+    border-radius: 11px;
   }
 
   .developer-auth-card {
@@ -1656,25 +1493,43 @@
     border-radius: 11px;
   }
 
+  .developer-login-eyebrow {
+    font-size: 9px;
+  }
+
+  .developer-login-header h1 {
+    font-size: 25px;
+  }
+
   .developer-auth-header h1,
   .developer-auth-card > h1 {
     font-size: 24px;
   }
 
+  .developer-login-header p,
   .developer-auth-header p,
   .developer-auth-description {
     font-size: 11px;
   }
 
+  .developer-login-field label,
   .developer-auth-field label {
     font-size: 10px;
   }
 
+  .developer-login-input,
   .developer-auth-input-wrapper {
     height: 48px;
   }
 
+  .developer-login-input input,
   .developer-auth-input-wrapper input {
+    font-size: 12px;
+  }
+
+  .developer-login-btn {
+    height: 48px;
+
     font-size: 12px;
   }
 
@@ -1684,13 +1539,21 @@
     font-size: 12px;
   }
 
+  .developer-login-register {
+    flex-direction: column;
+
+    gap: 5px;
+
+    margin-top: 26px;
+    padding-top: 22px;
+  }
+
   .developer-auth-footer {
     flex-direction: column;
 
     gap: 5px;
 
     margin-top: 25px;
-
     padding-top: 21px;
   }
 }
@@ -1701,6 +1564,11 @@
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
+  .developer-login-input,
+  .developer-login-input svg,
+  .developer-login-btn,
+  .developer-login-btn svg,
+  .developer-login-register button,
   .developer-auth-input-wrapper,
   .developer-auth-input-wrapper > svg,
   .developer-auth-password-toggle,
@@ -1710,6 +1578,7 @@
     transition: none;
   }
 
+  .developer-login-btn .admin-spinner,
   .developer-auth-spinner {
     animation: none;
   }

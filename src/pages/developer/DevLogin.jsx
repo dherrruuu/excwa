@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useDeveloper } from "../../hooks/useDeveloper";
 import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
+import ExcwaLogo from "../../components/common/ExcwaLogo";
 import "../../styles/DeveloperLogin.css"
 export default function DevLogin() {
   const navigate = useNavigate();
@@ -391,7 +392,11 @@ export default function DevLogin() {
         {/* ===================================================
             HEADER
         =================================================== */}
+        <div className="developer-login-logo">
+          <ExcwaLogo />
+        </div>
 
+<div className="developer-login-header"></div>
         <div className="developer-login-header">
 
           <span className="developer-login-eyebrow">
