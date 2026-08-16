@@ -5,6 +5,8 @@ import {
   MapPin,
 } from "lucide-react";
 
+import { supabase } from "../../lib/supabase";
+
 export default function DeveloperApplicationRow({
   application,
   onView,
@@ -14,56 +16,44 @@ export default function DeveloperApplicationRow({
     email,
     phone,
     city,
+    education,
     primary_roles,
     profile_photo_path,
     status,
     created_at,
   } = application;
 
-  // =========================================================
-  // PROFILE PHOTO URL
-  // =========================================================
+  /*
+   * =========================================================
+   * PROFILE PHOTO
+   * =========================================================
+   */
 
-  const getPhotoUrl = () => {
-    if (!profile_photo_path) {
-      return null;
-    }
+  let photoUrl = null;
 
+  if (profile_photo_path) {
     const {
       data,
-    } = window.__supabaseStoragePhotoUrl
-      ? {
-          data: {
-            publicUrl:
-              window.__supabaseStoragePhotoUrl(
-                profile_photo_path
-              ),
-          },
-        }
-      : {
-          data: {
-            publicUrl: null,
-          },
-        };
+    } = supabase.storage
+      .from("profile-photos")
+      .getPublicUrl(
+        profile_photo_path
+      );
 
-    return data?.publicUrl || null;
-  };
+    photoUrl =
+      data?.publicUrl || null;
+  }
 
-  const {
-        data: photoData,
-        } = supabase.storage
-        .from("profile-photos")
-        .getPublicUrl(profile_photo_path);
-
-const photoUrl =
-  photoData?.publicUrl || null;
-
-  // =========================================================
-  // DATE
-  // =========================================================
+  /*
+   * =========================================================
+   * DATE
+   * =========================================================
+   */
 
   const formattedDate = created_at
-    ? new Date(created_at).toLocaleDateString(
+    ? new Date(
+        created_at
+      ).toLocaleDateString(
         "en-IN",
         {
           day: "2-digit",
@@ -73,29 +63,33 @@ const photoUrl =
       )
     : "—";
 
-  // =========================================================
-  // STATUS
-  // =========================================================
+  /*
+   * =========================================================
+   * STATUS
+   * =========================================================
+   */
 
   const statusLabel =
-    status?.charAt(0).toUpperCase() +
-      status?.slice(1) || "Pending";
+    status
+      ? status
+          .replaceAll("_", " ")
+          .replace(/\b\w/g, (char) =>
+            char.toUpperCase()
+          )
+      : "Pending";
 
   return (
     <tr className="developer-application-row">
 
-      {/* ===================================================
-          APPLICANT
-      =================================================== */}
+      {/* APPLICANT */}
 
       <td>
-
         <div className="developer-applicant-cell">
 
           {photoUrl ? (
             <img
               src={photoUrl}
-              alt={full_name}
+              alt={full_name || "Applicant"}
               className="developer-applicant-avatar"
             />
           ) : (
@@ -109,26 +103,23 @@ const photoUrl =
           <div className="developer-applicant-info">
 
             <strong>
-              {full_name || "Unnamed Applicant"}
+              {full_name ||
+                "Unnamed Applicant"}
             </strong>
 
             <span>
-              {application.education ||
+              {education ||
                 "Education not provided"}
             </span>
 
           </div>
 
         </div>
-
       </td>
 
-      {/* ===================================================
-          CONTACT
-      =================================================== */}
+      {/* CONTACT */}
 
       <td>
-
         <div className="developer-contact-cell">
 
           <div>
@@ -146,15 +137,11 @@ const photoUrl =
           </div>
 
         </div>
-
       </td>
 
-      {/* ===================================================
-          CITY
-      =================================================== */}
+      {/* LOCATION */}
 
       <td>
-
         <div className="developer-city-cell">
 
           <MapPin size={14} />
@@ -164,18 +151,16 @@ const photoUrl =
           </span>
 
         </div>
-
       </td>
 
-      {/* ===================================================
-          ROLES
-      =================================================== */}
+      {/* ROLES */}
 
       <td>
-
         <div className="developer-row-roles">
 
-          {Array.isArray(primary_roles) &&
+          {Array.isArray(
+            primary_roles
+          ) &&
           primary_roles.length > 0 ? (
             <>
               {primary_roles
@@ -202,42 +187,31 @@ const photoUrl =
           )}
 
         </div>
-
       </td>
 
-      {/* ===================================================
-          DATE
-      =================================================== */}
+      {/* DATE */}
 
       <td>
-
         <span className="developer-application-date">
           {formattedDate}
         </span>
-
       </td>
 
-      {/* ===================================================
-          STATUS
-      =================================================== */}
+      {/* STATUS */}
 
       <td>
-
         <span
           className={`developer-status-badge ${status}`}
         >
           <span className="developer-status-dot" />
+
           {statusLabel}
         </span>
-
       </td>
 
-      {/* ===================================================
-          ACTION
-      =================================================== */}
+      {/* ACTION */}
 
       <td>
-
         <button
           type="button"
           className="developer-view-btn"
@@ -246,7 +220,6 @@ const photoUrl =
           <Eye size={15} />
           View
         </button>
-
       </td>
 
     </tr>

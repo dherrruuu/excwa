@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { supabase } from "../../lib/supabase";
 import {
   Upload,
   Globe,
@@ -7,6 +6,10 @@ import {
   CheckCircle,
   X,
 } from "lucide-react";
+
+import {
+  createDeveloperApplication,
+} from "../../services/client/developerApplicationService";
 
 const ROLES = [
   "Frontend Developer",
@@ -44,9 +47,9 @@ export default function DeveloperApplicationForm({ onClose }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // =========================================================
-  // FORM CHANGE
-  // =========================================================
+  /* =========================================================
+     FORM CHANGE
+     ========================================================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,11 +58,15 @@ export default function DeveloperApplicationForm({ onClose }) {
       ...prev,
       [name]: value,
     }));
+
+    if (error) {
+      setError("");
+    }
   };
 
-  // =========================================================
-  // ROLE SELECTION
-  // =========================================================
+  /* =========================================================
+     ROLE SELECTION
+     ========================================================= */
 
   const handleRoleChange = (role) => {
     setForm((prev) => {
@@ -72,25 +79,29 @@ export default function DeveloperApplicationForm({ onClose }) {
           : [...prev.primary_roles, role],
       };
     });
+
+    setError("");
   };
 
-  // =========================================================
-  // PROFILE PHOTO
-  // =========================================================
+  /* =========================================================
+     PROFILE PHOTO
+     ========================================================= */
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     if (!file.type.startsWith("image/")) {
+      setProfilePhoto(null);
       setError("Please upload a valid profile photo.");
       return;
     }
 
-    // Must match Supabase profile-photos bucket limit.
-    // Bucket should be configured to 5MB.
     if (file.size > 5 * 1024 * 1024) {
+      setProfilePhoto(null);
       setError("Profile photo must be less than 5MB.");
       return;
     }
@@ -99,14 +110,16 @@ export default function DeveloperApplicationForm({ onClose }) {
     setError("");
   };
 
-  // =========================================================
-  // RESUME
-  // =========================================================
+  /* =========================================================
+     RESUME
+     ========================================================= */
 
   const handleResumeChange = (e) => {
     const file = e.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     const allowedTypes = [
       "application/pdf",
@@ -114,12 +127,24 @@ export default function DeveloperApplicationForm({ onClose }) {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
 
-    if (!allowedTypes.includes(file.type)) {
+    const allowedExtensions = [".pdf", ".doc", ".docx"];
+
+    const fileName = file.name.toLowerCase();
+
+    const validType =
+      allowedTypes.includes(file.type) ||
+      allowedExtensions.some((extension) =>
+        fileName.endsWith(extension)
+      );
+
+    if (!validType) {
+      setResume(null);
       setError("Resume must be PDF, DOC, or DOCX.");
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
+      setResume(null);
       setError("Resume must be less than 10MB.");
       return;
     }
@@ -128,71 +153,9 @@ export default function DeveloperApplicationForm({ onClose }) {
     setError("");
   };
 
-  // =========================================================
-  // STORAGE UPLOAD
-  // =========================================================
-
-  const uploadFile = async (file, bucket, folder) => {
-    if (!file) {
-      throw new Error("No file selected.");
-    }
-
-    const originalExtension =
-      file.name.includes(".")
-        ? file.name.split(".").pop().toLowerCase()
-        : "";
-
-    const extension =
-      originalExtension ||
-      (file.type === "application/pdf" ? "pdf" : "bin");
-
-    const fileName = `${crypto.randomUUID()}.${extension}`;
-
-    const filePath = `${folder}/${fileName}`;
-
-    console.log("Uploading file:", {
-      bucket,
-      filePath,
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
-    });
-
-    const { data, error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: file.type,
-      });
-
-    if (uploadError) {
-      console.error("Storage upload failed:", {
-        bucket,
-        filePath,
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size,
-        error: uploadError,
-      });
-
-      throw new Error(
-        uploadError.message || `Unable to upload ${file.name}.`
-      );
-    }
-
-    console.log("Storage upload successful:", {
-      bucket,
-      filePath,
-      data,
-    });
-
-    return filePath;
-  };
-
-  // =========================================================
-  // VALIDATION
-  // =========================================================
+  /* =========================================================
+     VALIDATION
+     ========================================================= */
 
   const validate = () => {
     if (!form.full_name.trim()) {
@@ -216,7 +179,7 @@ export default function DeveloperApplicationForm({ onClose }) {
     }
 
     if (form.primary_roles.length === 0) {
-      return "Please select at least one freelancer role.";
+      return "Please select at least one developer role.";
     }
 
     if (!profilePhoto) {
@@ -230,12 +193,16 @@ export default function DeveloperApplicationForm({ onClose }) {
     return "";
   };
 
-  // =========================================================
-  // SUBMIT
-  // =========================================================
+  /* =========================================================
+     SUBMIT APPLICATION
+     ========================================================= */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) {
+      return;
+    }
 
     setError("");
 
@@ -248,105 +215,31 @@ export default function DeveloperApplicationForm({ onClose }) {
 
     setLoading(true);
 
-    let uploadedPhotoPath = null;
-    let uploadedResumePath = null;
-
     try {
-      // -----------------------------------------------------
-      // 1. Upload profile photo
-      // -----------------------------------------------------
+      /*
+       * The service is responsible for:
+       *
+       * 1. Uploading profile photo
+       * 2. Uploading resume
+       * 3. Creating developer_applications row
+       *
+       * It does NOT create an Auth account.
+       * It does NOT create developer_profiles.
+       */
 
-      try {
-        uploadedPhotoPath = await uploadFile(
-          profilePhoto,
-          "profile-photos",
-          "applications"
-        );
-      } catch (photoError) {
-        throw new Error(
-          `Profile photo upload failed: ${
-            photoError?.message || "Unable to upload profile photo."
-          }`
-        );
-      }
+      await createDeveloperApplication({
+        ...form,
 
-      // -----------------------------------------------------
-      // 2. Upload resume
-      // -----------------------------------------------------
-
-      try {
-        uploadedResumePath = await uploadFile(
-          resume,
-          "developer-resumes",
-          "applications"
-        );
-      } catch (resumeError) {
-        throw new Error(
-          `Resume upload failed: ${
-            resumeError?.message || "Unable to upload resume."
-          }`
-        );
-      }
-
-      // -----------------------------------------------------
-      // 3. Create developer application
-      // -----------------------------------------------------
-
-      const applicationPayload = {
-        full_name: form.full_name.trim(),
-        phone: form.phone.trim(),
         email: form.email.trim().toLowerCase(),
-        city: form.city.trim(),
-        education: form.education.trim(),
 
-        github_url:
-          form.github_url.trim() || null,
-
-        linkedin_url:
-          form.linkedin_url.trim() || null,
-
-        portfolio_url:
-          form.portfolio_url.trim() || null,
-
-        primary_roles: form.primary_roles,
-
-        profile_photo_path: uploadedPhotoPath,
-        resume_path: uploadedResumePath,
-
-        status: "pending",
-      };
-
-      console.log(
-        "Creating developer application:",
-        applicationPayload
-      );
-
-      const { error: insertError } = await supabase
-        .from("developer_applications")
-        .insert(applicationPayload);
-
-      if (insertError) {
-        console.error(
-          "Developer application insert failed:",
-          insertError
-        );
-
-        throw new Error(
-          `Application submission failed: ${
-            insertError.message ||
-            "Unable to save your application."
-          }`
-        );
-      }
-
-      // -----------------------------------------------------
-      // SUCCESS
-      // -----------------------------------------------------
+        profilePhoto,
+        resume,
+      });
 
       setSuccess(true);
     } catch (err) {
       console.error(
-        "Developer application error:",
+        "Developer application submission error:",
         err
       );
 
@@ -359,9 +252,9 @@ export default function DeveloperApplicationForm({ onClose }) {
     }
   };
 
-  // =========================================================
-  // SUCCESS SCREEN
-  // =========================================================
+  /* =========================================================
+     SUCCESS SCREEN
+     ========================================================= */
 
   if (success) {
     return (
@@ -385,18 +278,24 @@ export default function DeveloperApplicationForm({ onClose }) {
           </h2>
 
           <p>
-            Thank you for your interest in
-            joining EXCWA Tech.
+            Thank you for applying to join EXCWA Tech.
           </p>
 
           <p>
             Your application has been submitted
-            successfully and is now under review.
+            successfully and is now under review
+            by our team.
           </p>
 
           <p>
-            If shortlisted, our team will contact
-            you with the next steps.
+            If your application is approved, your
+            developer account and profile will be
+            created automatically.
+          </p>
+
+          <p>
+            You will then be able to sign in and
+            access the developer dashboard.
           </p>
 
           <button
@@ -413,9 +312,9 @@ export default function DeveloperApplicationForm({ onClose }) {
     );
   }
 
-  // =========================================================
-  // APPLICATION FORM
-  // =========================================================
+  /* =========================================================
+     APPLICATION FORM
+     ========================================================= */
 
   return (
     <div className="developer-application-overlay">
@@ -447,8 +346,15 @@ export default function DeveloperApplicationForm({ onClose }) {
           </h2>
 
           <p>
-            Tell us about yourself, your skills
-            and the kind of work you are looking for.
+            Tell us about yourself, your skills,
+            experience and the kind of work you
+            are looking for.
+          </p>
+
+          <p className="developer-form-help">
+            Your information will be reviewed by
+            the EXCWA team before developer access
+            is granted.
           </p>
 
         </div>
@@ -479,6 +385,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   value={form.full_name}
                   onChange={handleChange}
                   placeholder="Your full name"
+                  autoComplete="name"
                   disabled={loading}
                 />
 
@@ -496,6 +403,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   value={form.phone}
                   onChange={handleChange}
                   placeholder="+91 XXXXX XXXXX"
+                  autoComplete="tel"
                   disabled={loading}
                 />
 
@@ -513,6 +421,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   value={form.email}
                   onChange={handleChange}
                   placeholder="you@example.com"
+                  autoComplete="email"
                   disabled={loading}
                 />
 
@@ -530,6 +439,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                   value={form.city}
                   onChange={handleChange}
                   placeholder="Your city"
+                  autoComplete="address-level2"
                   disabled={loading}
                 />
 
@@ -582,7 +492,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
               <input
                 type="file"
-                accept="image/*"
+                accept="image/png,image/jpeg,image/webp"
                 onChange={handlePhotoChange}
                 disabled={loading}
                 hidden
@@ -673,11 +583,12 @@ export default function DeveloperApplicationForm({ onClose }) {
           <div className="developer-form-section">
 
             <h3>
-              What role are you looking for? *
+              Developer Roles *
             </h3>
 
             <p className="developer-form-help">
-              Select all roles that match your skills.
+              Select all roles that match your
+              skills and experience.
             </p>
 
             <div className="developer-role-grid">
@@ -735,7 +646,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
               <input
                 type="file"
-                accept=".pdf,.doc,.docx"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 onChange={handleResumeChange}
                 disabled={loading}
                 hidden
@@ -780,9 +691,10 @@ export default function DeveloperApplicationForm({ onClose }) {
           </button>
 
           <p className="developer-form-note">
-            By submitting this application, you agree
-            to allow EXCWA Tech to review the information
-            provided for freelancer opportunities.
+            By submitting this application, you
+            confirm that the information provided
+            is accurate and may be reviewed by
+            EXCWA Tech for developer opportunities.
           </p>
 
         </form>

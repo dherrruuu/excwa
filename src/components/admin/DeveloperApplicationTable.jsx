@@ -1,11 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "../../lib/supabase";
 import {
   RefreshCw,
   Search,
   Users,
   AlertCircle,
 } from "lucide-react";
+
+import {
+  getDeveloperApplications,
+  markApplicationUnderReview,
+  approveDeveloperApplication,
+  rejectDeveloperApplication,
+  deleteDeveloperApplication,
+} from "../../services/admin/adminReviewService";
 
 import DeveloperApplicationRow from "./DeveloperApplicationRow";
 import DeveloperApplicationDetails from "./DeveloperApplicationDetails";
@@ -18,13 +25,16 @@ export default function DeveloperApplicationTable() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("pending");
 
-  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [selectedApplication, setSelectedApplication] =
+    useState(null);
 
   const [error, setError] = useState("");
 
-  // =========================================================
-  // FETCH APPLICATIONS
-  // =========================================================
+  /*
+   * =========================================================
+   * FETCH APPLICATIONS
+   * =========================================================
+   */
 
   const fetchApplications = async (showRefresh = false) => {
     try {
@@ -36,20 +46,14 @@ export default function DeveloperApplicationTable() {
         setLoading(true);
       }
 
-      const { data, error: fetchError } = await supabase
-        .from("developer_applications")
-        .select("*")
-        .order("created_at", {
-          ascending: false,
-        });
+      const data = await getDeveloperApplications();
 
-      if (fetchError) {
-        throw fetchError;
-      }
-
-      setApplications(data || []);
+      setApplications(data);
     } catch (err) {
-      console.error("Failed to fetch developer applications:", err);
+      console.error(
+        "Failed to fetch developer applications:",
+        err
+      );
 
       setError(
         err?.message ||
@@ -65,9 +69,11 @@ export default function DeveloperApplicationTable() {
     fetchApplications();
   }, []);
 
-  // =========================================================
-  // FILTER
-  // =========================================================
+  /*
+   * =========================================================
+   * FILTER
+   * =========================================================
+   */
 
   const filteredApplications = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -104,55 +110,90 @@ export default function DeveloperApplicationTable() {
         city.includes(query)
       );
     });
-  }, [applications, search, statusFilter]);
+  }, [
+    applications,
+    search,
+    statusFilter,
+  ]);
 
-  // =========================================================
-  // UPDATE APPLICATION
-  // =========================================================
+  /*
+   * =========================================================
+   * STATUS CHANGE
+   * =========================================================
+   */
 
-  const handleStatusChange = async (applicationId, status) => {
+  const handleStatusChange = async (
+    applicationId,
+    status
+  ) => {
     try {
-      const { data, error: updateError } = await supabase
-        .from("developer_applications")
-        .update({
-          status,
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq("id", applicationId)
-        .select()
-        .single();
+      setError("");
 
-      if (updateError) {
-        throw updateError;
+      let updatedApplication;
+
+      if (status === "approved") {
+        updatedApplication =
+          await approveDeveloperApplication(
+            applicationId
+          );
+      } else if (status === "rejected") {
+        const reason = window.prompt(
+          "Reason for rejection (optional):"
+        );
+
+        if (reason === null) {
+          return;
+        }
+
+        updatedApplication =
+          await rejectDeveloperApplication(
+            applicationId,
+            reason
+          );
+      } else if (status === "under_review") {
+        updatedApplication =
+          await markApplicationUnderReview(
+            applicationId
+          );
+      } else {
+        throw new Error(
+          `Unsupported application status: ${status}`
+        );
       }
 
       setApplications((prev) =>
         prev.map((application) =>
           application.id === applicationId
-            ? data
+            ? updatedApplication
             : application
         )
       );
 
-      setSelectedApplication(data);
+      setSelectedApplication(
+        updatedApplication
+      );
     } catch (err) {
       console.error(
-        "Failed to update developer application:",
+        "Failed to update application:",
         err
       );
 
-      alert(
+      setError(
         err?.message ||
-          "Unable to update application status."
+          "Unable to update application."
       );
     }
   };
 
-  // =========================================================
-  // DELETE APPLICATION
-  // =========================================================
+  /*
+   * =========================================================
+   * DELETE
+   * =========================================================
+   */
 
-  const handleDelete = async (applicationId) => {
+  const handleDelete = async (
+    applicationId
+  ) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this application? This action cannot be undone."
     );
@@ -162,14 +203,11 @@ export default function DeveloperApplicationTable() {
     }
 
     try {
-      const { error: deleteError } = await supabase
-        .from("developer_applications")
-        .delete()
-        .eq("id", applicationId);
+      setError("");
 
-      if (deleteError) {
-        throw deleteError;
-      }
+      await deleteDeveloperApplication(
+        applicationId
+      );
 
       setApplications((prev) =>
         prev.filter(
@@ -181,20 +219,22 @@ export default function DeveloperApplicationTable() {
       setSelectedApplication(null);
     } catch (err) {
       console.error(
-        "Failed to delete developer application:",
+        "Failed to delete application:",
         err
       );
 
-      alert(
+      setError(
         err?.message ||
           "Unable to delete application."
       );
     }
   };
 
-  // =========================================================
-  // LOADING
-  // =========================================================
+  /*
+   * =========================================================
+   * LOADING
+   * =========================================================
+   */
 
   if (loading) {
     return (
@@ -208,23 +248,23 @@ export default function DeveloperApplicationTable() {
     );
   }
 
-  // =========================================================
-  // UI
-  // =========================================================
+  /*
+   * =========================================================
+   * UI
+   * =========================================================
+   */
 
   return (
     <div className="developer-applications-container">
-
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
 
       <div className="developer-applications-toolbar">
 
         <button
           type="button"
           className="admin-refresh-btn"
-          onClick={() => fetchApplications(true)}
+          onClick={() =>
+            fetchApplications(true)
+          }
           disabled={refreshing}
         >
           <RefreshCw
@@ -267,8 +307,12 @@ export default function DeveloperApplicationTable() {
             Pending
           </option>
 
-          <option value="approved">
-            Approved
+          <option value="under_review">
+            Under Review
+          </option>
+
+          <option value="accepted">
+            Accepted
           </option>
 
           <option value="rejected">
@@ -282,21 +326,12 @@ export default function DeveloperApplicationTable() {
 
       </div>
 
-      {/* =====================================================
-          ERROR
-      ===================================================== */}
-
       {error && (
         <div className="developer-application-admin-error">
           <AlertCircle size={18} />
-
           <span>{error}</span>
         </div>
       )}
-
-      {/* =====================================================
-          EMPTY STATE
-      ===================================================== */}
 
       {filteredApplications.length === 0 ? (
         <div className="developer-applications-empty">
@@ -317,51 +352,23 @@ export default function DeveloperApplicationTable() {
 
         </div>
       ) : (
-
-        /* ===================================================
-           TABLE
-        =================================================== */
-
         <div className="developer-application-table-wrapper">
 
           <table className="developer-application-table">
 
             <thead>
               <tr>
-
-                <th>
-                  Applicant
-                </th>
-
-                <th>
-                  Contact
-                </th>
-
-                <th>
-                  Location
-                </th>
-
-                <th>
-                  Roles
-                </th>
-
-                <th>
-                  Applied
-                </th>
-
-                <th>
-                  Status
-                </th>
-
-                <th>
-                  Action
-                </th>
-
+                <th>Applicant</th>
+                <th>Contact</th>
+                <th>Location</th>
+                <th>Roles</th>
+                <th>Applied</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
 
             <tbody>
-
               {filteredApplications.map(
                 (application) => (
                   <DeveloperApplicationRow
@@ -375,17 +382,12 @@ export default function DeveloperApplicationTable() {
                   />
                 )
               )}
-
             </tbody>
 
           </table>
 
         </div>
       )}
-
-      {/* =====================================================
-          DETAILS MODAL
-      ===================================================== */}
 
       {selectedApplication && (
         <DeveloperApplicationDetails
@@ -403,3 +405,4 @@ export default function DeveloperApplicationTable() {
     </div>
   );
 }
+

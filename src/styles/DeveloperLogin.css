@@ -1,0 +1,813 @@
+/* ============================================================
+   EXCWA TECH
+   DEVELOPER LOGIN
+   PREMIUM DARK / FUTURISTIC UI
+   ============================================================ */
+
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.developer-login-page {
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  overflow: hidden;
+
+  padding: 40px 24px;
+
+  background:
+    radial-gradient(
+      circle at 50% -12%,
+      rgba(98, 226, 255, 0.09),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(98, 226, 255, 0.025),
+      transparent 32%
+    ),
+    #080b10;
+
+  color: #f4f7fb;
+}
+
+
+/* ============================================================
+   BACKGROUND GLOW
+   ============================================================ */
+
+.developer-login-page::before {
+  content: "";
+
+  position: absolute;
+  z-index: 0;
+
+  width: 620px;
+  height: 620px;
+
+  top: -390px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background: rgba(98, 226, 255, 0.045);
+
+  filter: blur(100px);
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   BACKGROUND GRID
+   ============================================================ */
+
+.developer-login-page::after {
+  content: "";
+
+  position: absolute;
+  z-index: 0;
+
+  inset: 0;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px
+    );
+
+  background-size: 55px 55px;
+
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.38),
+    transparent 72%
+  );
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.38),
+    transparent 72%
+  );
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   LOGIN CARD
+   ============================================================ */
+
+.developer-login-card {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 525px;
+
+  padding: 58px 50px 50px;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 21, 30, 0.98),
+      rgba(10, 13, 18, 0.985)
+    );
+
+  box-shadow:
+    0 35px 90px rgba(0, 0, 0, 0.52),
+    0 12px 35px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   CARD TOP ACCENT
+   ============================================================ */
+
+.developer-login-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: -1px;
+  left: 27%;
+
+  width: 46%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(98, 226, 255, 0.72),
+      transparent
+    );
+
+  box-shadow:
+    0 0 16px rgba(98, 226, 255, 0.2);
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.developer-login-header {
+  margin: 0 0 39px;
+}
+
+
+/* ============================================================
+   EYEBROW
+   ============================================================ */
+
+.developer-login-eyebrow {
+  display: inline-block;
+
+  margin: 0 0 15px;
+
+  color: #62e2ff;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  line-height: 1;
+
+  letter-spacing: 0.18em;
+
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   TITLE
+   ============================================================ */
+
+.developer-login-header h1 {
+  margin: 0;
+
+  color: #f4f7fb;
+
+  font-size: 32px;
+  line-height: 1.2;
+
+  font-weight: 650;
+
+  letter-spacing: -0.8px;
+}
+
+
+/* ============================================================
+   DESCRIPTION
+   ============================================================ */
+
+.developer-login-header p {
+  margin: 12px 0 0;
+
+  color: #788394;
+
+  font-size: 13px;
+  line-height: 1.6;
+
+  font-weight: 400;
+}
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.developer-login-error {
+  margin: 0 0 22px;
+
+  padding: 12px 14px;
+
+  border: 1px solid rgba(255, 110, 110, 0.16);
+
+  border-radius: 8px;
+
+  background: rgba(255, 110, 110, 0.045);
+
+  color: #ff8585;
+
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   FORM
+   ============================================================ */
+
+.developer-login-card form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+
+/* ============================================================
+   FIELD
+   ============================================================ */
+
+.developer-login-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+}
+
+
+/* ============================================================
+   LABEL
+   ============================================================ */
+
+.developer-login-field label {
+  color: #8c98aa;
+
+  font-size: 11px;
+  font-weight: 650;
+
+  line-height: 1;
+
+  letter-spacing: 0.065em;
+
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   INPUT WRAPPER
+   ============================================================ */
+
+.developer-login-input {
+  width: 100%;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 15px;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* ============================================================
+   INPUT ICON
+   ============================================================ */
+
+.developer-login-input svg {
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+
+  color: #667384;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+
+.developer-login-input input {
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+
+  padding: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #e9edf3;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 450;
+
+  caret-color: #62e2ff;
+}
+
+
+/* ============================================================
+   PLACEHOLDER
+   ============================================================ */
+
+.developer-login-input input::placeholder {
+  color: #515d6c;
+
+  opacity: 1;
+}
+
+
+/* ============================================================
+   AUTOFILL FIX
+   Prevent Chrome from turning the input white.
+   ============================================================ */
+
+.developer-login-input input:-webkit-autofill,
+.developer-login-input input:-webkit-autofill:hover,
+.developer-login-input input:-webkit-autofill:focus,
+.developer-login-input input:-webkit-autofill:active {
+  -webkit-text-fill-color: #e9edf3;
+
+  caret-color: #62e2ff;
+
+  -webkit-box-shadow:
+    0 0 0 1000px #11161f inset;
+
+  box-shadow:
+    0 0 0 1000px #11161f inset;
+
+  transition:
+    background-color 9999s ease-in-out 0s;
+}
+
+
+/* ============================================================
+   HOVER
+   ============================================================ */
+
+.developer-login-input:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+
+/* ============================================================
+   FOCUS
+   ============================================================ */
+
+.developer-login-input:focus-within {
+  border-color: rgba(98, 226, 255, 0.34);
+
+  background:
+    rgba(98, 226, 255, 0.018);
+
+  box-shadow:
+    0 0 0 3px rgba(98, 226, 255, 0.035),
+    0 0 22px rgba(98, 226, 255, 0.025);
+}
+
+
+.developer-login-input:focus-within svg {
+  color: #62e2ff;
+
+  transform: scale(1.03);
+}
+
+
+/* ============================================================
+   LOGIN BUTTON
+   ============================================================ */
+
+.developer-login-btn {
+  width: 100%;
+  height: 50px;
+
+  margin-top: 3px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  border: 0;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      105deg,
+      #48d9f5 0%,
+      #5c9cf7 48%,
+      #9d4bea 100%
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 28px rgba(89, 119, 241, 0.17);
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+/* ============================================================
+   BUTTON HOVER
+   ============================================================ */
+
+.developer-login-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  filter: brightness(1.06);
+
+  box-shadow:
+    0 13px 32px rgba(89, 119, 241, 0.25);
+}
+
+
+/* ============================================================
+   BUTTON ACTIVE
+   ============================================================ */
+
+.developer-login-btn:active:not(:disabled) {
+  transform: translateY(0);
+
+  filter: brightness(0.98);
+}
+
+
+/* ============================================================
+   BUTTON DISABLED
+   ============================================================ */
+
+.developer-login-btn:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* ============================================================
+   BUTTON ARROW
+   ============================================================ */
+
+.developer-login-btn svg {
+  width: 17px;
+  height: 17px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.developer-login-btn:hover:not(:disabled) svg {
+  transform: translateX(3px);
+}
+
+
+/* ============================================================
+   REGISTER SECTION
+   ============================================================ */
+
+.developer-login-register {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  margin-top: 31px;
+  padding-top: 27px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+
+  text-align: center;
+}
+
+
+/* ============================================================
+   REGISTER TEXT
+   ============================================================ */
+
+.developer-login-register span {
+  color: #667282;
+
+  font-size: 11px;
+
+  line-height: 1.5;
+}
+
+
+/* ============================================================
+   REGISTER BUTTON
+   ============================================================ */
+
+.developer-login-register button {
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #9aa5b5;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+/* ============================================================
+   REGISTER HOVER
+   ============================================================ */
+
+.developer-login-register button:hover:not(:disabled) {
+  color: #62e2ff;
+
+  text-decoration: underline;
+
+  text-underline-offset: 3px;
+}
+
+
+/* ============================================================
+   REGISTER DISABLED
+   ============================================================ */
+
+.developer-login-register button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   LOADING SPINNER
+   ============================================================ */
+
+.developer-login-btn .admin-spinner {
+  width: 15px;
+  height: 15px;
+
+  flex-shrink: 0;
+
+  border: 2px solid rgba(255, 255, 255, 0.28);
+
+  border-top-color: #ffffff;
+
+  border-radius: 50%;
+
+  animation:
+    developer-login-spin 0.7s linear infinite;
+}
+
+
+@keyframes developer-login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ============================================================
+   LOADING PAGE
+   ============================================================ */
+
+.developer-login-page .admin-loading {
+  position: relative;
+  z-index: 2;
+
+  min-height: 100vh;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #788394;
+
+  font-size: 12px;
+}
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .developer-login-page {
+    padding: 30px 20px;
+  }
+
+  .developer-login-card {
+    max-width: 470px;
+
+    padding: 48px 38px 42px;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 520px) {
+  .developer-login-page {
+    padding: 24px 16px;
+  }
+
+  .developer-login-card {
+    max-width: 100%;
+
+    padding: 40px 28px 34px;
+
+    border-radius: 13px;
+  }
+
+  .developer-login-header {
+    margin-bottom: 32px;
+  }
+
+  .developer-login-header h1 {
+    font-size: 28px;
+  }
+
+  .developer-login-header p {
+    font-size: 12px;
+  }
+
+  .developer-login-input {
+    height: 50px;
+  }
+
+  .developer-login-btn {
+    height: 49px;
+  }
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 380px) {
+  .developer-login-page {
+    padding: 18px 12px;
+  }
+
+  .developer-login-card {
+    padding: 34px 21px 30px;
+
+    border-radius: 11px;
+  }
+
+  .developer-login-eyebrow {
+    font-size: 9px;
+  }
+
+  .developer-login-header h1 {
+    font-size: 25px;
+  }
+
+  .developer-login-header p {
+    font-size: 11px;
+  }
+
+  .developer-login-field label {
+    font-size: 10px;
+  }
+
+  .developer-login-input {
+    height: 48px;
+  }
+
+  .developer-login-input input {
+    font-size: 12px;
+  }
+
+  .developer-login-btn {
+    height: 48px;
+
+    font-size: 12px;
+  }
+
+  .developer-login-register {
+    flex-direction: column;
+
+    gap: 5px;
+
+    margin-top: 26px;
+    padding-top: 22px;
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .developer-login-input,
+  .developer-login-input svg,
+  .developer-login-btn,
+  .developer-login-btn svg,
+  .developer-login-register button {
+    transition: none;
+  }
+
+  .developer-login-btn .admin-spinner {
+    animation: none;
+  }
+}
