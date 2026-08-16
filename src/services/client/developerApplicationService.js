@@ -27,7 +27,7 @@ import { supabase } from "../../lib/supabase";
  * If your bucket names are different, change them here.
  */
 
-const PROFILE_PHOTO_BUCKET = "developer-profile-photos";
+const PROFILE_PHOTO_BUCKET = "profile-photos";
 const RESUME_BUCKET = "developer-resumes";
 
 
