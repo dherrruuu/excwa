@@ -1,61 +1,9 @@
 import { supabase } from "../../lib/supabase";
 
-/*
-=========================================================
- EXCWA TECH
- ADMIN DEVELOPER SERVICE
-=========================================================
-
-This is the single frontend service for the admin
-developer application workflow.
-
-RESPONSIBILITIES
-
-1. Load developer applications
-2. Load one developer application
-3. Approve developer application
-4. Reject developer application
-5. Delete developer application
-6. Load existing developer profiles
-7. Load individual developer profiles
-8. Update existing developer status
-9. Suspend developer
-10. Reactivate developer
-
-IMPORTANT
-
-Approval and rejection NEVER happen through a direct
-browser database UPDATE.
-
-Approval:
-    browser
-       ↓
-    approve-developer Edge Function
-       ↓
-    server verifies admin
-       ↓
-    Auth user
-       ↓
-    profiles
-       ↓
-    developer_profiles
-       ↓
-    activation link
-       ↓
-    application = accepted
-
-Rejection:
-    browser
-       ↓
-    reject-developer Edge Function
-       ↓
-    server verifies admin
-       ↓
-    application = rejected
-
-=========================================================
-*/
-
+/* =========================================================
+   EXCWA TECH
+   ADMIN DEVELOPER SERVICE
+========================================================= */
 
 /* =========================================================
    APPLICATION STATUS CONSTANTS
@@ -66,7 +14,6 @@ export const DEVELOPER_APPLICATION_STATUSES = {
   ACCEPTED: "accepted",
   REJECTED: "rejected",
 };
-
 
 /* =========================================================
    DEVELOPER PROFILE STATUS CONSTANTS
@@ -79,14 +26,12 @@ export const DEVELOPER_PROFILE_STATUSES = {
   SUSPENDED: "suspended",
 };
 
-
 /* =========================================================
    STORAGE CONSTANTS
 ========================================================= */
 
 const PROFILE_PHOTO_BUCKET = "profile-photos";
 const DEVELOPER_RESUME_BUCKET = "developer-resumes";
-
 
 /* =========================================================
    GET CURRENT ADMIN
@@ -151,7 +96,6 @@ async function getCurrentAdmin() {
   return user;
 }
 
-
 /* =========================================================
    GET ALL DEVELOPER APPLICATIONS
 ========================================================= */
@@ -164,29 +108,7 @@ export async function getDeveloperApplications() {
     error,
   } = await supabase
     .from("developer_applications")
-    .select(`
-      id,
-      full_name,
-      phone,
-      email,
-      city,
-      education,
-      github_url,
-      linkedin_url,
-      portfolio_url,
-      primary_roles,
-      profile_photo_path,
-      profile_photo_url,
-      resume_path,
-      resume_url,
-      status,
-      rejection_reason,
-      reviewed_by,
-      reviewed_at,
-      created_at,
-      updated_at,
-      developer_user_id
-    `)
+    .select("*")
     .order("created_at", {
       ascending: false,
     });
@@ -205,7 +127,6 @@ export async function getDeveloperApplications() {
 
   return data || [];
 }
-
 
 /* =========================================================
    GET SINGLE DEVELOPER APPLICATION
@@ -227,29 +148,7 @@ export async function getDeveloperApplication(
     error,
   } = await supabase
     .from("developer_applications")
-    .select(`
-      id,
-      full_name,
-      phone,
-      email,
-      city,
-      education,
-      github_url,
-      linkedin_url,
-      portfolio_url,
-      primary_roles,
-      profile_photo_path,
-      profile_photo_url,
-      resume_path,
-      resume_url,
-      status,
-      rejection_reason,
-      reviewed_by,
-      reviewed_at,
-      created_at,
-      updated_at,
-      developer_user_id
-    `)
+    .select("*")
     .eq("id", applicationId)
     .maybeSingle();
 
@@ -274,7 +173,6 @@ export async function getDeveloperApplication(
   return data;
 }
 
-
 /* =========================================================
    APPROVE DEVELOPER APPLICATION
 ========================================================= */
@@ -289,11 +187,6 @@ export async function approveDeveloperApplication(
   }
 
   await getCurrentAdmin();
-
-  /*
-   * Load the application first so the service can
-   * validate the requested state transition.
-   */
 
   const application =
     await getDeveloperApplication(
@@ -326,15 +219,6 @@ export async function approveDeveloperApplication(
       `Cannot accept an application with status "${application.status}".`
     );
   }
-
-  /*
-   * IMPORTANT:
-   *
-   * The browser does NOT update the application.
-   *
-   * The Edge Function performs the complete approval
-   * transaction on the server.
-   */
 
   const {
     data,
@@ -385,7 +269,6 @@ export async function approveDeveloperApplication(
   };
 }
 
-
 /* =========================================================
    REJECT DEVELOPER APPLICATION
 ========================================================= */
@@ -401,10 +284,6 @@ export async function rejectDeveloperApplication(
   }
 
   await getCurrentAdmin();
-
-  /*
-   * Load application and validate transition.
-   */
 
   const application =
     await getDeveloperApplication(
@@ -448,13 +327,6 @@ export async function rejectDeveloperApplication(
       "A rejection reason is required."
     );
   }
-
-  /*
-   * IMPORTANT:
-   *
-   * The browser does NOT directly UPDATE
-   * developer_applications.
-   */
 
   const {
     data,
@@ -503,18 +375,29 @@ export async function rejectDeveloperApplication(
   };
 }
 
-
 /* =========================================================
    DELETE DEVELOPER APPLICATION
 =========================================================
 
-Delete is intentionally separate from rejection.
+IMPORTANT:
 
-Reject:
-    pending → rejected
+This function intentionally does NOT call
+getDeveloperApplication().
 
-Delete:
-    permanently removes application
+The old version called getDeveloperApplication(),
+which selected columns such as:
+
+    resume_url
+
+Your database does not have resume_url.
+
+For deletion we only need the actual storage-path
+columns:
+
+    profile_photo_path
+    resume_path
+
+Therefore we query only those columns.
 
 ========================================================= */
 
@@ -529,13 +412,40 @@ export async function deleteDeveloperApplication(
 
   await getCurrentAdmin();
 
-  const application =
-    await getDeveloperApplication(
-      applicationId
+  /* -------------------------------------------------------
+     LOAD ONLY COLUMNS REQUIRED FOR DELETION
+  ------------------------------------------------------- */
+
+  const {
+    data: application,
+    error: applicationError,
+  } = await supabase
+    .from("developer_applications")
+    .select(
+      "id, full_name, profile_photo_path, resume_path"
+    )
+    .eq("id", applicationId)
+    .maybeSingle();
+
+  if (applicationError) {
+    console.error(
+      "Failed to load application for deletion:",
+      applicationError
     );
 
-  const storageErrors = [];
+    throw new Error(
+      applicationError.message ||
+        "Unable to load developer application."
+    );
+  }
 
+  if (!application) {
+    throw new Error(
+      "Developer application not found."
+    );
+  }
+
+  const storageErrors = [];
 
   /* -------------------------------------------------------
      DELETE PROFILE PHOTO
@@ -556,10 +466,11 @@ export async function deleteDeveloperApplication(
         error
       );
 
-      storageErrors.push("profile photo");
+      storageErrors.push(
+        "profile photo"
+      );
     }
   }
-
 
   /* -------------------------------------------------------
      DELETE RESUME
@@ -583,7 +494,6 @@ export async function deleteDeveloperApplication(
       storageErrors.push("resume");
     }
   }
-
 
   /* -------------------------------------------------------
      DELETE DATABASE RECORD
@@ -614,7 +524,6 @@ export async function deleteDeveloperApplication(
     storageErrors,
   };
 }
-
 
 /* =========================================================
    GET ALL DEVELOPERS
@@ -647,7 +556,6 @@ export async function getDevelopers() {
 
   return data || [];
 }
-
 
 /* =========================================================
    GET SINGLE DEVELOPER
@@ -694,7 +602,6 @@ export async function getDeveloper(
   return data;
 }
 
-
 /* =========================================================
    GET DEVELOPER BY AUTH USER ID
 ========================================================= */
@@ -734,15 +641,8 @@ export async function getDeveloperByUserId(
   return data;
 }
 
-
 /* =========================================================
    UPDATE DEVELOPER STATUS
-=========================================================
-
-This is for EXISTING developer profiles.
-
-It does NOT modify developer_applications.
-
 ========================================================= */
 
 export async function updateDeveloperStatus(
@@ -814,7 +714,6 @@ export async function updateDeveloperStatus(
   return data;
 }
 
-
 /* =========================================================
    SUSPEND DEVELOPER
 ========================================================= */
@@ -827,7 +726,6 @@ export async function suspendDeveloper(
     DEVELOPER_PROFILE_STATUSES.SUSPENDED
   );
 }
-
 
 /* =========================================================
    REACTIVATE DEVELOPER

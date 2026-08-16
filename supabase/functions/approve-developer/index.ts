@@ -12,7 +12,6 @@ const corsHeaders = {
     "POST, OPTIONS",
 };
 
-
 /* =========================================================
    JSON RESPONSE
 ========================================================= */
@@ -21,18 +20,14 @@ function jsonResponse(
   body: Record<string, unknown>,
   status = 200
 ) {
-  return new Response(
-    JSON.stringify(body),
-    {
-      status,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+    },
+  });
 }
-
 
 /* =========================================================
    EDGE FUNCTION
@@ -49,7 +44,6 @@ Deno.serve(async (req) => {
     });
   }
 
-
   /* =======================================================
      ONLY POST
   ======================================================= */
@@ -64,7 +58,6 @@ Deno.serve(async (req) => {
     );
   }
 
-
   try {
     /* =====================================================
        ENVIRONMENT
@@ -78,28 +71,23 @@ Deno.serve(async (req) => {
         "SUPABASE_SERVICE_ROLE_KEY"
       );
 
-    const siteUrl =
+    const siteUrl = (
       Deno.env.get("SITE_URL") ||
-      "https://excwa.vercel.app";
+      "https://excwa.vercel.app"
+    ).replace(/\/+$/, "");
 
-
-    if (
-      !supabaseUrl ||
-      !serviceRoleKey
-    ) {
+    if (!supabaseUrl || !serviceRoleKey) {
       throw new Error(
         "Supabase environment variables are missing."
       );
     }
 
-
     /* =====================================================
-       AUTHORIZATION HEADER
+       AUTHORIZATION
     ===================================================== */
 
     const authHeader =
       req.headers.get("Authorization");
-
 
     if (
       !authHeader ||
@@ -115,12 +103,10 @@ Deno.serve(async (req) => {
       );
     }
 
-
     const accessToken =
       authHeader
         .replace("Bearer ", "")
         .trim();
-
 
     if (!accessToken) {
       return jsonResponse(
@@ -133,9 +119,8 @@ Deno.serve(async (req) => {
       );
     }
 
-
     /* =====================================================
-       ADMIN CLIENT
+       SERVICE ROLE CLIENT
     ===================================================== */
 
     const supabaseAdmin =
@@ -150,9 +135,8 @@ Deno.serve(async (req) => {
         }
       );
 
-
     /* =====================================================
-       VERIFY AUTHENTICATED USER
+       VERIFY ADMIN
     ===================================================== */
 
     const {
@@ -162,7 +146,6 @@ Deno.serve(async (req) => {
       await supabaseAdmin.auth.getUser(
         accessToken
       );
-
 
     if (
       authError ||
@@ -178,14 +161,8 @@ Deno.serve(async (req) => {
       );
     }
 
-
     const currentUser =
       authData.user;
-
-
-    /* =====================================================
-       VERIFY ADMIN PROFILE
-    ===================================================== */
 
     const {
       data: currentProfile,
@@ -201,13 +178,9 @@ Deno.serve(async (req) => {
         )
         .maybeSingle();
 
-
-    if (
-      currentProfileError
-    ) {
+    if (currentProfileError) {
       throw currentProfileError;
     }
-
 
     if (
       !currentProfile ||
@@ -222,7 +195,6 @@ Deno.serve(async (req) => {
         403
       );
     }
-
 
     /* =====================================================
        REQUEST BODY
@@ -243,10 +215,8 @@ Deno.serve(async (req) => {
       );
     }
 
-
     const applicationId =
       body?.application_id;
-
 
     if (!applicationId) {
       return jsonResponse(
@@ -258,7 +228,6 @@ Deno.serve(async (req) => {
         400
       );
     }
-
 
     /* =====================================================
        LOAD APPLICATION
@@ -278,11 +247,9 @@ Deno.serve(async (req) => {
         )
         .maybeSingle();
 
-
     if (applicationError) {
       throw applicationError;
     }
-
 
     if (!application) {
       return jsonResponse(
@@ -295,13 +262,8 @@ Deno.serve(async (req) => {
       );
     }
 
-
     /* =====================================================
-       APPLICATION STATUS
-       
-       ONLY:
-       
-       pending → accepted
+       STATUS CHECK
     ===================================================== */
 
     if (
@@ -318,7 +280,6 @@ Deno.serve(async (req) => {
       );
     }
 
-
     if (
       application.status ===
       "rejected"
@@ -332,7 +293,6 @@ Deno.serve(async (req) => {
         409
       );
     }
-
 
     if (
       application.status !==
@@ -348,9 +308,8 @@ Deno.serve(async (req) => {
       );
     }
 
-
     /* =====================================================
-       REQUIRED APPLICATION DATA
+       REQUIRED DATA
     ===================================================== */
 
     const email =
@@ -358,11 +317,9 @@ Deno.serve(async (req) => {
         ?.trim()
         .toLowerCase();
 
-
     const fullName =
       application.full_name
         ?.trim();
-
 
     if (!email) {
       throw new Error(
@@ -370,20 +327,11 @@ Deno.serve(async (req) => {
       );
     }
 
-
     if (!fullName) {
       throw new Error(
         "Applicant full name is missing."
       );
     }
-
-
-    if (!application.resume_path) {
-      throw new Error(
-        "Applicant resume is missing."
-      );
-    }
-
 
     /* =====================================================
        FIND EXISTING AUTH USER
@@ -391,18 +339,15 @@ Deno.serve(async (req) => {
 
     let authUser = null;
 
-
     /* -----------------------------------------------------
-       FIRST:
-       developer_user_id
+       FIRST: developer_user_id
     ----------------------------------------------------- */
 
     if (
       application.developer_user_id
     ) {
       const {
-        data:
-          existingAuthUser,
+        data: existingAuthUser,
         error:
           existingAuthUserError,
       } =
@@ -410,7 +355,6 @@ Deno.serve(async (req) => {
           .getUserById(
             application.developer_user_id
           );
-
 
       if (
         !existingAuthUserError &&
@@ -421,10 +365,8 @@ Deno.serve(async (req) => {
       }
     }
 
-
     /* -----------------------------------------------------
-       SECOND:
-       profiles.email
+       SECOND: PROFILE EMAIL
     ----------------------------------------------------- */
 
     if (!authUser) {
@@ -435,25 +377,20 @@ Deno.serve(async (req) => {
       } =
         await supabaseAdmin
           .from("profiles")
-          .select(
-            "id, email"
-          )
+          .select("id, email")
           .ilike(
             "email",
             email
           )
           .maybeSingle();
 
-
       if (profileByEmailError) {
         throw profileByEmailError;
       }
 
-
       if (profileByEmail?.id) {
         const {
-          data:
-            profileAuthUser,
+          data: profileAuthUser,
           error:
             profileAuthUserError,
         } =
@@ -461,7 +398,6 @@ Deno.serve(async (req) => {
             .getUserById(
               profileByEmail.id
             );
-
 
         if (
           !profileAuthUserError &&
@@ -473,17 +409,13 @@ Deno.serve(async (req) => {
       }
     }
 
-
     /* -----------------------------------------------------
-       THIRD:
-       SEARCH AUTH USERS
+       THIRD: SEARCH AUTH USERS
     ----------------------------------------------------- */
 
     if (!authUser) {
       let page = 1;
-
       const perPage = 1000;
-
 
       while (!authUser) {
         const {
@@ -496,15 +428,12 @@ Deno.serve(async (req) => {
               perPage,
             });
 
-
         if (usersError) {
           throw usersError;
         }
 
-
         const users =
           usersData?.users || [];
-
 
         authUser =
           users.find(
@@ -515,7 +444,6 @@ Deno.serve(async (req) => {
               email
           ) || null;
 
-
         if (
           users.length <
           perPage
@@ -523,11 +451,9 @@ Deno.serve(async (req) => {
           break;
         }
 
-
         page++;
       }
     }
-
 
     /* =====================================================
        CREATE AUTH USER
@@ -544,14 +470,13 @@ Deno.serve(async (req) => {
             email,
 
             /*
-             * The admin has already approved
-             * this developer.
+             * Admin approved the developer,
+             * therefore email confirmation is
+             * not required.
              *
-             * Supabase Auth therefore does not
-             * need to wait for email confirmation.
-             *
-             * The password will be established
-             * through the recovery email below.
+             * The developer will establish
+             * their password through the
+             * recovery email.
              */
             email_confirm: true,
 
@@ -561,17 +486,14 @@ Deno.serve(async (req) => {
             },
           });
 
-
       if (createUserError) {
         throw createUserError;
       }
-
 
       authUser =
         createdUser?.user ||
         null;
     }
-
 
     if (!authUser) {
       throw new Error(
@@ -579,9 +501,8 @@ Deno.serve(async (req) => {
       );
     }
 
-
     /* =====================================================
-       CREATE / UPDATE MAIN PROFILE
+       MAIN PROFILE
     ===================================================== */
 
     const {
@@ -598,15 +519,12 @@ Deno.serve(async (req) => {
         )
         .maybeSingle();
 
-
     if (existingProfileError) {
       throw existingProfileError;
     }
 
-
     const now =
       new Date().toISOString();
-
 
     const profileData = {
       id:
@@ -618,29 +536,22 @@ Deno.serve(async (req) => {
       email,
 
       phone:
-        application.phone || null,
+        application.phone ||
+        null,
 
       role:
         "developer",
 
-      /*
-       * This is a storage PATH.
-       */
       profile_photo_path:
         application.profile_photo_path ||
         null,
 
-      /*
-       * Resume URL is intentionally
-       * not made permanent here.
-       */
       resume_url:
         null,
 
       updated_at:
         now,
     };
-
 
     if (!existingProfile) {
       const {
@@ -653,7 +564,6 @@ Deno.serve(async (req) => {
             profileData
           );
 
-
       if (profileInsertError) {
         throw profileInsertError;
       }
@@ -664,42 +574,21 @@ Deno.serve(async (req) => {
       } =
         await supabaseAdmin
           .from("profiles")
-          .update({
-            full_name:
-              profileData.full_name,
-
-            email:
-              profileData.email,
-
-            phone:
-              profileData.phone,
-
-            role:
-              profileData.role,
-
-            profile_photo_path:
-              profileData.profile_photo_path,
-
-            resume_url:
-              profileData.resume_url,
-
-            updated_at:
-              profileData.updated_at,
-          })
+          .update(
+            profileData
+          )
           .eq(
             "id",
             authUser.id
           );
-
 
       if (profileUpdateError) {
         throw profileUpdateError;
       }
     }
 
-
     /* =====================================================
-       CREATE / UPDATE DEVELOPER PROFILE
+       DEVELOPER PROFILE
     ===================================================== */
 
     const {
@@ -717,13 +606,11 @@ Deno.serve(async (req) => {
         )
         .maybeSingle();
 
-
     if (
       developerProfileLookupError
     ) {
       throw developerProfileLookupError;
     }
-
 
     const developerProfileData = {
       user_id:
@@ -733,10 +620,12 @@ Deno.serve(async (req) => {
         fullName,
 
       phone:
-        application.phone || null,
+        application.phone ||
+        null,
 
       city:
-        application.city || null,
+        application.city ||
+        null,
 
       primary_roles:
         Array.isArray(
@@ -757,25 +646,16 @@ Deno.serve(async (req) => {
         application.portfolio_url ||
         null,
 
-      /*
-       * Keep the original storage path.
-       */
       resume_path:
-        application.resume_path,
+        application.resume_path ||
+        null,
 
-      /*
-       * No permanent public URL.
-       */
       resume_url:
         null,
 
       profile_photo_url:
         null,
 
-      /*
-       * Admin approval means
-       * the developer is approved.
-       */
       status:
         "approved",
 
@@ -785,7 +665,6 @@ Deno.serve(async (req) => {
       updated_at:
         now,
     };
-
 
     if (
       !existingDeveloperProfile
@@ -802,7 +681,6 @@ Deno.serve(async (req) => {
             created_at:
               now,
           });
-
 
       if (
         developerProfileInsertError
@@ -824,7 +702,6 @@ Deno.serve(async (req) => {
             authUser.id
           );
 
-
       if (
         developerProfileUpdateError
       ) {
@@ -832,23 +709,28 @@ Deno.serve(async (req) => {
       }
     }
 
-
     /* =====================================================
-       SEND DEVELOPER ACTIVATION EMAIL
-       
-       IMPORTANT
-       
-       This is the part that was previously missing.
-       
-       We use Supabase Auth's recovery email system.
-       
-       Because your Supabase project already has
-       Custom SMTP configured, Supabase will send
-       the email through your existing SMTP provider.
-       
-       The developer will receive a recovery/password
-       setup email containing a ConfirmationURL.
+       SEND ACTIVATION / PASSWORD SETUP EMAIL
+    =====================================================
+
+       Supabase Auth sends this email using the
+       Custom SMTP configured in:
+
+       Supabase
+       → Authentication
+       → SMTP Settings
+
+       Your email template should contain:
+
+       {{ .ConfirmationURL }}
+
+       The link will redirect to:
+
+       https://excwa.vercel.app/activate
     ===================================================== */
+
+    const activationRedirectUrl =
+      `${siteUrl}/activate`;
 
     const {
       error:
@@ -859,10 +741,9 @@ Deno.serve(async (req) => {
           email,
           {
             redirectTo:
-              `${siteUrl}/activate`,
+              activationRedirectUrl,
           }
         );
-
 
     if (recoveryEmailError) {
       throw new Error(
@@ -870,19 +751,8 @@ Deno.serve(async (req) => {
       );
     }
 
-
     /* =====================================================
        MARK APPLICATION ACCEPTED
-       
-       IMPORTANT:
-       
-       pending → accepted
-       
-       We also store:
-       
-       developer_user_id
-       reviewed_by
-       reviewed_at
     ===================================================== */
 
     const {
@@ -925,13 +795,11 @@ Deno.serve(async (req) => {
         .select("*")
         .single();
 
-
     if (
       applicationUpdateError
     ) {
       throw applicationUpdateError;
     }
-
 
     /* =====================================================
        SUCCESS
@@ -949,22 +817,17 @@ Deno.serve(async (req) => {
       user_id:
         authUser.id,
 
-      /*
-       * We intentionally DO NOT return the
-       * activation/recovery URL.
-       *
-       * Supabase Auth has sent it through
-       * your configured SMTP service.
-       */
       activation_email_sent:
         true,
+
+      activation_redirect:
+        activationRedirectUrl,
     });
   } catch (error) {
     console.error(
       "approve-developer error:",
       error
     );
-
 
     return jsonResponse(
       {

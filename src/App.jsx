@@ -7,6 +7,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 
 // ============================================================
+// AUTH
+// ============================================================
+
+import DeveloperActivate from "./pages/auth/DeveloperActivate";
+
+// ============================================================
 // ADMIN
 // ============================================================
 
@@ -55,6 +61,24 @@ export default function App() {
 
 
         {/* ======================================================
+            DEVELOPER ACCOUNT ACTIVATION
+            ======================================================
+
+            This is the page opened from the activation
+            link sent after an admin approves a developer.
+
+            URL:
+            https://excwa.vercel.app/activate
+
+            ====================================================== */}
+
+        <Route
+          path="/activate"
+          element={<DeveloperActivate />}
+        />
+
+
+        {/* ======================================================
             DEVELOPER AUTH
             ====================================================== */}
 
@@ -93,7 +117,9 @@ export default function App() {
             DEVELOPER PROTECTED ROUTES
             ====================================================== */}
 
-        <Route element={<DevProtectedRoute />}>
+        <Route
+          element={<DevProtectedRoute />}
+        >
 
           <Route
             path="/developer/dashboard"
@@ -117,7 +143,9 @@ export default function App() {
             ADMIN PROTECTED ROUTES
             ====================================================== */}
 
-        <Route element={<AdminProtectedRoute />}>
+        <Route
+          element={<AdminProtectedRoute />}
+        >
 
           <Route
             path="/admin"
@@ -126,6 +154,7 @@ export default function App() {
 
             {/* ==================================================
                 ADMIN DASHBOARD
+
                 /admin
                 ================================================== */}
 
@@ -137,6 +166,7 @@ export default function App() {
 
             {/* ==================================================
                 ENQUIRIES
+
                 /admin/enquiries
                 ================================================== */}
 
@@ -148,6 +178,7 @@ export default function App() {
 
             {/* ==================================================
                 DEVELOPERS
+
                 /admin/developers
                 ================================================== */}
 
@@ -159,6 +190,7 @@ export default function App() {
 
             {/* ==================================================
                 OPPORTUNITIES
+
                 /admin/opportunities
                 ================================================== */}
 
@@ -170,13 +202,14 @@ export default function App() {
 
             {/* ==================================================
                 REVIEWS
+
                 /admin/reviews
-                ==================================================
-                
+
                 Review details are opened as a panel from
                 AdminReviews.jsx.
 
                 There is intentionally NO:
+
                 /admin/reviews/:id
 
                 This prevents a page reload and prevents
@@ -191,6 +224,7 @@ export default function App() {
 
             {/* ==================================================
                 SETTINGS
+
                 /admin/settings
                 ================================================== */}
 
