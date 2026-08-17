@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import {
   Briefcase,
   Calendar,
@@ -18,6 +19,7 @@ import {
   applyToOpportunity,
 } from "../../services/developerService";
 
+
 export default function OpportunitiesTab({
   devProfile,
   onAssignmentCreated,
@@ -29,18 +31,10 @@ export default function OpportunitiesTab({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+
   /* =========================================================
      LOAD OPPORTUNITIES
   ========================================================= */
-
-  useEffect(() => {
-    if (!devProfile?.id) {
-      setLoading(false);
-      return;
-    }
-
-    loadOpportunities();
-  }, [devProfile?.id]);
 
   async function loadOpportunities() {
     try {
@@ -50,7 +44,7 @@ export default function OpportunitiesTab({
 
       const data = await getOpenOpportunities();
 
-      setOpportunities(data || []);
+      setOpportunities(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(
         "Failed to load opportunities:",
@@ -68,8 +62,20 @@ export default function OpportunitiesTab({
     }
   }
 
+
+  useEffect(() => {
+    if (!devProfile?.id) {
+      setOpportunities([]);
+      setLoading(false);
+      return;
+    }
+
+    loadOpportunities();
+  }, [devProfile?.id]);
+
+
   /* =========================================================
-     APPLY
+     APPLY TO OPPORTUNITY
   ========================================================= */
 
   async function handleApply(opportunity) {
@@ -89,41 +95,46 @@ export default function OpportunitiesTab({
 
     try {
       setApplyingId(opportunity.id);
+
       setError("");
       setSuccess("");
+
 
       /*
        * IMPORTANT
        *
-       * applyToOpportunity expects:
+       * developerService.js expects ONE OBJECT:
+       *
+       * applyToOpportunity({
+       *   opportunityId,
+       *   coverMessage,
+       *   estimatedDays
+       * })
+       *
+       * NOT:
        *
        * applyToOpportunity(
-       *   opportunityId,
-       *   applicationData
+       *   opportunity.id,
+       *   {...}
        * )
-       *
-       * The developer ID is NOT passed here.
-       * The service gets it from the authenticated
-       * Supabase user.
        */
 
-      const result =
-        await applyToOpportunity(
-          opportunity.id,
-          {
-            coverMessage: "",
-            estimatedDays: null,
-          }
-        );
+      const result = await applyToOpportunity({
+        opportunityId: opportunity.id,
+        coverMessage: "",
+        estimatedDays: null,
+      });
+
 
       console.log(
         "Application result:",
         result
       );
 
+
       /*
-       * Remove immediately from this developer's
-       * opportunity list.
+       * Remove the applied opportunity
+       * from the current list.
        */
 
       setOpportunities((current) =>
@@ -133,53 +144,82 @@ export default function OpportunitiesTab({
         )
       );
 
-      setSuccess(
-        `Your application for "${opportunity.title}" has been submitted.`
-      );
 
       /*
-       * Refresh dashboard assignment state.
-       *
-       * If the backend automatically creates an
-       * assignment after application, the dashboard
-       * can immediately switch to the project view.
+       * Show success message.
        */
 
-      if (onAssignmentCreated) {
+      setSuccess(
+        `Your application for "${opportunity.title}" has been submitted successfully.`
+      );
+
+
+      /*
+       * If database created an assignment,
+       * refresh dashboard.
+       */
+
+      if (
+        result?.assignment &&
+        onAssignmentCreated
+      ) {
+        await onAssignmentCreated();
+      } else if (onAssignmentCreated) {
+        /*
+         * Still refresh the dashboard because
+         * the assignment may have been created
+         * by a database trigger.
+         */
+
         await onAssignmentCreated();
       }
+
     } catch (err) {
       console.error(
         "Application failed:",
         err
       );
 
+
+      const message =
+        err?.message ||
+        "Unable to apply for this opportunity.";
+
+
       /*
-       * If another developer claimed the project
-       * between loading and clicking Apply,
-       * refresh the opportunities list so the stale
-       * card disappears.
+       * Refresh if the opportunity became
+       * unavailable while the developer
+       * was applying.
        */
 
+      const lowerMessage =
+        message.toLowerCase();
+
       if (
-        err?.message?.toLowerCase().includes(
+        lowerMessage.includes(
           "already been assigned"
         ) ||
-        err?.message?.toLowerCase().includes(
+        lowerMessage.includes(
           "no longer open"
+        ) ||
+        lowerMessage.includes(
+          "no longer available"
+        ) ||
+        lowerMessage.includes(
+          "already applied"
         )
       ) {
         await loadOpportunities();
       }
 
-      setError(
-        err?.message ||
-          "Unable to apply for this opportunity."
-      );
+
+      setError(message);
+
     } finally {
       setApplyingId(null);
     }
   }
+
 
   /* =========================================================
      FORMAT DATE
@@ -192,7 +232,11 @@ export default function OpportunitiesTab({
 
     const parsed = new Date(date);
 
-    if (Number.isNaN(parsed.getTime())) {
+    if (
+      Number.isNaN(
+        parsed.getTime()
+      )
+    ) {
       return date;
     }
 
@@ -206,6 +250,7 @@ export default function OpportunitiesTab({
     );
   }
 
+
   /* =========================================================
      FORMAT ARRAY
   ========================================================= */
@@ -216,7 +261,7 @@ export default function OpportunitiesTab({
     }
 
     if (Array.isArray(value)) {
-      return value;
+      return value.filter(Boolean);
     }
 
     if (typeof value === "string") {
@@ -228,6 +273,7 @@ export default function OpportunitiesTab({
 
     return [];
   }
+
 
   /* =========================================================
      FORMAT AMOUNT
@@ -242,9 +288,14 @@ export default function OpportunitiesTab({
       return "₹0";
     }
 
-    const numericAmount = Number(amount);
+    const numericAmount =
+      Number(amount);
 
-    if (Number.isNaN(numericAmount)) {
+    if (
+      Number.isNaN(
+        numericAmount
+      )
+    ) {
       return "₹0";
     }
 
@@ -253,6 +304,7 @@ export default function OpportunitiesTab({
     )}`;
   }
 
+
   /* =========================================================
      LOADING
   ========================================================= */
@@ -260,7 +312,9 @@ export default function OpportunitiesTab({
   if (loading) {
     return (
       <div className="developer-opportunities-page">
+
         <div className="developer-opportunities-loading">
+
           <Loader2
             className="spin"
             size={28}
@@ -269,10 +323,13 @@ export default function OpportunitiesTab({
           <span>
             Loading available projects...
           </span>
+
         </div>
+
       </div>
     );
   }
+
 
   /* =========================================================
      PAGE
@@ -281,6 +338,7 @@ export default function OpportunitiesTab({
   return (
     <div className="developer-opportunities-page">
 
+
       {/* =====================================================
           HEADER
       ===================================================== */}
@@ -288,23 +346,31 @@ export default function OpportunitiesTab({
       <div className="developer-opportunities-header">
 
         <div>
+
           <div className="developer-section-label">
+
             <Briefcase size={15} />
 
             Available Projects
+
           </div>
+
 
           <h1>
             Opportunities
           </h1>
 
+
           <p>
             Browse projects currently
             available for developers.
           </p>
+
         </div>
 
+
         <div className="developer-opportunity-count">
+
           <strong>
             {opportunities.length}
           </strong>
@@ -314,6 +380,7 @@ export default function OpportunitiesTab({
               ? "Opportunity"
               : "Opportunities"}
           </span>
+
         </div>
 
       </div>
@@ -330,13 +397,16 @@ export default function OpportunitiesTab({
             {error}
           </span>
 
+
           <button
             type="button"
             onClick={loadOpportunities}
           >
+
             <RefreshCw size={16} />
 
             Retry
+
           </button>
 
         </div>
@@ -366,15 +436,20 @@ export default function OpportunitiesTab({
 
       {opportunities.length === 0 &&
         !error && (
+
           <div className="developer-opportunities-empty">
 
             <div className="developer-empty-icon">
+
               <Briefcase size={30} />
+
             </div>
+
 
             <h2>
               No opportunities available
             </h2>
+
 
             <p>
               There are currently no projects
@@ -382,14 +457,17 @@ export default function OpportunitiesTab({
               later for new opportunities.
             </p>
 
+
             <button
               type="button"
               className="developer-refresh-button"
               onClick={loadOpportunities}
             >
+
               <RefreshCw size={16} />
 
               Refresh Opportunities
+
             </button>
 
           </div>
@@ -401,6 +479,7 @@ export default function OpportunitiesTab({
       ===================================================== */}
 
       {opportunities.length > 0 && (
+
         <div className="developer-opportunities-grid">
 
           {opportunities.map(
@@ -425,11 +504,14 @@ export default function OpportunitiesTab({
                 applyingId ===
                 opportunity.id;
 
+
               return (
+
                 <article
                   className="opportunity-card"
                   key={opportunity.id}
                 >
+
 
                   {/* =================================================
                       CARD TOP
@@ -438,13 +520,18 @@ export default function OpportunitiesTab({
                   <div className="opportunity-card-top">
 
                     <span className="opportunity-type">
+
                       {opportunity.project_type ||
                         opportunity.category ||
                         "Project"}
+
                     </span>
 
+
                     <span className="opportunity-status">
+
                       Open
+
                     </span>
 
                   </div>
@@ -457,42 +544,56 @@ export default function OpportunitiesTab({
                   <div className="opportunity-card-title">
 
                     <h2>
+
                       {opportunity.title ||
                         "Untitled Project"}
+
                     </h2>
 
+
                     <p>
+
                       {opportunity.description ||
                         "No project description available."}
+
                     </p>
 
                   </div>
 
 
                   {/* =================================================
-                      PROJECT INFO
+                      PROJECT INFORMATION
                   ================================================= */}
 
                   <div className="opportunity-info-grid">
+
 
                     {/* PROJECT TYPE */}
 
                     <div className="opportunity-info-item">
 
                       <div className="opportunity-info-icon">
+
                         <Briefcase size={16} />
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Project Type
                         </span>
 
+
                         <strong>
+
                           {opportunity.project_type ||
                             opportunity.category ||
                             "Not specified"}
+
                         </strong>
+
                       </div>
 
                     </div>
@@ -503,19 +604,27 @@ export default function OpportunitiesTab({
                     <div className="opportunity-info-item">
 
                       <div className="opportunity-info-icon">
+
                         <Calendar size={16} />
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Deadline
                         </span>
 
+
                         <strong>
+
                           {formatDate(
                             opportunity.deadline
                           )}
+
                         </strong>
+
                       </div>
 
                     </div>
@@ -526,19 +635,27 @@ export default function OpportunitiesTab({
                     <div className="opportunity-info-item payout">
 
                       <div className="opportunity-info-icon">
+
                         <DollarSign size={16} />
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Developer Payout
                         </span>
 
+
                         <strong>
+
                           {formatAmount(
                             opportunity.freelancer_payout
                           )}
+
                         </strong>
+
                       </div>
 
                     </div>
@@ -551,6 +668,7 @@ export default function OpportunitiesTab({
                   ================================================= */}
 
                   {technologies.length > 0 && (
+
                     <div className="opportunity-section">
 
                       <div className="opportunity-section-heading">
@@ -563,6 +681,7 @@ export default function OpportunitiesTab({
 
                       </div>
 
+
                       <div className="opportunity-tags">
 
                         {technologies.map(
@@ -570,18 +689,21 @@ export default function OpportunitiesTab({
                             technology,
                             index
                           ) => (
+
                             <span
                               className="opportunity-tag"
                               key={`${technology}-${index}`}
                             >
                               {technology}
                             </span>
+
                           )
                         )}
 
                       </div>
 
                     </div>
+
                   )}
 
 
@@ -590,6 +712,7 @@ export default function OpportunitiesTab({
                   ================================================= */}
 
                   {skills.length > 0 && (
+
                     <div className="opportunity-section">
 
                       <div className="opportunity-section-heading">
@@ -602,6 +725,7 @@ export default function OpportunitiesTab({
 
                       </div>
 
+
                       <div className="opportunity-tags">
 
                         {skills.map(
@@ -609,18 +733,21 @@ export default function OpportunitiesTab({
                             skill,
                             index
                           ) => (
+
                             <span
                               className="opportunity-tag"
                               key={`${skill}-${index}`}
                             >
                               {skill}
                             </span>
+
                           )
                         )}
 
                       </div>
 
                     </div>
+
                   )}
 
 
@@ -629,6 +756,7 @@ export default function OpportunitiesTab({
                   ================================================= */}
 
                   {deliverables.length > 0 && (
+
                     <div className="opportunity-section">
 
                       <div className="opportunity-section-heading">
@@ -641,6 +769,7 @@ export default function OpportunitiesTab({
 
                       </div>
 
+
                       <ul className="opportunity-deliverables">
 
                         {deliverables.map(
@@ -648,17 +777,20 @@ export default function OpportunitiesTab({
                             deliverable,
                             index
                           ) => (
+
                             <li
                               key={`${deliverable}-${index}`}
                             >
                               {deliverable}
                             </li>
+
                           )
                         )}
 
                       </ul>
 
                     </div>
+
                   )}
 
 
@@ -669,11 +801,15 @@ export default function OpportunitiesTab({
                   <div className="opportunity-card-footer">
 
                     <span className="opportunity-posted">
+
                       Posted{" "}
+
                       {formatDate(
                         opportunity.created_at
                       )}
+
                     </span>
+
 
                     <button
                       type="button"
@@ -688,20 +824,22 @@ export default function OpportunitiesTab({
 
                       {isApplying ? (
                         <>
+
                           <Loader2
                             size={17}
                             className="spin"
                           />
 
                           Applying...
+
                         </>
                       ) : (
                         <>
+
                           Apply
 
-                          <Send
-                            size={16}
-                          />
+                          <Send size={16} />
+
                         </>
                       )}
 
@@ -710,11 +848,13 @@ export default function OpportunitiesTab({
                   </div>
 
                 </article>
+
               );
             }
           )}
 
         </div>
+
       )}
 
     </div>

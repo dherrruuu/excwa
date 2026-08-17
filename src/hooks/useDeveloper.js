@@ -1,98 +1,107 @@
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+
 import { supabase } from "../lib/supabase";
 
 export function useDeveloper() {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [devProfile, setDevProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] =
+    useState(null);
 
-  /*
-   * ==========================================================
-   * FETCH USER + DEVELOPER PROFILE
-   * ==========================================================
-   */
+  const [profile, setProfile] =
+    useState(null);
 
-  const fetchProfiles = useCallback(async (userId) => {
-    if (!userId) {
-      setProfile(null);
-      setDevProfile(null);
-      setLoading(false);
-      return;
-    }
+  const [devProfile, setDevProfile] =
+    useState(null);
 
-    try {
-      setLoading(true);
+  const [loading, setLoading] =
+    useState(true);
 
-      const [
-        { data: userProfile, error: profileError },
-        { data: developerProfile, error: devProfileError },
-      ] = await Promise.all([
-        /*
-         * Main application profile
-         * Contains role: admin / developer
-         */
-        supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", userId)
-          .maybeSingle(),
+  /* =========================================================
+     FETCH PROFILES
+  ========================================================= */
 
-        /*
-         * Developer-specific profile
-         * Created automatically after approval
-         */
-        supabase
-          .from("developer_profiles")
-          .select("*")
-          .eq("user_id", userId)
-          .maybeSingle(),
-      ]);
+  const fetchProfiles =
+    useCallback(async (userId) => {
+      if (!userId) {
+        setProfile(null);
+        setDevProfile(null);
+        setLoading(false);
 
-      if (profileError) {
-        console.error(
-          "profiles fetch error:",
-          profileError
-        );
+        return;
       }
 
-      if (devProfileError) {
-        console.error(
-          "developer_profiles fetch error:",
-          devProfileError
+      try {
+        setLoading(true);
+
+        const profileResult =
+          await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", userId)
+            .maybeSingle();
+
+        if (profileResult.error) {
+          console.error(
+            "profiles fetch error:",
+            profileResult.error
+          );
+        }
+
+        const developerResult =
+          await supabase
+            .from("developer_profiles")
+            .select("*")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+        if (developerResult.error) {
+          console.error(
+            "developer_profiles fetch error:",
+            developerResult.error
+          );
+        }
+
+        setProfile(
+          profileResult.data || null
         );
+
+        setDevProfile(
+          developerResult.data || null
+        );
+      } catch (error) {
+        console.error(
+          "fetchProfiles error:",
+          error
+        );
+
+        setProfile(null);
+        setDevProfile(null);
+      } finally {
+        setLoading(false);
       }
+    }, []);
 
-      setProfile(userProfile || null);
-      setDevProfile(developerProfile || null);
-    } catch (error) {
-      console.error(
-        "fetchProfiles error:",
-        error
-      );
-
-      setProfile(null);
-      setDevProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  /*
-   * ==========================================================
-   * AUTH INITIALIZATION
-   * ==========================================================
-   */
+  /* =========================================================
+     AUTH INITIALIZATION
+  ========================================================= */
 
   useEffect(() => {
     let mounted = true;
 
-    async function initializeAuth() {
+    async function initialize() {
       try {
         const {
-          data: { session },
+          data,
           error,
-        } = await supabase.auth.getSession();
+        } =
+          await supabase.auth.getSession();
+
+        if (!mounted) {
+          return;
+        }
 
         if (error) {
           console.error(
@@ -100,30 +109,31 @@ export function useDeveloper() {
             error
           );
 
-          if (mounted) {
-            setUser(null);
-            setProfile(null);
-            setDevProfile(null);
-            setLoading(false);
-          }
-
-          return;
-        }
-
-        if (!mounted) return;
-
-        if (session?.user) {
-          setUser(session.user);
-
-          await fetchProfiles(
-            session.user.id
-          );
-        } else {
           setUser(null);
           setProfile(null);
           setDevProfile(null);
           setLoading(false);
+
+          return;
         }
+
+        const currentUser =
+          data?.session?.user || null;
+
+        if (!currentUser) {
+          setUser(null);
+          setProfile(null);
+          setDevProfile(null);
+          setLoading(false);
+
+          return;
+        }
+
+        setUser(currentUser);
+
+        await fetchProfiles(
+          currentUser.id
+        );
       } catch (error) {
         console.error(
           "Authentication initialization error:",
@@ -139,86 +149,107 @@ export function useDeveloper() {
       }
     }
 
-    initializeAuth();
+    initialize();
 
-    /*
-     * ========================================================
-     * AUTH STATE CHANGES
-     * ========================================================
-     */
+    /* =======================================================
+       AUTH LISTENER
+    ======================================================= */
 
     const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (!mounted) return;
+      data: authListener,
+    } =
+      supabase.auth.onAuthStateChange(
+        (_event, session) => {
+          if (!mounted) {
+            return;
+          }
 
-        if (session?.user) {
-          setUser(session.user);
+          const currentUser =
+            session?.user || null;
 
-          await fetchProfiles(
-            session.user.id
-          );
-        } else {
-          setUser(null);
-          setProfile(null);
-          setDevProfile(null);
-          setLoading(false);
+          if (!currentUser) {
+            setUser(null);
+            setProfile(null);
+            setDevProfile(null);
+            setLoading(false);
+
+            return;
+          }
+
+          setUser(currentUser);
+
+          /*
+           * Defer the profile request so that the auth
+           * callback doesn't compete with Supabase's
+           * internal auth state update.
+           */
+          setTimeout(() => {
+            if (mounted) {
+              fetchProfiles(
+                currentUser.id
+              );
+            }
+          }, 0);
         }
-      }
-    );
+      );
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+
+      authListener?.subscription?.unsubscribe();
     };
   }, [fetchProfiles]);
 
-  /*
-   * ==========================================================
-   * LOGOUT
-   * ==========================================================
-   */
+  /* =========================================================
+     LOGOUT
+  ========================================================= */
 
-  async function logout() {
-    try {
-      const { error } =
+  const logout = useCallback(
+    async () => {
+      const {
+        error,
+      } =
         await supabase.auth.signOut();
 
       if (error) {
+        console.error(
+          "Logout error:",
+          error
+        );
+
         throw error;
       }
 
       setUser(null);
       setProfile(null);
       setDevProfile(null);
-    } catch (error) {
-      console.error(
-        "Logout error:",
-        error
+    },
+    []
+  );
+
+  /* =========================================================
+     REFRESH
+  ========================================================= */
+
+  const refetch = useCallback(
+    async () => {
+      if (!user?.id) {
+        return;
+      }
+
+      await fetchProfiles(
+        user.id
       );
-    }
-  }
+    },
+    [
+      user?.id,
+      fetchProfiles,
+    ]
+  );
 
-  /*
-   * ==========================================================
-   * REFETCH
-   * ==========================================================
-   */
-
-  const refetch = useCallback(() => {
-    if (!user?.id) {
-      return Promise.resolve();
-    }
-
-    return fetchProfiles(user.id);
-  }, [user?.id, fetchProfiles]);
-
-  /*
-   * ==========================================================
-   * RETURN
-   * ==========================================================
-   */
+  /* =========================================================
+     RETURN
+  ========================================================= */
 
   return {
     user,

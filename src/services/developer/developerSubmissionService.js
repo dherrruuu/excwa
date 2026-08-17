@@ -1,22 +1,28 @@
 import { supabase } from "../../lib/supabase";
 
 /*
-=========================================================
+===========================================================
 DEVELOPER SUBMISSION SERVICE
 
 Handles:
-- Submit project
+- Get current developer
+- Get assignment
 - Upload ZIP
-- GitHub submission
-- Submission notes
-- Get submission
+- Submit project
+- Get current submission
+- Get all submissions
 - Resubmit after changes
-=========================================================
+
+IMPORTANT:
+This file owns submission logic.
+Do not duplicate submission functions in
+developerService.js.
+===========================================================
 */
 
-/* =======================================================
+/* =========================================================
    CURRENT DEVELOPER
-======================================================= */
+========================================================= */
 
 async function getCurrentDeveloper() {
   const {
@@ -39,18 +45,24 @@ async function getCurrentDeveloper() {
     .from("developer_profiles")
     .select("*")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     throw error;
   }
 
+  if (!developer) {
+    throw new Error(
+      "Developer profile not found."
+    );
+  }
+
   return developer;
 }
 
-/* =======================================================
+/* =========================================================
    GET ASSIGNMENT
-======================================================= */
+========================================================= */
 
 async function getDeveloperAssignment(
   assignmentId,
@@ -63,33 +75,59 @@ async function getDeveloperAssignment(
     .from("project_assignments")
     .select(`
       *,
-      opportunity:opportunities(*)
+      opportunities (
+        id,
+        title,
+        description,
+        category,
+        project_type,
+        required_roles,
+        required_skills,
+        tech_stack,
+        deliverables,
+        deadline,
+        application_deadline,
+        budget,
+        freelancer_payout,
+        attachment_path,
+        status
+      )
     `)
     .eq("id", assignmentId)
     .eq("developer_id", developerId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     throw error;
   }
 
+  if (!data) {
+    throw new Error(
+      "Assignment not found or does not belong to you."
+    );
+  }
+
   return data;
 }
 
-/* =======================================================
+/* =========================================================
    UPLOAD ZIP
-======================================================= */
+========================================================= */
 
 export async function uploadProjectZip(
   file,
   assignmentId
 ) {
   if (!file) {
-    throw new Error("Project ZIP file is required.");
+    throw new Error(
+      "Project ZIP file is required."
+    );
   }
 
   if (!assignmentId) {
-    throw new Error("Assignment ID is required.");
+    throw new Error(
+      "Assignment ID is required."
+    );
   }
 
   const extension =
@@ -119,20 +157,19 @@ export async function uploadProjectZip(
   const filePath =
     `${developer.id}/${assignmentId}/${fileName}`;
 
-  /*
-   * Bucket name can be changed later if your
-   * Supabase storage bucket uses another name.
-   */
-
   const {
     error,
   } = await supabase.storage
     .from("project-submissions")
-    .upload(filePath, file, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: "application/zip",
-    });
+    .upload(
+      filePath,
+      file,
+      {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: "application/zip",
+      }
+    );
 
   if (error) {
     throw new Error(
@@ -144,9 +181,47 @@ export async function uploadProjectZip(
   return filePath;
 }
 
-/* =======================================================
+/* =========================================================
+   VALIDATE GITHUB URL
+========================================================= */
+
+function validateGithubUrl(githubUrl) {
+  const cleanUrl =
+    githubUrl?.trim();
+
+  if (!cleanUrl) {
+    return null;
+  }
+
+  let parsedUrl;
+
+  try {
+    parsedUrl =
+      new URL(cleanUrl);
+  } catch {
+    throw new Error(
+      "Please enter a valid GitHub URL."
+    );
+  }
+
+  const hostname =
+    parsedUrl.hostname.toLowerCase();
+
+  if (
+    hostname !== "github.com" &&
+    hostname !== "www.github.com"
+  ) {
+    throw new Error(
+      "Please submit a valid GitHub repository URL."
+    );
+  }
+
+  return cleanUrl;
+}
+
+/* =========================================================
    SUBMIT PROJECT
-======================================================= */
+========================================================= */
 
 export async function submitProject({
   assignmentId,
@@ -160,7 +235,10 @@ export async function submitProject({
     );
   }
 
-  if (!zipPath && !githubUrl) {
+  const cleanGithubUrl =
+    validateGithubUrl(githubUrl);
+
+  if (!zipPath && !cleanGithubUrl) {
     throw new Error(
       "Please provide a project ZIP or GitHub URL."
     );
@@ -181,18 +259,48 @@ export async function submitProject({
       developer.id
     );
 
-  if (
-    assignment.status !== "IN_PROGRESS" &&
-    assignment.status !== "in_progress"
-  ) {
+  /*
+   * IMPORTANT:
+   * A completed assignment can never be submitted again.
+   */
+
+  if (assignment.completed_at) {
     throw new Error(
-      "This project is not currently in progress."
+      "This project has already been completed."
     );
   }
 
-  /* -------------------------------------------------------
-     Check existing submission
-  ------------------------------------------------------- */
+  /*
+   * Allow:
+   * IN_PROGRESS
+   * SUBMITTED
+   * CHANGES_REQUESTED
+   *
+   * The actual submission rules below decide whether
+   * another submission is allowed.
+   */
+
+  const assignmentStatus =
+    String(
+      assignment.status || ""
+    ).toLowerCase();
+
+  if (
+    assignmentStatus &&
+    ![
+      "in_progress",
+      "submitted",
+      "changes_requested",
+    ].includes(assignmentStatus)
+  ) {
+    throw new Error(
+      "This project is not currently available for submission."
+    );
+  }
+
+  /* =======================================================
+     FIND LATEST SUBMISSION
+  ======================================================= */
 
   const {
     data: existingSubmission,
@@ -200,11 +308,20 @@ export async function submitProject({
   } = await supabase
     .from("project_submissions")
     .select("*")
-    .eq("assignment_id", assignmentId)
-    .eq("developer_id", developer.id)
-    .order("submitted_at", {
-      ascending: false,
-    })
+    .eq(
+      "assignment_id",
+      assignmentId
+    )
+    .eq(
+      "developer_id",
+      developer.id
+    )
+    .order(
+      "submitted_at",
+      {
+        ascending: false,
+      }
+    )
     .limit(1)
     .maybeSingle();
 
@@ -213,8 +330,8 @@ export async function submitProject({
   }
 
   /*
-   * Allow a new submission if previous review requested
-   * changes. Otherwise prevent accidental duplicate submits.
+   * A developer can submit again only when the reviewer
+   * requested changes.
    */
 
   if (
@@ -227,9 +344,9 @@ export async function submitProject({
     );
   }
 
-  /* -------------------------------------------------------
-     Create submission
-  ------------------------------------------------------- */
+  /* =======================================================
+     CREATE SUBMISSION
+  ======================================================= */
 
   const {
     data: submission,
@@ -237,14 +354,35 @@ export async function submitProject({
   } = await supabase
     .from("project_submissions")
     .insert({
-      assignment_id: assignmentId,
-      developer_id: developer.id,
-      zip_path: zipPath || null,
+      assignment_id:
+        assignmentId,
+
+      developer_id:
+        developer.id,
+
+      zip_path:
+        zipPath || null,
+
       github_url:
-        githubUrl?.trim() || null,
+        cleanGithubUrl || null,
+
       submission_notes:
         submissionNotes?.trim() || null,
-      status: "submitted",
+
+      status:
+        "submitted",
+
+      submitted_at:
+        new Date().toISOString(),
+
+      review_message:
+        null,
+
+      reviewed_at:
+        null,
+
+      reviewed_by:
+        null,
     })
     .select()
     .single();
@@ -253,23 +391,35 @@ export async function submitProject({
     throw submissionError;
   }
 
-  /* -------------------------------------------------------
-     Update assignment
-  ------------------------------------------------------- */
+  /* =======================================================
+     UPDATE ASSIGNMENT
+  ======================================================= */
 
   const {
     error: assignmentError,
   } = await supabase
     .from("project_assignments")
     .update({
-      status: "SUBMITTED",
+      status:
+        "submitted",
+
       updated_at:
         new Date().toISOString(),
     })
-    .eq("id", assignmentId)
-    .eq("developer_id", developer.id);
+    .eq(
+      "id",
+      assignmentId
+    )
+    .eq(
+      "developer_id",
+      developer.id
+    );
 
   if (assignmentError) {
+    /*
+     * Submission exists even if status update failed.
+     * Log it rather than pretending submission failed.
+     */
     console.error(
       "Assignment status update failed:",
       assignmentError
@@ -279,9 +429,9 @@ export async function submitProject({
   return submission;
 }
 
-/* =======================================================
+/* =========================================================
    GET MY SUBMISSION
-======================================================= */
+========================================================= */
 
 export async function getMySubmission(
   assignmentId
@@ -301,11 +451,20 @@ export async function getMySubmission(
   } = await supabase
     .from("project_submissions")
     .select("*")
-    .eq("assignment_id", assignmentId)
-    .eq("developer_id", developer.id)
-    .order("submitted_at", {
-      ascending: false,
-    })
+    .eq(
+      "assignment_id",
+      assignmentId
+    )
+    .eq(
+      "developer_id",
+      developer.id
+    )
+    .order(
+      "submitted_at",
+      {
+        ascending: false,
+      }
+    )
     .limit(1)
     .maybeSingle();
 
@@ -313,12 +472,12 @@ export async function getMySubmission(
     throw error;
   }
 
-  return data;
+  return data || null;
 }
 
-/* =======================================================
+/* =========================================================
    GET ALL MY SUBMISSIONS
-======================================================= */
+========================================================= */
 
 export async function getMySubmissions() {
   const developer =
@@ -331,15 +490,32 @@ export async function getMySubmissions() {
     .from("project_submissions")
     .select(`
       *,
-      assignment:project_assignments(
-        *,
-        opportunity:opportunities(*)
+      project_assignments (
+        id,
+        opportunity_id,
+        assigned_at,
+        started_at,
+        status,
+        payment_status,
+        completed_at,
+        opportunities (
+          id,
+          title,
+          category,
+          status
+        )
       )
     `)
-    .eq("developer_id", developer.id)
-    .order("submitted_at", {
-      ascending: false,
-    });
+    .eq(
+      "developer_id",
+      developer.id
+    )
+    .order(
+      "submitted_at",
+      {
+        ascending: false,
+      }
+    );
 
   if (error) {
     throw error;

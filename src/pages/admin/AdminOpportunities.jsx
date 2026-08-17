@@ -10,6 +10,12 @@ import {
 } from "../../services/admin/adminOpportunityService";
 
 import {
+  getOpportunityAssignment,
+  getAvailableDevelopers,
+  changeOpportunityDeveloper,
+} from "../../services/admin/adminAssignmentService";
+
+import {
   Plus,
   X,
   BriefcaseBusiness,
@@ -22,13 +28,12 @@ import {
   XCircle,
   RefreshCw,
   ExternalLink,
-  FileText,
   Trash2,
 } from "lucide-react";
 
 /* =========================================================
    INITIAL FORM
-   ========================================================= */
+========================================================= */
 
 const INITIAL_FORM = {
   title: "",
@@ -43,11 +48,12 @@ const INITIAL_FORM = {
   application_deadline: "",
   budget: "",
   freelancer_payout: "",
+  status: "draft",
 };
 
 /* =========================================================
    CATEGORIES
-   ========================================================= */
+========================================================= */
 
 const CATEGORIES = [
   "Website",
@@ -63,7 +69,7 @@ const CATEGORIES = [
 
 /* =========================================================
    ROLES
-   ========================================================= */
+========================================================= */
 
 const ROLES = [
   "Frontend Developer",
@@ -82,12 +88,18 @@ const ROLES = [
 
 /* =========================================================
    HELPERS
-   ========================================================= */
+========================================================= */
 
 const formatDate = (value) => {
   if (!value) return "—";
 
-  return new Date(value).toLocaleDateString("en-IN", {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleDateString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -97,7 +109,13 @@ const formatDate = (value) => {
 const formatDateTime = (value) => {
   if (!value) return "—";
 
-  return new Date(value).toLocaleString("en-IN", {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -112,13 +130,16 @@ const statusClass = (status) => {
       return "status-badge status-success";
 
     case "assigned":
+    case "in_progress":
       return "status-badge status-warning";
 
     case "completed":
+    case "approved":
       return "status-badge status-success";
 
     case "cancelled":
     case "closed":
+    case "rejected":
       return "status-badge status-danger";
 
     case "draft":
@@ -177,7 +198,7 @@ const submissionStatusIcon = (status) => {
 
 /* =========================================================
    COMPONENT
-   ========================================================= */
+========================================================= */
 
 export default function AdminOpportunities() {
   const [opportunities, setOpportunities] = useState([]);
@@ -188,12 +209,27 @@ export default function AdminOpportunities() {
   const [showForm, setShowForm] = useState(false);
   const [showView, setShowView] = useState(false);
   const [showApplicants, setShowApplicants] = useState(false);
+  const [showChangeDeveloper, setShowChangeDeveloper] =
+    useState(false);
 
-  const [editingOpportunity, setEditingOpportunity] = useState(null);
-  const [selectedOpportunity, setSelectedOpportunity] = useState(null);
+  const [availableDevelopers, setAvailableDevelopers] =
+    useState([]);
+
+  const [assignment, setAssignment] = useState(null);
+  const [assignmentLoading, setAssignmentLoading] =
+    useState(false);
+
+  const [reassigning, setReassigning] = useState(false);
+
+  const [editingOpportunity, setEditingOpportunity] =
+    useState(null);
+
+  const [selectedOpportunity, setSelectedOpportunity] =
+    useState(null);
 
   const [applicants, setApplicants] = useState([]);
-  const [applicantsLoading, setApplicantsLoading] = useState(false);
+  const [applicantsLoading, setApplicantsLoading] =
+    useState(false);
 
   const [form, setForm] = useState(INITIAL_FORM);
 
@@ -202,7 +238,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      LOAD OPPORTUNITIES
-     ========================================================= */
+  ========================================================= */
 
   const loadOpportunities = async () => {
     setLoading(true);
@@ -211,9 +247,12 @@ export default function AdminOpportunities() {
     try {
       const data = await getAllOpportunities();
 
-      setOpportunities(data || []);
+      setOpportunities(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Load opportunities error:", err);
+      console.error(
+        "Load opportunities error:",
+        err
+      );
 
       setError(
         err?.message ||
@@ -230,7 +269,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      FORM CHANGE
-     ========================================================= */
+  ========================================================= */
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -243,7 +282,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      ROLE TOGGLE
-     ========================================================= */
+  ========================================================= */
 
   const toggleRole = (role) => {
     setForm((prev) => ({
@@ -259,7 +298,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      RESET FORM
-     ========================================================= */
+  ========================================================= */
 
   const resetForm = () => {
     setForm({
@@ -272,7 +311,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      CLOSE FORM
-     ========================================================= */
+  ========================================================= */
 
   const closeForm = () => {
     if (saving) return;
@@ -285,7 +324,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      CONVERT OPPORTUNITY TO FORM
-     ========================================================= */
+  ========================================================= */
 
   const opportunityToForm = (opportunity) => {
     return {
@@ -335,12 +374,15 @@ export default function AdminOpportunities() {
 
       freelancer_payout:
         opportunity.freelancer_payout ?? "",
+
+      status:
+        opportunity.status || "draft",
     };
   };
 
   /* =========================================================
      OPEN CREATE
-     ========================================================= */
+  ========================================================= */
 
   const openCreate = () => {
     setError("");
@@ -355,7 +397,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      OPEN EDIT
-     ========================================================= */
+  ========================================================= */
 
   const openEdit = (opportunity) => {
     if (!opportunity) return;
@@ -374,7 +416,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      SAVE OPPORTUNITY
-     ========================================================= */
+  ========================================================= */
 
   const saveOpportunity = async (publish = false) => {
     setError("");
@@ -471,11 +513,11 @@ export default function AdminOpportunities() {
 
         freelancer_payout:
           Number(form.freelancer_payout),
-      };
 
-      /* =====================================================
-         UPDATE
-         ===================================================== */
+        ...(editingOpportunity
+          ? { status: form.status }
+          : {}),
+      };
 
       if (editingOpportunity) {
         await updateOpportunity(
@@ -486,13 +528,7 @@ export default function AdminOpportunities() {
         setSuccess(
           "Opportunity updated successfully."
         );
-      }
-
-      /* =====================================================
-         CREATE
-         ===================================================== */
-
-      else {
+      } else {
         await createOpportunity({
           ...payload,
 
@@ -533,7 +569,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      VIEW OPPORTUNITY
-     ========================================================= */
+  ========================================================= */
 
   const openView = (opportunity) => {
     setSelectedOpportunity(opportunity);
@@ -548,61 +584,238 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      LOAD APPLICANTS
-     ========================================================= */
+     
+     IMPORTANT:
+     Do NOT query:
+       - reviewed_at
+       - developer_profiles.email
+
+     because those columns do not exist in the
+     current Supabase schema.
+  ========================================================= */
 
   const loadApplicants = async (opportunity) => {
-    if (!opportunity?.id) return;
+    if (!opportunity?.id) {
+      setError("Invalid opportunity.");
+      return;
+    }
 
     setSelectedOpportunity(opportunity);
-
     setShowView(false);
     setShowApplicants(true);
 
     setApplicants([]);
-
     setApplicantsLoading(true);
-
     setError("");
+    setSuccess("");
 
     try {
+      /* =====================================================
+         STEP 1
+         LOAD APPLICATIONS ONLY
+         
+         Keep this select limited to application columns
+         that are actually used by this component.
+      ===================================================== */
+
       const {
-        data,
-        error: fetchError,
+        data: applications,
+        error: applicationsError,
       } = await supabase
-        .from("project_submissions")
+        .from("opportunity_applications")
         .select(
           `
-          id,
-          assignment_id,
-          developer_id,
-          zip_path,
-          github_url,
-          submission_notes,
-          status,
-          review_message,
-          submitted_at,
-          reviewed_at,
-          reviewed_by
+            id,
+            opportunity_id,
+            developer_id,
+            status,
+            cover_message,
+            estimated_days,
+            applied_at
           `
         )
         .eq(
-          "assignment_id",
+          "opportunity_id",
           opportunity.id
         )
-        .order("submitted_at", {
-          ascending: false,
-        });
+        .order(
+          "applied_at",
+          {
+            ascending: false,
+          }
+        );
 
-      if (fetchError) {
-        throw fetchError;
+      if (applicationsError) {
+        throw applicationsError;
       }
 
-      setApplicants(data || []);
+      const applicationRows =
+        Array.isArray(applications)
+          ? applications
+          : [];
+
+      /* =====================================================
+         STEP 2
+         GET DEVELOPER IDS
+      ===================================================== */
+
+      const developerIds = [
+        ...new Set(
+          applicationRows
+            .map(
+              (application) =>
+                application.developer_id
+            )
+            .filter(Boolean)
+        ),
+      ];
+
+      let developers = [];
+
+      /* =====================================================
+         STEP 3
+         LOAD DEVELOPER PROFILES
+         
+         IMPORTANT:
+         "email" has deliberately been removed.
+         
+         We only request fields used by the UI.
+      ===================================================== */
+
+      if (developerIds.length > 0) {
+        const {
+          data,
+          error: developersError,
+        } = await supabase
+          .from("developer_profiles")
+          .select(
+            `
+              id,
+              full_name,
+              primary_roles,
+              profile_photo_url,
+              github_url,
+              linkedin_url
+            `
+          )
+          .in(
+            "id",
+            developerIds
+          );
+
+        if (developersError) {
+          throw developersError;
+        }
+
+        developers = Array.isArray(data)
+          ? data
+          : [];
+      }
+
+      /* =====================================================
+         STEP 4
+         CREATE DEVELOPER MAP
+      ===================================================== */
+
+      const developerMap =
+        new Map(
+          developers.map(
+            (developer) => [
+              developer.id,
+              developer,
+            ]
+          )
+        );
+
+      /* =====================================================
+         STEP 5
+         LOAD ASSIGNMENT
+         
+         This is opportunity-level assignment data.
+      ===================================================== */
+
+      let assignmentData = null;
+
+      try {
+        assignmentData =
+          await getOpportunityAssignment(
+            opportunity.id
+          );
+      } catch (assignmentError) {
+        console.warn(
+          "Unable to load opportunity assignment:",
+          assignmentError
+        );
+
+        /*
+         * Do not fail the entire applicant list
+         * just because assignment information
+         * could not be loaded.
+         */
+        assignmentData = null;
+      }
+
+      /* =====================================================
+         STEP 6
+         COMBINE APPLICATION + PROFILE
+      ===================================================== */
+
+      const mappedApplicants =
+        applicationRows.map(
+          (application) => {
+            const developer =
+              developerMap.get(
+                application.developer_id
+              ) || null;
+
+            return {
+              ...application,
+
+              developer,
+
+              assignment:
+                assignmentData,
+
+              submitted_at:
+                application.applied_at,
+
+              submission_notes:
+                application.cover_message,
+
+              /*
+               * These aliases make the existing UI
+               * work without changing the JSX below.
+               */
+              github_url:
+                developer?.github_url ||
+                null,
+
+              linkedin_url:
+                developer?.linkedin_url ||
+                null,
+
+              profile_photo_url:
+                developer?.profile_photo_url ||
+                null,
+            };
+          }
+        );
+
+      setApplicants(
+        mappedApplicants
+      );
     } catch (err) {
       console.error(
         "Load applicants error:",
         err
       );
+
+      /*
+       * VERY IMPORTANT:
+       * If loading failed, do NOT leave the UI
+       * looking like there are simply no applications.
+       */
+      setApplicants([]);
 
       setError(
         err?.message ||
@@ -614,8 +827,143 @@ export default function AdminOpportunities() {
   };
 
   /* =========================================================
+     OPEN CHANGE DEVELOPER
+  ========================================================= */
+
+  const openChangeDeveloper = async (
+    opportunity
+  ) => {
+    if (!opportunity?.id) return;
+
+    setSelectedOpportunity(
+      opportunity
+    );
+
+    setShowView(false);
+    setShowApplicants(false);
+    setShowChangeDeveloper(true);
+
+    setAssignmentLoading(true);
+    setError("");
+
+    try {
+      const [
+        currentAssignment,
+        available,
+      ] = await Promise.all([
+        getOpportunityAssignment(
+          opportunity.id
+        ),
+
+        getAvailableDevelopers(),
+      ]);
+
+      setAssignment(
+        currentAssignment
+      );
+
+      setAvailableDevelopers(
+        Array.isArray(available)
+          ? available
+          : []
+      );
+
+      if (!currentAssignment) {
+        throw new Error(
+          "This opportunity has no assigned developer."
+        );
+      }
+    } catch (err) {
+      console.error(
+        "Load reassignment data error:",
+        err
+      );
+
+      setError(
+        err?.message ||
+          "Unable to load available developers."
+      );
+    } finally {
+      setAssignmentLoading(false);
+    }
+  };
+
+  /* =========================================================
+     CHANGE DEVELOPER
+  ========================================================= */
+
+  const handleChangeDeveloper = async (
+    developerId
+  ) => {
+    if (
+      !selectedOpportunity?.id ||
+      !developerId ||
+      reassigning
+    ) {
+      return;
+    }
+
+    const developer =
+      availableDevelopers.find(
+        (item) =>
+          item.id === developerId
+      );
+
+    if (!developer) return;
+
+    const confirmed =
+      window.confirm(
+        `Assign "${
+          developer.full_name ||
+          "this developer"
+        }" to "${
+          selectedOpportunity.title
+        }"?\n\nThe current developer will be replaced.`
+      );
+
+    if (!confirmed) return;
+
+    setReassigning(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const updated =
+        await changeOpportunityDeveloper(
+          selectedOpportunity.id,
+          developerId
+        );
+
+      setAssignment(updated);
+
+      setSuccess(
+        `Developer changed to ${
+          developer.full_name ||
+          "the selected developer"
+        }.`
+      );
+
+      setShowChangeDeveloper(false);
+
+      await loadOpportunities();
+    } catch (err) {
+      console.error(
+        "Change developer error:",
+        err
+      );
+
+      setError(
+        err?.message ||
+          "Unable to change developer."
+      );
+    } finally {
+      setReassigning(false);
+    }
+  };
+
+  /* =========================================================
      CLOSE APPLICANTS
-     ========================================================= */
+  ========================================================= */
 
   const closeApplicants = () => {
     setShowApplicants(false);
@@ -629,7 +977,7 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      DELETE OPPORTUNITY
-     ========================================================= */
+  ========================================================= */
 
   const deleteOpportunity = async (
     opportunity
@@ -639,13 +987,12 @@ export default function AdminOpportunities() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Delete "${opportunity.title}"?\n\nThis action cannot be undone.`
-    );
+    const confirmed =
+      window.confirm(
+        `Delete "${opportunity.title}"?\n\nThis action cannot be undone.`
+      );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     setError("");
     setSuccess("");
@@ -655,11 +1002,13 @@ export default function AdminOpportunities() {
         opportunity.id
       );
 
-      setOpportunities((prev) =>
-        prev.filter(
-          (item) =>
-            item.id !== opportunity.id
-        )
+      setOpportunities(
+        (prev) =>
+          prev.filter(
+            (item) =>
+              item.id !==
+              opportunity.id
+          )
       );
 
       setShowView(false);
@@ -685,40 +1034,47 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      DELETE APPLICATION
-     ========================================================= */
+  ========================================================= */
 
   const deleteApplication = async (
     application
   ) => {
     if (!application?.id) return;
 
-    const confirmed = window.confirm(
-      "Delete this application?\n\nThis action cannot be undone."
-    );
+    const confirmed =
+      window.confirm(
+        "Delete this application?\n\nThis action cannot be undone."
+      );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     setError("");
+    setSuccess("");
 
     try {
       const {
         error: deleteError,
       } = await supabase
-        .from("project_submissions")
+        .from(
+          "opportunity_applications"
+        )
         .delete()
-        .eq("id", application.id);
+        .eq(
+          "id",
+          application.id
+        );
 
       if (deleteError) {
         throw deleteError;
       }
 
-      setApplicants((prev) =>
-        prev.filter(
-          (item) =>
-            item.id !== application.id
-        )
+      setApplicants(
+        (prev) =>
+          prev.filter(
+            (item) =>
+              item.id !==
+              application.id
+          )
       );
 
       setSuccess(
@@ -739,16 +1095,17 @@ export default function AdminOpportunities() {
 
   /* =========================================================
      RENDER
-     ========================================================= */
+  ========================================================= */
 
   return (
     <div className="admin-page">
 
       {/* =====================================================
           HEADER
-          ===================================================== */}
+      ===================================================== */}
 
       <div className="admin-page-header">
+
         <div>
           <h1>
             Opportunities
@@ -767,11 +1124,12 @@ export default function AdminOpportunities() {
           <Plus size={18} />
           Create Opportunity
         </button>
+
       </div>
 
       {/* =====================================================
           SUCCESS
-          ===================================================== */}
+      ===================================================== */}
 
       {success && (
         <div className="admin-success-message">
@@ -781,12 +1139,13 @@ export default function AdminOpportunities() {
 
       {/* =====================================================
           ERROR
-          ===================================================== */}
+      ===================================================== */}
 
       {error &&
         !showForm &&
         !showView &&
-        !showApplicants && (
+        !showApplicants &&
+        !showChangeDeveloper && (
           <div className="admin-error-message">
             {error}
           </div>
@@ -794,11 +1153,12 @@ export default function AdminOpportunities() {
 
       {/* =====================================================
           OPPORTUNITIES LIST
-          ===================================================== */}
+      ===================================================== */}
 
       <div className="admin-card">
 
         <div className="admin-card-header">
+
           <div>
             <h2>
               All Opportunities
@@ -810,6 +1170,7 @@ export default function AdminOpportunities() {
           </div>
 
           <BriefcaseBusiness size={20} />
+
         </div>
 
         {loading ? (
@@ -902,6 +1263,7 @@ export default function AdminOpportunities() {
                       </td>
 
                       <td>
+
                         <span
                           className={statusClass(
                             opportunity.status
@@ -915,6 +1277,7 @@ export default function AdminOpportunities() {
                             " "
                           )}
                         </span>
+
                       </td>
 
                       <td>
@@ -924,6 +1287,7 @@ export default function AdminOpportunities() {
                       </td>
 
                       <td>
+
                         <div className="admin-opportunity-actions">
 
                           {/* VIEW */}
@@ -980,6 +1344,34 @@ export default function AdminOpportunities() {
                             </span>
                           </button>
 
+                          {/* CHANGE DEVELOPER */}
+
+                          {(
+                            opportunity.status ===
+                              "assigned" ||
+                            opportunity.status ===
+                              "in_progress"
+                          ) && (
+                            <button
+                              type="button"
+                              className="admin-opportunity-action-btn admin-opportunity-change-developer-btn"
+                              onClick={() =>
+                                openChangeDeveloper(
+                                  opportunity
+                                )
+                              }
+                              aria-label="Change developer"
+                            >
+                              <RefreshCw
+                                size={16}
+                              />
+
+                              <span>
+                                Change Developer
+                              </span>
+                            </button>
+                          )}
+
                           {/* DELETE */}
 
                           <button
@@ -993,10 +1385,13 @@ export default function AdminOpportunities() {
                               )
                             }
                           >
-                            <Trash2 size={16} />
+                            <Trash2
+                              size={16}
+                            />
                           </button>
 
                         </div>
+
                       </td>
 
                     </tr>
@@ -1014,7 +1409,7 @@ export default function AdminOpportunities() {
 
       {/* =====================================================
           CREATE / EDIT MODAL
-          ===================================================== */}
+      ===================================================== */}
 
       {showForm && (
         <div className="admin-modal-overlay">
@@ -1024,6 +1419,7 @@ export default function AdminOpportunities() {
             <div className="admin-modal-header">
 
               <div>
+
                 <h2>
                   {editingOpportunity
                     ? "Edit Opportunity"
@@ -1035,6 +1431,7 @@ export default function AdminOpportunities() {
                     ? "Update the development project details."
                     : "Add a new development project."}
                 </p>
+
               </div>
 
               <button
@@ -1075,8 +1472,12 @@ export default function AdminOpportunities() {
                     <input
                       type="text"
                       name="title"
-                      value={form.title}
-                      onChange={handleChange}
+                      value={
+                        form.title
+                      }
+                      onChange={
+                        handleChange
+                      }
                       placeholder="e.g. E-commerce Website"
                       disabled={saving}
                     />
@@ -1091,8 +1492,12 @@ export default function AdminOpportunities() {
 
                     <select
                       name="category"
-                      value={form.category}
-                      onChange={handleChange}
+                      value={
+                        form.category
+                      }
+                      onChange={
+                        handleChange
+                      }
                       disabled={saving}
                     >
 
@@ -1104,7 +1509,9 @@ export default function AdminOpportunities() {
                         (category) => (
                           <option
                             key={category}
-                            value={category}
+                            value={
+                              category
+                            }
                           >
                             {category}
                           </option>
@@ -1175,31 +1582,37 @@ export default function AdminOpportunities() {
 
                 <div className="admin-role-grid">
 
-                  {ROLES.map((role) => {
+                  {ROLES.map(
+                    (role) => {
 
-                    const selected =
-                      form.required_roles.includes(
-                        role
+                      const selected =
+                        form.required_roles.includes(
+                          role
+                        );
+
+                      return (
+                        <button
+                          key={role}
+                          type="button"
+                          className={`admin-role-chip ${
+                            selected
+                              ? "selected"
+                              : ""
+                          }`}
+                          onClick={() =>
+                            toggleRole(
+                              role
+                            )
+                          }
+                          disabled={
+                            saving
+                          }
+                        >
+                          {role}
+                        </button>
                       );
-
-                    return (
-                      <button
-                        key={role}
-                        type="button"
-                        className={`admin-role-chip ${
-                          selected
-                            ? "selected"
-                            : ""
-                        }`}
-                        onClick={() =>
-                          toggleRole(role)
-                        }
-                        disabled={saving}
-                      >
-                        {role}
-                      </button>
-                    );
-                  })}
+                    }
+                  )}
 
                 </div>
 
@@ -1268,7 +1681,9 @@ export default function AdminOpportunities() {
                   value={
                     form.deliverables
                   }
-                  onChange={handleChange}
+                  onChange={
+                    handleChange
+                  }
                   rows="4"
                   placeholder="List the expected project deliverables..."
                   disabled={saving}
@@ -1295,8 +1710,12 @@ export default function AdminOpportunities() {
                     <input
                       type="number"
                       name="budget"
-                      value={form.budget}
-                      onChange={handleChange}
+                      value={
+                        form.budget
+                      }
+                      onChange={
+                        handleChange
+                      }
                       placeholder="50000"
                       min="0"
                       disabled={saving}
@@ -1330,6 +1749,87 @@ export default function AdminOpportunities() {
 
                     <small>
                       This is the amount shown to developers.
+                    </small>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* STATUS */}
+
+              <div className="admin-form-section">
+
+                <h3>
+                  Opportunity Status
+                </h3>
+
+                <div className="admin-form-grid">
+
+                  <div className="admin-form-field">
+
+                    <label>
+                      Status
+                    </label>
+
+                    <select
+                      name="status"
+                      value={
+                        form.status
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      disabled={saving}
+                    >
+                      <option value="draft">
+                        Draft
+                      </option>
+
+                      <option value="open">
+                        Open
+                      </option>
+
+                      <option value="assigned">
+                        Assigned
+                      </option>
+
+                      <option value="in_progress">
+                        In Progress
+                      </option>
+
+                      <option value="submitted">
+                        Submitted
+                      </option>
+
+                      <option value="under_review">
+                        Under Review
+                      </option>
+
+                      <option value="changes_requested">
+                        Changes Requested
+                      </option>
+
+                      <option value="approved">
+                        Approved
+                      </option>
+
+                      <option value="completed">
+                        Completed
+                      </option>
+
+                      <option value="closed">
+                        Closed
+                      </option>
+
+                      <option value="cancelled">
+                        Cancelled
+                      </option>
+                    </select>
+
+                    <small>
+                      Use review controls for assignment/review workflow whenever a developer is working.
                     </small>
 
                   </div>
@@ -1410,7 +1910,9 @@ export default function AdminOpportunities() {
                   type="button"
                   className="admin-secondary-btn"
                   onClick={() =>
-                    saveOpportunity(false)
+                    saveOpportunity(
+                      false
+                    )
                   }
                   disabled={saving}
                 >
@@ -1446,7 +1948,7 @@ export default function AdminOpportunities() {
 
       {/* =====================================================
           VIEW OPPORTUNITY MODAL
-          ===================================================== */}
+      ===================================================== */}
 
       {showView &&
         selectedOpportunity && (
@@ -1457,6 +1959,7 @@ export default function AdminOpportunities() {
               <div className="admin-modal-header">
 
                 <div>
+
                   <h2>
                     {
                       selectedOpportunity.title
@@ -1466,12 +1969,15 @@ export default function AdminOpportunities() {
                   <p>
                     Opportunity details
                   </p>
+
                 </div>
 
                 <button
                   type="button"
                   className="admin-icon-btn"
-                  onClick={closeView}
+                  onClick={
+                    closeView
+                  }
                 >
                   <X size={20} />
                 </button>
@@ -1479,8 +1985,6 @@ export default function AdminOpportunities() {
               </div>
 
               <div className="admin-modal-body">
-
-                {/* STATUS */}
 
                 <div className="opportunity-view-status-row">
 
@@ -1754,7 +2258,9 @@ export default function AdminOpportunities() {
                 <button
                   type="button"
                   className="admin-secondary-btn"
-                  onClick={closeView}
+                  onClick={
+                    closeView
+                  }
                 >
                   Close
                 </button>
@@ -1771,6 +2277,26 @@ export default function AdminOpportunities() {
                   <Pencil size={16} />
                   Edit Opportunity
                 </button>
+
+                {(
+                  selectedOpportunity.status ===
+                    "assigned" ||
+                  selectedOpportunity.status ===
+                    "in_progress"
+                ) && (
+                  <button
+                    type="button"
+                    className="admin-secondary-btn admin-opportunity-change-developer-btn"
+                    onClick={() =>
+                      openChangeDeveloper(
+                        selectedOpportunity
+                      )
+                    }
+                  >
+                    <RefreshCw size={15} />
+                    Change Developer
+                  </button>
+                )}
 
                 <button
                   type="button"
@@ -1806,8 +2332,221 @@ export default function AdminOpportunities() {
         )}
 
       {/* =====================================================
+          CHANGE DEVELOPER MODAL
+      ===================================================== */}
+
+      {showChangeDeveloper &&
+        selectedOpportunity && (
+          <div className="admin-modal-overlay">
+
+            <div className="admin-modal admin-change-developer-modal">
+
+              <div className="admin-modal-header">
+
+                <div>
+
+                  <h2>
+                    Change Developer
+                  </h2>
+
+                  <p>
+                    {
+                      selectedOpportunity.title
+                    }
+                  </p>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="admin-icon-btn"
+                  onClick={() =>
+                    setShowChangeDeveloper(
+                      false
+                    )
+                  }
+                >
+                  <X size={20} />
+                </button>
+
+              </div>
+
+              <div className="admin-modal-body">
+
+                {error && (
+                  <div className="admin-error-message">
+                    {error}
+                  </div>
+                )}
+
+                {assignmentLoading ? (
+                  <div className="admin-loading">
+
+                    <RefreshCw
+                      size={20}
+                      className="spin"
+                    />
+
+                    Loading available developers...
+
+                  </div>
+                ) : !assignment ? (
+                  <div className="admin-empty-state">
+
+                    <Users size={42} />
+
+                    <h3>
+                      No active assignment
+                    </h3>
+
+                    <p>
+                      This opportunity currently has no assigned developer.
+                    </p>
+
+                  </div>
+                ) : (
+                  <>
+
+                    <div className="admin-reassignment-current">
+
+                      <span>
+                        Current Developer
+                      </span>
+
+                      <strong>
+                        {
+                          assignment.developer_id
+                        }
+                      </strong>
+
+                      <small>
+                        The current assignment will be replaced.
+                      </small>
+
+                    </div>
+
+                    <div className="admin-form-section">
+
+                      <h3>
+                        Available Developers
+                      </h3>
+
+                      {availableDevelopers.length ===
+                      0 ? (
+                        <div className="admin-empty-state">
+
+                          <Users size={38} />
+
+                          <h3>
+                            No available developers
+                          </h3>
+
+                          <p>
+                            All approved developers currently have an active project.
+                          </p>
+
+                        </div>
+                      ) : (
+                        <div className="admin-available-developers">
+
+                          {availableDevelopers.map(
+                            (developer) => (
+                              <button
+                                key={
+                                  developer.id
+                                }
+                                type="button"
+                                className="admin-available-developer"
+                                disabled={
+                                  reassigning
+                                }
+                                onClick={() =>
+                                  handleChangeDeveloper(
+                                    developer.id
+                                  )
+                                }
+                              >
+
+                                <span className="applicant-avatar">
+
+                                  {(
+                                    developer.full_name ||
+                                    "D"
+                                  )
+                                    .slice(
+                                      0,
+                                      2
+                                    )
+                                    .toUpperCase()}
+
+                                </span>
+
+                                <span className="admin-available-developer-info">
+
+                                  <strong>
+                                    {
+                                      developer.full_name ||
+                                      "Unnamed developer"
+                                    }
+                                  </strong>
+
+                                  <small>
+                                    {Array.isArray(
+                                      developer.primary_roles
+                                    )
+                                      ? developer.primary_roles.join(
+                                          " · "
+                                        )
+                                      : "Available"}
+                                  </small>
+
+                                </span>
+
+                                <span className="admin-available-badge">
+                                  Available
+                                </span>
+
+                              </button>
+                            )
+                          )}
+
+                        </div>
+                      )}
+
+                    </div>
+
+                  </>
+                )}
+
+              </div>
+
+              <div className="admin-modal-footer">
+
+                <button
+                  type="button"
+                  className="admin-secondary-btn"
+                  onClick={() =>
+                    setShowChangeDeveloper(
+                      false
+                    )
+                  }
+                  disabled={
+                    reassigning
+                  }
+                >
+                  Close
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+      {/* =====================================================
           APPLICANTS MODAL
-          ===================================================== */}
+      ===================================================== */}
 
       {showApplicants &&
         selectedOpportunity && (
@@ -1818,6 +2557,7 @@ export default function AdminOpportunities() {
               <div className="admin-modal-header">
 
                 <div>
+
                   <h2>
                     Applicants
                   </h2>
@@ -1827,12 +2567,15 @@ export default function AdminOpportunities() {
                       selectedOpportunity.title
                     }
                   </p>
+
                 </div>
 
                 <button
                   type="button"
                   className="admin-icon-btn"
-                  onClick={closeApplicants}
+                  onClick={
+                    closeApplicants
+                  }
                 >
                   <X size={20} />
                 </button>
@@ -1858,7 +2601,8 @@ export default function AdminOpportunities() {
                     Loading applicants...
 
                   </div>
-                ) : applicants.length === 0 ? (
+                ) : applicants.length ===
+                  0 ? (
                   <div className="admin-empty-state">
 
                     <Users size={42} />
@@ -1868,8 +2612,7 @@ export default function AdminOpportunities() {
                     </h3>
 
                     <p>
-                      There are currently no developer
-                      submissions for this opportunity.
+                      There are currently no developer submissions for this opportunity.
                     </p>
 
                   </div>
@@ -1881,6 +2624,7 @@ export default function AdminOpportunities() {
                     <div className="admin-applicants-summary">
 
                       <div>
+
                         <strong>
                           {
                             applicants.length
@@ -1893,9 +2637,11 @@ export default function AdminOpportunities() {
                             ? "Applicant"
                             : "Applicants"}
                         </span>
+
                       </div>
 
                       <div>
+
                         <strong>
                           {
                             applicants.filter(
@@ -1909,9 +2655,11 @@ export default function AdminOpportunities() {
                         <span>
                           Submitted
                         </span>
+
                       </div>
 
                       <div>
+
                         <strong>
                           {
                             applicants.filter(
@@ -1925,9 +2673,11 @@ export default function AdminOpportunities() {
                         <span>
                           Under Review
                         </span>
+
                       </div>
 
                       <div>
+
                         <strong>
                           {
                             applicants.filter(
@@ -1941,6 +2691,7 @@ export default function AdminOpportunities() {
                         <span>
                           Approved
                         </span>
+
                       </div>
 
                     </div>
@@ -1954,6 +2705,7 @@ export default function AdminOpportunities() {
                         <thead>
 
                           <tr>
+
                             <th>
                               Developer
                             </th>
@@ -1963,7 +2715,7 @@ export default function AdminOpportunities() {
                             </th>
 
                             <th>
-                              Submitted
+                              Applied
                             </th>
 
                             <th>
@@ -1971,16 +2723,17 @@ export default function AdminOpportunities() {
                             </th>
 
                             <th>
-                              Files
+                              Estimate
                             </th>
 
                             <th>
-                              Notes
+                              Cover Message
                             </th>
 
                             <th>
                               Actions
                             </th>
+
                           </tr>
 
                         </thead>
@@ -1988,198 +2741,222 @@ export default function AdminOpportunities() {
                         <tbody>
 
                           {applicants.map(
-                            (applicant) => (
-                              <tr
-                                key={
-                                  applicant.id
-                                }
-                              >
+                            (applicant) => {
 
-                                {/* DEVELOPER */}
+                              const developer =
+                                applicant.developer;
 
-                                <td>
+                              const developerName =
+                                developer?.full_name ||
+                                "Developer";
 
-                                  <div className="applicant-developer">
+                              const developerRoles =
+                                Array.isArray(
+                                  developer?.primary_roles
+                                )
+                                  ? developer.primary_roles.join(
+                                      " · "
+                                    )
+                                  : applicant.developer_id ||
+                                    "Developer";
 
-                                    <div className="applicant-avatar">
+                              return (
+                                <tr
+                                  key={
+                                    applicant.id
+                                  }
+                                >
+
+                                  {/* DEVELOPER */}
+
+                                  <td>
+
+                                    <div className="applicant-developer">
+
+                                      <div className="applicant-avatar">
+
+                                        {developerName
+                                          .slice(
+                                            0,
+                                            2
+                                          )
+                                          .toUpperCase()}
+
+                                      </div>
+
+                                      <div>
+
+                                        <strong>
+                                          {
+                                            developerName
+                                          }
+                                        </strong>
+
+                                        <small>
+                                          {
+                                            developerRoles
+                                          }
+                                        </small>
+
+                                      </div>
+
+                                    </div>
+
+                                  </td>
+
+                                  {/* STATUS */}
+
+                                  <td>
+
+                                    <span
+                                      className={submissionStatusClass(
+                                        applicant.status
+                                      )}
+                                    >
+
+                                      {submissionStatusIcon(
+                                        applicant.status
+                                      )}
 
                                       {String(
-                                        applicant.developer_id ||
-                                          "D"
-                                      )
-                                        .slice(
-                                          0,
-                                          2
-                                        )
-                                        .toUpperCase()}
+                                        applicant.status ||
+                                          "unknown"
+                                      ).replaceAll(
+                                        "_",
+                                        " "
+                                      )}
 
-                                    </div>
+                                    </span>
 
-                                    <div>
+                                  </td>
 
-                                      <strong>
-                                        Developer
-                                      </strong>
+                                  {/* SUBMITTED */}
 
-                                      <small>
-                                        {
-                                          applicant.developer_id
+                                  <td>
+
+                                    <span className="admin-date">
+
+                                      <CalendarDays
+                                        size={14}
+                                      />
+
+                                      {formatDateTime(
+                                        applicant.submitted_at
+                                      )}
+
+                                    </span>
+
+                                  </td>
+
+                                  {/* GITHUB */}
+
+                                  <td>
+
+                                    {applicant.github_url ? (
+                                      <a
+                                        href={
+                                          applicant.github_url
                                         }
-                                      </small>
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="admin-link-btn"
+                                      >
 
-                                    </div>
+                                        <ExternalLink
+                                          size={15}
+                                        />
 
-                                  </div>
+                                        GitHub
 
-                                </td>
+                                        <ExternalLink
+                                          size={12}
+                                        />
 
-                                {/* STATUS */}
-
-                                <td>
-
-                                  <span
-                                    className={submissionStatusClass(
-                                      applicant.status
-                                    )}
-                                  >
-
-                                    {submissionStatusIcon(
-                                      applicant.status
-                                    )}
-
-                                    {String(
-                                      applicant.status ||
-                                        "unknown"
-                                    ).replaceAll(
-                                      "_",
-                                      " "
+                                      </a>
+                                    ) : (
+                                      <span className="admin-muted">
+                                        —
+                                      </span>
                                     )}
 
-                                  </span>
+                                  </td>
 
-                                </td>
+                                  {/* ESTIMATE */}
 
-                                {/* SUBMITTED */}
+                                  <td>
 
-                                <td>
+                                    {applicant.estimated_days ? (
+                                      <span className="admin-file-status">
 
-                                  <span className="admin-date">
+                                        <Clock3
+                                          size={15}
+                                        />
 
-                                    <CalendarDays
-                                      size={14}
-                                    />
+                                        {
+                                          applicant.estimated_days
+                                        }{" "}
+                                        days
 
-                                    {formatDateTime(
-                                      applicant.submitted_at
+                                      </span>
+                                    ) : (
+                                      <span className="admin-muted">
+                                        —
+                                      </span>
                                     )}
 
-                                  </span>
+                                  </td>
 
-                                </td>
+                                  {/* NOTES */}
 
-                                {/* GITHUB */}
+                                  <td>
 
-                                <td>
+                                    {applicant.submission_notes ? (
+                                      <span
+                                        className="applicant-notes"
+                                        title={
+                                          applicant.submission_notes
+                                        }
+                                      >
+                                        {
+                                          applicant.submission_notes
+                                        }
+                                      </span>
+                                    ) : (
+                                      <span className="admin-muted">
+                                        —
+                                      </span>
+                                    )}
 
-                                  {applicant.github_url ? (
-                                    <a
-                                      href={
-                                        applicant.github_url
+                                  </td>
+
+                                  {/* DELETE */}
+
+                                  <td>
+
+                                    <button
+                                      type="button"
+                                      className="admin-application-delete-btn"
+                                      onClick={() =>
+                                        deleteApplication(
+                                          applicant
+                                        )
                                       }
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="admin-link-btn"
+                                      title="Delete application"
                                     >
 
-                                      <ExternalLink
+                                      <Trash2
                                         size={15}
                                       />
 
-                                      GitHub
+                                      Delete
 
-                                      <ExternalLink
-                                        size={12}
-                                      />
+                                    </button>
 
-                                    </a>
-                                  ) : (
-                                    <span className="admin-muted">
-                                      —
-                                    </span>
-                                  )}
+                                  </td>
 
-                                </td>
-
-                                {/* ZIP */}
-
-                                <td>
-
-                                  {applicant.zip_path ? (
-                                    <span className="admin-file-status">
-
-                                      <FileText
-                                        size={15}
-                                      />
-
-                                      Submitted
-
-                                    </span>
-                                  ) : (
-                                    <span className="admin-muted">
-                                      No ZIP
-                                    </span>
-                                  )}
-
-                                </td>
-
-                                {/* NOTES */}
-
-                                <td>
-
-                                  {applicant.submission_notes ? (
-                                    <span
-                                      className="applicant-notes"
-                                      title={
-                                        applicant.submission_notes
-                                      }
-                                    >
-                                      {
-                                        applicant.submission_notes
-                                      }
-                                    </span>
-                                  ) : (
-                                    <span className="admin-muted">
-                                      —
-                                    </span>
-                                  )}
-
-                                </td>
-
-                                {/* DELETE */}
-
-                                <td>
-
-                                  <button
-                                    type="button"
-                                    className="admin-application-delete-btn"
-                                    onClick={() =>
-                                      deleteApplication(
-                                        applicant
-                                      )
-                                    }
-                                    title="Delete application"
-                                  >
-                                    <Trash2
-                                      size={15}
-                                    />
-
-                                    Delete
-                                  </button>
-
-                                </td>
-
-                              </tr>
-                            )
+                                </tr>
+                              );
+                            }
                           )}
 
                         </tbody>
@@ -2198,7 +2975,9 @@ export default function AdminOpportunities() {
                 <button
                   type="button"
                   className="admin-secondary-btn"
-                  onClick={closeApplicants}
+                  onClick={
+                    closeApplicants
+                  }
                 >
                   Close
                 </button>

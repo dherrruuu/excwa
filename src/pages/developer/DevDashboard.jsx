@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   LogOut,
@@ -8,6 +8,9 @@ import {
   User,
   ExternalLink,
   FolderKanban,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 
 import "../../styles/developer.css";
@@ -20,178 +23,301 @@ import { useDeveloper } from "../../hooks/useDeveloper";
 import {
   getMyApplications,
   getMyCurrentAssignment,
-  submitProject,
 } from "../../services/developerService";
 
-// ============================================================
-// STATUS COLORS
-// ============================================================
+import {
+  submitProject,
+} from "../../services/developer/developerSubmissionService";
+
+/* =========================================================
+   STATUS CONFIG
+========================================================= */
 
 const STATUS_COLORS = {
   approved: {
     color: "#69e5b7",
     bg: "rgba(105,229,183,.08)",
-    border: "rgba(105,229,183,.2)",
+    border: "rgba(105,229,183,.22)",
   },
 
   selected: {
     color: "#69e5b7",
     bg: "rgba(105,229,183,.08)",
-    border: "rgba(105,229,183,.2)",
+    border: "rgba(105,229,183,.22)",
   },
 
-  submitted: {
-    color: "#62e2ff",
-    bg: "rgba(98,226,255,.08)",
-    border: "rgba(98,226,255,.2)",
-  },
-
-  under_review: {
-    color: "#a98cff",
-    bg: "rgba(169,140,255,.08)",
-    border: "rgba(169,140,255,.2)",
-  },
-
-  changes_requested: {
-    color: "#ffca70",
-    bg: "rgba(255,202,112,.08)",
-    border: "rgba(255,202,112,.2)",
-  },
-
-  completed: {
+  assigned: {
     color: "#69e5b7",
     bg: "rgba(105,229,183,.08)",
-    border: "rgba(105,229,183,.2)",
-  },
-
-  rejected: {
-    color: "#ff7373",
-    bg: "rgba(255,115,115,.08)",
-    border: "rgba(255,115,115,.2)",
+    border: "rgba(105,229,183,.22)",
   },
 
   in_progress: {
     color: "#62e2ff",
     bg: "rgba(98,226,255,.08)",
-    border: "rgba(98,226,255,.2)",
+    border: "rgba(98,226,255,.22)",
+  },
+
+  submitted: {
+    color: "#62e2ff",
+    bg: "rgba(98,226,255,.08)",
+    border: "rgba(98,226,255,.22)",
+  },
+
+  under_review: {
+    color: "#a98cff",
+    bg: "rgba(169,140,255,.08)",
+    border: "rgba(169,140,255,.22)",
+  },
+
+  changes_requested: {
+    color: "#ffca70",
+    bg: "rgba(255,202,112,.08)",
+    border: "rgba(255,202,112,.22)",
+  },
+
+  completed: {
+    color: "#69e5b7",
+    bg: "rgba(105,229,183,.08)",
+    border: "rgba(105,229,183,.22)",
+  },
+
+  rejected: {
+    color: "#ff7373",
+    bg: "rgba(255,115,115,.08)",
+    border: "rgba(255,115,115,.22)",
+  },
+
+  pending: {
+    color: "#ffca70",
+    bg: "rgba(255,202,112,.08)",
+    border: "rgba(255,202,112,.22)",
   },
 };
 
-// ============================================================
-// STATUS BADGE
-// ============================================================
+/* =========================================================
+   STATUS BADGE
+========================================================= */
 
 function StatusBadge({ status }) {
   const normalizedStatus =
-    status?.toLowerCase?.() || "approved";
+    String(status || "pending")
+      .trim()
+      .toLowerCase();
 
   const style =
     STATUS_COLORS[normalizedStatus] ||
-    STATUS_COLORS.approved;
-
-  const label =
-    normalizedStatus.replace(/_/g, " ");
+    STATUS_COLORS.pending;
 
   return (
     <span
+      className="dev-status-badge"
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 5,
-        padding: "5px 10px",
-        borderRadius: 999,
-        fontSize: 10,
         color: style.color,
         background: style.bg,
-        border: `1px solid ${style.border}`,
-        textTransform: "capitalize",
+        borderColor: style.border,
       }}
     >
       <span
+        className="dev-status-dot"
         style={{
-          width: 5,
-          height: 5,
-          borderRadius: "50%",
           background: style.color,
         }}
       />
 
-      {label}
+      {normalizedStatus.replace(/_/g, " ")}
     </span>
   );
 }
 
-// ============================================================
-// CURRENT PROJECT
-// ============================================================
+/* =========================================================
+   HELPERS
+========================================================= */
 
-function CurrentProjectTab({ assignment }) {
+function getOpportunity(assignment) {
+  if (!assignment) {
+    return null;
+  }
+
+  return (
+    assignment.opportunities ||
+    assignment.opportunity ||
+    null
+  );
+}
+
+function getAssignmentId(assignment) {
+  return (
+    assignment?.id ||
+    assignment?.assignment_id ||
+    null
+  );
+}
+
+function formatDate(value) {
+  if (!value) {
+    return "—";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatCurrency(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "—";
+  }
+
+  const number = Number(value);
+
+  if (Number.isNaN(number)) {
+    return "—";
+  }
+
+  return `₹${number.toLocaleString("en-IN")}`;
+}
+
+function getArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+function EmptyState({
+  icon: Icon = FolderKanban,
+  title,
+  description,
+  action,
+  onAction,
+}) {
+  return (
+    <div className="dev-tab-empty">
+      <Icon
+        size={36}
+        className="dev-empty-icon"
+      />
+
+      <h3>{title}</h3>
+
+      {description && (
+        <p>{description}</p>
+      )}
+
+      {action && onAction && (
+        <button
+          type="button"
+          className="primary-btn"
+          onClick={onAction}
+        >
+          {action}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   CURRENT PROJECT
+========================================================= */
+
+function CurrentProjectTab({
+  assignment,
+  onRefresh,
+}) {
   if (!assignment) {
     return (
-      <div className="dev-tab-empty">
-        <FolderKanban
-          size={32}
-          style={{
-            opacity: 0.3,
-            marginBottom: 12,
-          }}
-        />
-
-        <p>No active project.</p>
-
-        <span>
-          Browse opportunities to find your next project.
-        </span>
-      </div>
+      <EmptyState
+        icon={FolderKanban}
+        title="No active project"
+        description="You don't currently have a project assigned. Browse opportunities to find your next project."
+      />
     );
   }
 
   const project =
-    assignment.opportunities ||
-    assignment.opportunity ||
-    null;
+    getOpportunity(assignment);
+
+  const projectTitle =
+    project?.title ||
+    assignment?.title ||
+    "Untitled Project";
+
+  const projectDescription =
+    project?.description ||
+    assignment?.description ||
+    "No project description has been provided.";
+
+  const techStack =
+    getArray(project?.tech_stack);
+
+  const requiredSkills =
+    getArray(project?.required_skills);
 
   return (
     <div className="dev-current-project">
-      {/* HEADER */}
 
       <div className="dev-project-header">
-        <div>
+        <div className="dev-project-heading">
+
           <span className="dev-opp-category">
             {project?.category || "Project"}
           </span>
 
-          <h2>
-            {project?.title || "Untitled Project"}
-          </h2>
+          <h2>{projectTitle}</h2>
 
           <p>
-            Project ID: {project?.id || "—"}
+            Project ID:{" "}
+            {project?.id ||
+              assignment?.opportunity_id ||
+              assignment?.id ||
+              "—"}
           </p>
         </div>
 
-        <StatusBadge
-          status={
-            assignment.status ||
-            "in_progress"
-          }
-        />
-      </div>
+        <div className="dev-project-actions">
+          <StatusBadge
+            status={
+              assignment?.status ||
+              "assigned"
+            }
+          />
 
-      {/* REQUIREMENT */}
+          {onRefresh && (
+            <button
+              type="button"
+              className="dev-icon-button"
+              onClick={onRefresh}
+              title="Refresh project"
+            >
+              <RefreshCw size={14} />
+            </button>
+          )}
+        </div>
+      </div>
 
       <div className="dev-project-section">
         <h3>Project Requirement</h3>
 
-        <p>
-          {project?.description ||
-            "No description provided."}
-        </p>
+        <p>{projectDescription}</p>
       </div>
 
-      {/* PROJECT INFORMATION */}
-
       <div className="dev-project-grid">
+
         <div className="dev-project-info">
           <span>Project Type</span>
 
@@ -204,11 +330,7 @@ function CurrentProjectTab({ assignment }) {
           <span>Deadline</span>
 
           <strong>
-            {project?.deadline
-              ? new Date(
-                  project.deadline
-                ).toLocaleDateString("en-IN")
-              : "—"}
+            {formatDate(project?.deadline)}
           </strong>
         </div>
 
@@ -216,57 +338,52 @@ function CurrentProjectTab({ assignment }) {
           <span>Developer Payout</span>
 
           <strong>
-            {project?.freelancer_payout != null
-              ? `₹${Number(
-                  project.freelancer_payout
-                ).toLocaleString("en-IN")}`
-              : "—"}
+            {formatCurrency(
+              project?.freelancer_payout
+            )}
           </strong>
         </div>
 
         <div className="dev-project-info">
-          <span>Assigned</span>
+          <span>Assigned On</span>
 
           <strong>
-            {assignment.assigned_at
-              ? new Date(
-                  assignment.assigned_at
-                ).toLocaleDateString("en-IN")
-              : "—"}
+            {formatDate(
+              assignment?.assigned_at
+            )}
           </strong>
         </div>
+
       </div>
 
-      {/* TECHNOLOGY STACK */}
-
-      {project?.tech_stack?.length > 0 && (
+      {techStack.length > 0 && (
         <div className="dev-project-section">
           <h3>Technology Stack</h3>
 
           <div className="dev-opp-tags">
-            {project.tech_stack.map((tech) => (
-              <span
-                key={tech}
-                className="dev-tag"
-              >
-                {tech}
-              </span>
-            ))}
+            {techStack.map(
+              (tech, index) => (
+                <span
+                  key={`${tech}-${index}`}
+                  className="dev-tag"
+                >
+                  {tech}
+                </span>
+              )
+            )}
           </div>
         </div>
       )}
 
-      {/* REQUIRED SKILLS */}
-
-      {project?.required_skills?.length > 0 && (
+      {requiredSkills.length > 0 && (
         <div className="dev-project-section">
           <h3>Required Skills</h3>
 
           <div className="dev-opp-tags">
-            {project.required_skills.map(
-              (skill) => (
+            {requiredSkills.map(
+              (skill, index) => (
                 <span
-                  key={skill}
+                  key={`${skill}-${index}`}
                   className="dev-tag"
                 >
                   {skill}
@@ -277,24 +394,20 @@ function CurrentProjectTab({ assignment }) {
         </div>
       )}
 
-      {/* DELIVERABLES */}
-
       {project?.deliverables && (
         <div className="dev-project-section">
           <h3>Deliverables</h3>
 
-          <p>
-            {project.deliverables}
-          </p>
+          <p>{project.deliverables}</p>
         </div>
       )}
     </div>
   );
 }
 
-// ============================================================
-// SUBMIT WORK
-// ============================================================
+/* =========================================================
+   SUBMIT WORK
+========================================================= */
 
 function SubmitWorkTab({
   assignment,
@@ -315,22 +428,53 @@ function SubmitWorkTab({
   const [error, setError] =
     useState("");
 
-  // ----------------------------------------------------------
-  // EXISTING SUBMISSION
-  // ----------------------------------------------------------
+  const project =
+    getOpportunity(assignment);
 
-  const existingSubmission =
-    assignment?.project_submissions?.[0] ||
+  const assignmentId =
+    getAssignmentId(assignment);
+
+  /*
+   * Support both possible nested response structures.
+   */
+  const submissions = getArray(
+    assignment?.project_submissions
+  );
+
+  const submission =
     assignment?.submission ||
+    submissions[0] ||
     null;
 
   const submissionStatus =
-    existingSubmission?.status
-      ?.toLowerCase?.() || null;
+    String(
+      submission?.status || ""
+    )
+      .trim()
+      .toLowerCase();
 
-  // ----------------------------------------------------------
-  // SUBMIT
-  // ----------------------------------------------------------
+  const assignmentStatus =
+    String(
+      assignment?.status || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const canResubmit =
+    submissionStatus ===
+    "changes_requested";
+
+  const submissionLocked =
+    submissionStatus ===
+      "submitted" ||
+    submissionStatus ===
+      "under_review";
+
+  const projectCompleted =
+    assignmentStatus ===
+      "completed" ||
+    submissionStatus ===
+      "completed";
 
   async function handleSubmit() {
     setError("");
@@ -342,28 +486,44 @@ function SubmitWorkTab({
     const cleanNotes =
       notes.trim();
 
+    if (!assignmentId) {
+      setError(
+        "Assignment ID is missing. Please refresh the dashboard and try again."
+      );
+
+      console.error(
+        "Assignment object:",
+        assignment
+      );
+
+      return;
+    }
+
     if (!cleanGithubUrl) {
       setError(
         "GitHub repository URL is required."
       );
+
       return;
     }
 
-    if (
-      !cleanGithubUrl.startsWith(
-        "https://github.com/"
-      )
-    ) {
-      setError(
-        "Please enter a valid GitHub repository URL."
-      );
-      return;
-    }
+    try {
+      const parsedUrl =
+        new URL(cleanGithubUrl);
 
-    if (!assignment?.id) {
+      if (
+        parsedUrl.protocol !==
+          "http:" &&
+        parsedUrl.protocol !==
+          "https:"
+      ) {
+        throw new Error();
+      }
+    } catch {
       setError(
-        "No active assignment found."
+        "Please enter a valid repository URL."
       );
+
       return;
     }
 
@@ -371,21 +531,18 @@ function SubmitWorkTab({
 
     try {
       await submitProject({
-        assignmentId: assignment.id,
-
-        githubUrl:
-          cleanGithubUrl,
-
+        assignmentId,
+        githubUrl: cleanGithubUrl,
         submissionNotes:
           cleanNotes || null,
       });
 
-      setMessage(
-        "Your work has been submitted successfully. It is now waiting for reviewer approval."
-      );
-
       setGithubUrl("");
       setNotes("");
+
+      setMessage(
+        "Your work has been submitted successfully."
+      );
 
       if (onSubmitted) {
         await onSubmitted();
@@ -405,68 +562,28 @@ function SubmitWorkTab({
     }
   }
 
-  // ----------------------------------------------------------
-  // NO ASSIGNMENT
-  // ----------------------------------------------------------
-
   if (!assignment) {
     return (
-      <div className="dev-tab-empty">
-        <Send
-          size={32}
-          style={{
-            opacity: 0.3,
-            marginBottom: 12,
-          }}
-        />
-
-        <p>No active project.</p>
-
-        <span>
-          You can submit work once a project is assigned.
-        </span>
-      </div>
+      <EmptyState
+        icon={Send}
+        title="No active project"
+        description="You can submit your work once a project has been assigned to you."
+      />
     );
   }
 
-  // ----------------------------------------------------------
-  // COMPLETED PROJECT
-  // ----------------------------------------------------------
-
-  if (
-    submissionStatus ===
-      "completed" ||
-    submissionStatus ===
-      "approved" &&
-      assignment.status?.toLowerCase?.() ===
-        "completed"
-  ) {
+  if (projectCompleted) {
     return (
-      <div className="dev-tab-empty">
-        <FileCheck
-          size={32}
-          style={{
-            opacity: 0.3,
-            marginBottom: 12,
-          }}
-        />
-
-        <p>Project completed.</p>
-
-        <span>
-          This project has been completed by the reviewer.
-        </span>
-      </div>
+      <EmptyState
+        icon={CheckCircle2}
+        title="Project completed"
+        description="This project has already been completed."
+      />
     );
   }
-
-  // ----------------------------------------------------------
-  // SUBMISSION FORM
-  // ----------------------------------------------------------
 
   return (
     <div className="dev-auth-card dev-submit-card">
-      {/* HEADER */}
 
       <div className="dev-submit-header">
         <div>
@@ -475,8 +592,7 @@ function SubmitWorkTab({
           </span>
 
           <h2>
-            {assignment.opportunities?.title ||
-              assignment.opportunity?.title ||
+            {project?.title ||
               "Project"}
           </h2>
         </div>
@@ -484,69 +600,34 @@ function SubmitWorkTab({
         <StatusBadge
           status={
             submissionStatus ||
-            assignment.status ||
+            assignmentStatus ||
             "in_progress"
           }
         />
       </div>
 
-      {/* CHANGES REQUESTED */}
-
-      {submissionStatus ===
-        "changes_requested" && (
-        <div
-          style={{
-            marginBottom: 18,
-            padding: 14,
-            borderRadius: 10,
-            background:
-              "rgba(255,202,112,.08)",
-            border:
-              "1px solid rgba(255,202,112,.2)",
-          }}
-        >
-          <strong
-            style={{
-              color: "#ffca70",
-            }}
-          >
+      {canResubmit && (
+        <div className="dev-submit-notice warning">
+          <strong>
             Changes requested
           </strong>
 
-          {existingSubmission?.review_message && (
-            <p
-              style={{
-                marginTop: 8,
-              }}
-            >
-              {
-                existingSubmission.review_message
-              }
+          {submission?.review_message && (
+            <p>
+              {submission.review_message}
             </p>
           )}
+
+          <p>
+            Update your work and submit it again.
+          </p>
         </div>
       )}
 
-      {/* SUBMITTED */}
-
       {submissionStatus ===
         "submitted" && (
-        <div
-          style={{
-            marginBottom: 18,
-            padding: 14,
-            borderRadius: 10,
-            background:
-              "rgba(98,226,255,.08)",
-            border:
-              "1px solid rgba(98,226,255,.2)",
-          }}
-        >
-          <strong
-            style={{
-              color: "#62e2ff",
-            }}
-          >
+        <div className="dev-submit-notice info">
+          <strong>
             Work submitted
           </strong>
 
@@ -556,7 +637,18 @@ function SubmitWorkTab({
         </div>
       )}
 
-      {/* GITHUB */}
+      {submissionStatus ===
+        "under_review" && (
+        <div className="dev-submit-notice review">
+          <strong>
+            Under review
+          </strong>
+
+          <p>
+            A reviewer is currently reviewing your submission.
+          </p>
+        </div>
+      )}
 
       <div className="field">
         <label>
@@ -575,13 +667,10 @@ function SubmitWorkTab({
           }
           disabled={
             submitting ||
-            submissionStatus ===
-              "submitted"
+            submissionLocked
           }
         />
       </div>
-
-      {/* NOTES */}
 
       <div
         className="field"
@@ -590,15 +679,8 @@ function SubmitWorkTab({
         }}
       >
         <label>
-          Submission Notes
-
-          <em
-            style={{
-              color: "#5e6a7b",
-              fontStyle: "normal",
-            }}
-          >
-            {" "}
+          Submission Notes{" "}
+          <em className="optional-label">
             optional
           </em>
         </label>
@@ -614,34 +696,24 @@ function SubmitWorkTab({
           }
           disabled={
             submitting ||
-            submissionStatus ===
-              "submitted"
+            submissionLocked
           }
         />
       </div>
 
-      {/* ERROR */}
-
       {error && (
-        <p className="error">
-          {error}
-        </p>
+        <div className="dev-form-message error">
+          <AlertCircle size={14} />
+          <span>{error}</span>
+        </div>
       )}
-
-      {/* SUCCESS */}
 
       {message && (
-        <p
-          style={{
-            color: "#69e5b7",
-            fontSize: 12,
-          }}
-        >
-          {message}
-        </p>
+        <div className="dev-form-message success">
+          <CheckCircle2 size={14} />
+          <span>{message}</span>
+        </div>
       )}
-
-      {/* SUBMIT BUTTON */}
 
       <button
         type="button"
@@ -649,77 +721,113 @@ function SubmitWorkTab({
         onClick={handleSubmit}
         disabled={
           submitting ||
-          submissionStatus ===
-            "submitted"
+          submissionLocked
         }
       >
         <Send size={14} />
 
         {submitting
           ? "Submitting..."
-          : submissionStatus ===
-            "submitted"
+          : submissionLocked
           ? "Work Submitted"
+          : canResubmit
+          ? "Resubmit Work"
           : "Submit Work"}
       </button>
     </div>
   );
 }
 
-// ============================================================
-// APPLICATIONS
-// ============================================================
+/* =========================================================
+   APPLICATIONS
+========================================================= */
 
-function ApplicationsTab() {
+function ApplicationsTab({
+  refreshKey,
+}) {
   const [applications, setApplications] =
     useState([]);
 
   const [loading, setLoading] =
     useState(true);
 
-  async function loadApplications() {
-    try {
-      setLoading(true);
+  const [error, setError] =
+    useState("");
 
-      const data =
-        await getMyApplications();
+  const loadApplications =
+    useCallback(async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      setApplications(data || []);
-    } catch (error) {
-      console.error(
-        "Unable to load applications:",
-        error
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+        const data =
+          await getMyApplications();
+
+        setApplications(
+          Array.isArray(data)
+            ? data
+            : []
+        );
+      } catch (err) {
+        console.error(
+          "Unable to load applications:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Unable to load your applications."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }, []);
 
   useEffect(() => {
     loadApplications();
-  }, []);
+  }, [
+    loadApplications,
+    refreshKey,
+  ]);
 
   if (loading) {
     return (
       <div className="dev-tab-empty">
-        Loading applications...
+        <RefreshCw
+          size={28}
+          className="dev-loading-icon"
+        />
+
+        <h3>
+          Loading applications
+        </h3>
+
+        <p>
+          Please wait...
+        </p>
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        icon={AlertCircle}
+        title="Unable to load applications"
+        description={error}
+        action="Try Again"
+        onAction={loadApplications}
+      />
     );
   }
 
   if (!applications.length) {
     return (
-      <div className="dev-tab-empty">
-        <FileCheck
-          size={32}
-          style={{
-            opacity: 0.3,
-            marginBottom: 12,
-          }}
-        />
-
-        <p>No applications yet.</p>
-      </div>
+      <EmptyState
+        icon={FileCheck}
+        title="No applications yet"
+        description="Applications you submit for opportunities will appear here."
+      />
     );
   }
 
@@ -728,15 +836,20 @@ function ApplicationsTab() {
       {applications.map(
         (application) => {
           const opportunity =
-            application.opportunities ||
-            application.opportunity;
+            application?.opportunities ||
+            application?.opportunity ||
+            null;
 
           return (
             <div
-              key={application.id}
+              key={
+                application?.id ||
+                `${application?.opportunity_id}-${application?.created_at}`
+              }
               className="dev-app-card"
             >
-              <div>
+              <div className="dev-app-content">
+
                 <span className="dev-opp-category">
                   {opportunity?.category ||
                     "Project"}
@@ -749,19 +862,23 @@ function ApplicationsTab() {
 
                 <p>
                   Applied{" "}
-                  {application.applied_at
-                    ? new Date(
-                        application.applied_at
-                      ).toLocaleDateString(
-                        "en-IN"
-                      )
-                    : "—"}
+                  {formatDate(
+                    application?.applied_at ||
+                      application?.created_at
+                  )}
                 </p>
+
+                {opportunity?.description && (
+                  <span className="dev-app-description">
+                    {opportunity.description}
+                  </span>
+                )}
               </div>
 
               <StatusBadge
                 status={
-                  application.status
+                  application?.status ||
+                  "pending"
                 }
               />
             </div>
@@ -772,74 +889,90 @@ function ApplicationsTab() {
   );
 }
 
-// ============================================================
-// PROFILE
-// ============================================================
+/* =========================================================
+   PROFILE
+========================================================= */
 
 function ProfileTab({
   profile,
   devProfile,
 }) {
-  const profileItems = [
-    [
-      "Full Name",
-      profile?.full_name ||
-        devProfile?.full_name,
-    ],
+  const profileItems = useMemo(
+    () => [
+      [
+        "Full Name",
+        profile?.full_name ||
+          devProfile?.full_name,
+      ],
 
-    [
-      "Email",
-      profile?.email ||
-        devProfile?.email,
-    ],
+      [
+        "Email",
+        profile?.email ||
+          devProfile?.email,
+      ],
 
-    [
-      "Phone",
-      devProfile?.phone ||
-        profile?.phone,
-    ],
+      [
+        "Phone",
+        devProfile?.phone ||
+          profile?.phone,
+      ],
 
-    [
-      "City",
-      devProfile?.city,
-    ],
+      [
+        "City",
+        devProfile?.city,
+      ],
 
-    [
-      "GitHub",
-      devProfile?.github_url,
-    ],
+      [
+        "GitHub",
+        devProfile?.github_url,
+      ],
 
-    [
-      "LinkedIn",
-      devProfile?.linkedin_url,
-    ],
+      [
+        "LinkedIn",
+        devProfile?.linkedin_url,
+      ],
 
-    [
-      "Portfolio",
-      devProfile?.portfolio_url,
-    ],
+      [
+        "Portfolio",
+        devProfile?.portfolio_url,
+      ],
 
-    [
-      "Status",
-      devProfile?.status,
+      [
+        "Developer Status",
+        devProfile?.status,
+      ],
     ],
-  ];
+    [profile, devProfile]
+  );
 
   return (
-    <div
-      className="dev-auth-card"
-      style={{
-        padding: 28,
-      }}
-    >
-      <h3>Your Profile</h3>
+    <div className="dev-auth-card dev-profile-card">
+
+      <div className="dev-section-heading">
+        <div>
+          <span className="eyebrow">
+            Account
+          </span>
+
+          <h2>Your Profile</h2>
+
+          <p>
+            Your developer account information.
+          </p>
+        </div>
+
+        <User size={22} />
+      </div>
 
       <div className="admin-detail-grid">
         {profileItems.map(
           ([label, value]) => {
             const isLink =
-              typeof value === "string" &&
-              value.startsWith("http");
+              typeof value ===
+                "string" &&
+              /^https?:\/\//i.test(
+                value
+              );
 
             return (
               <div
@@ -852,15 +985,17 @@ function ProfileTab({
                   <a
                     href={value}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                   >
-                    {value.replace(
-                      /^https?:\/\//,
-                      ""
-                    )}
+                    <span>
+                      {value.replace(
+                        /^https?:\/\//i,
+                        ""
+                      )}
+                    </span>
 
                     <ExternalLink
-                      size={10}
+                      size={11}
                     />
                   </a>
                 ) : (
@@ -877,306 +1012,539 @@ function ProfileTab({
   );
 }
 
-// ============================================================
-// MAIN DASHBOARD
-// ============================================================
+/* =========================================================
+   MAIN DASHBOARD
+========================================================= */
 
 export default function DevDashboard() {
   const {
     profile,
     devProfile,
+    loading: profileLoading,
     logout,
   } = useDeveloper();
 
   const [assignment, setAssignment] =
     useState(null);
 
+  const [assignmentLoading, setAssignmentLoading] =
+    useState(false);
+
+  const [assignmentError, setAssignmentError] =
+    useState("");
+
   const [tab, setTab] =
     useState("opportunities");
 
-  const [
-    loadingAssignment,
-    setLoadingAssignment,
-  ] = useState(true);
+  const [applicationsRefreshKey, setApplicationsRefreshKey] =
+    useState(0);
 
-  // ==========================================================
-  // LOAD CURRENT ASSIGNMENT
-  // ==========================================================
+  const [loggingOut, setLoggingOut] =
+    useState(false);
 
-  async function loadAssignment() {
-    if (!devProfile?.id) {
-      setAssignment(null);
-      setLoadingAssignment(false);
+  /* =======================================================
+     LOAD CURRENT ASSIGNMENT
+  ======================================================= */
+
+  const loadAssignment =
+    useCallback(async () => {
+      setAssignmentLoading(true);
+      setAssignmentError("");
+
+      try {
+        const data =
+          await getMyCurrentAssignment();
+
+        setAssignment(
+          data || null
+        );
+      } catch (error) {
+        console.error(
+          "Unable to load current assignment:",
+          error
+        );
+
+        setAssignment(null);
+
+        setAssignmentError(
+          error?.message ||
+            "Unable to load your current project."
+        );
+      } finally {
+        setAssignmentLoading(false);
+      }
+    }, []);
+
+  /* =======================================================
+     LOAD ASSIGNMENT AFTER PROFILE IS READY
+  ======================================================= */
+
+  useEffect(() => {
+    if (profileLoading) {
       return;
     }
 
-    try {
-      setLoadingAssignment(true);
-
-      const data =
-        await getMyCurrentAssignment();
-
-      setAssignment(data || null);
-
-      if (data) {
-        setTab((currentTab) => {
-          if (
-            currentTab ===
-              "opportunities" ||
-            currentTab ===
-              "applications"
-          ) {
-            return "project";
-          }
-
-          return currentTab;
-        });
-      } else {
-        setTab((currentTab) => {
-          if (
-            currentTab ===
-              "project" ||
-            currentTab ===
-              "submissions"
-          ) {
-            return "opportunities";
-          }
-
-          return currentTab;
-        });
-      }
-    } catch (error) {
-      console.error(
-        "Unable to load current assignment:",
-        error
-      );
-
+    if (!devProfile) {
       setAssignment(null);
+      setAssignmentError("");
+      return;
+    }
+
+    loadAssignment();
+  }, [
+    profileLoading,
+    devProfile,
+    loadAssignment,
+  ]);
+
+  /* =======================================================
+     PERIODIC REFRESH
+  ======================================================= */
+
+  useEffect(() => {
+    if (
+      profileLoading ||
+      !devProfile
+    ) {
+      return undefined;
+    }
+
+    const interval =
+      setInterval(() => {
+        loadAssignment();
+      }, 15000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [
+    profileLoading,
+    devProfile,
+    loadAssignment,
+  ]);
+
+  /* =======================================================
+     LOGOUT
+  ======================================================= */
+
+  async function handleLogout() {
+    if (loggingOut) {
+      return;
+    }
+
+    setLoggingOut(true);
+
+    try {
+      await logout();
     } finally {
-      setLoadingAssignment(false);
+      setLoggingOut(false);
     }
   }
 
-  useEffect(() => {
-    loadAssignment();
-  }, [devProfile?.id]);
-
-  // ==========================================================
-  // DISPLAY NAME
-  // ==========================================================
+  /* =======================================================
+     USER INFORMATION
+  ======================================================= */
 
   const displayName =
     profile?.full_name ||
     devProfile?.full_name ||
-    "";
+    "Developer";
 
   const firstName =
     displayName
-      ? displayName.split(" ")[0]
-      : "";
-
-  // ==========================================================
-  // ACTIVE PROJECT
-  // ==========================================================
+      .trim()
+      .split(/\s+/)[0] ||
+    "Developer";
 
   const hasActiveProject =
     Boolean(assignment);
 
-  // ==========================================================
-  // TABS
-  // ==========================================================
+  /* =======================================================
+     TABS
+     
+     IMPORTANT:
+     Keep ALL tabs available.
+     
+     A developer with an active project should still be able
+     to see Opportunities, Applications and Profile.
+  ======================================================= */
 
-  const tabs = hasActiveProject
-    ? [
-        {
-          id: "project",
-          label: "Current Project",
-          icon: FolderKanban,
-        },
+  const tabs = [
+    {
+      id: "opportunities",
+      label: "Opportunities",
+      icon: Briefcase,
+    },
 
-        {
-          id: "submissions",
-          label: "Submit Work",
-          icon: Send,
-        },
+    {
+      id: "applications",
+      label: "My Applications",
+      icon: FileCheck,
+    },
 
-        {
-          id: "profile",
-          label: "Profile",
-          icon: User,
-        },
-      ]
-    : [
-        {
-          id: "opportunities",
-          label: "Opportunities",
-          icon: Briefcase,
-        },
+    {
+      id: "project",
+      label: "Current Project",
+      icon: FolderKanban,
+      badge: hasActiveProject
+        ? "Active"
+        : null,
+    },
 
-        {
-          id: "applications",
-          label: "My Applications",
-          icon: FileCheck,
-        },
+    {
+      id: "submissions",
+      label: "Submit Work",
+      icon: Send,
+      badge: hasActiveProject
+        ? null
+        : "No Project",
+    },
 
-        {
-          id: "profile",
-          label: "Profile",
-          icon: User,
-        },
-      ];
+    {
+      id: "profile",
+      label: "Profile",
+      icon: User,
+    },
+  ];
 
-  // ==========================================================
-  // TAB RENDER
-  // ==========================================================
+  /* =======================================================
+     DASHBOARD STATS
+  ======================================================= */
+
+  const developerStatus =
+    devProfile?.status ||
+    "pending";
+
+  /* =======================================================
+     TAB CONTENT
+  ======================================================= */
 
   function renderTab() {
-    if (loadingAssignment) {
+    if (tab === "opportunities") {
       return (
-        <div className="dev-tab-empty">
-          Loading your project...
-        </div>
+        <OpportunitiesTab
+          devProfile={devProfile}
+          onAssignmentCreated={
+            async () => {
+              await loadAssignment();
+
+              setTab("project");
+            }
+          }
+        />
       );
     }
 
-    switch (tab) {
-      case "project":
-        return (
-          <CurrentProjectTab
-            assignment={assignment}
-          />
-        );
-
-      case "submissions":
-        return (
-          <SubmitWorkTab
-            assignment={assignment}
-            onSubmitted={loadAssignment}
-          />
-        );
-
-      case "opportunities":
-        return (
-          <OpportunitiesTab
-            devProfile={devProfile}
-            onAssignmentCreated={async () => {
-              await loadAssignment();
-              setTab("project");
-            }}
-          />
-        );
-
-      case "applications":
-        return <ApplicationsTab />;
-
-      case "profile":
-        return (
-          <ProfileTab
-            profile={profile}
-            devProfile={devProfile}
-          />
-        );
-
-      default:
-        return null;
+    if (tab === "applications") {
+      return (
+        <ApplicationsTab
+          refreshKey={
+            applicationsRefreshKey
+          }
+        />
+      );
     }
+
+    if (tab === "project") {
+      if (assignmentLoading) {
+        return (
+          <div className="dev-tab-empty">
+            <RefreshCw
+              size={28}
+              className="dev-loading-icon"
+            />
+
+            <h3>
+              Loading current project
+            </h3>
+
+            <p>
+              Please wait...
+            </p>
+          </div>
+        );
+      }
+
+      if (
+        assignmentError &&
+        !assignment
+      ) {
+        return (
+          <EmptyState
+            icon={AlertCircle}
+            title="Unable to load project"
+            description={assignmentError}
+            action="Try Again"
+            onAction={loadAssignment}
+          />
+        );
+      }
+
+      return (
+        <CurrentProjectTab
+          assignment={assignment}
+          onRefresh={loadAssignment}
+        />
+      );
+    }
+
+    if (tab === "submissions") {
+      if (assignmentLoading) {
+        return (
+          <div className="dev-tab-empty">
+            <RefreshCw
+              size={28}
+              className="dev-loading-icon"
+            />
+
+            <h3>
+              Loading project
+            </h3>
+
+            <p>
+              Please wait...
+            </p>
+          </div>
+        );
+      }
+
+      if (
+        assignmentError &&
+        !assignment
+      ) {
+        return (
+          <EmptyState
+            icon={AlertCircle}
+            title="Unable to load project"
+            description={assignmentError}
+            action="Try Again"
+            onAction={loadAssignment}
+          />
+        );
+      }
+
+      return (
+        <SubmitWorkTab
+          assignment={assignment}
+          onSubmitted={
+            async () => {
+              await loadAssignment();
+
+              setApplicationsRefreshKey(
+                (value) =>
+                  value + 1
+              );
+            }
+          }
+        />
+      );
+    }
+
+    if (tab === "profile") {
+      return (
+        <ProfileTab
+          profile={profile}
+          devProfile={devProfile}
+        />
+      );
+    }
+
+    return null;
   }
 
-  // ==========================================================
-  // RENDER
-  // ==========================================================
+  /* =======================================================
+     LOADING SCREEN
+  ======================================================= */
+
+  if (profileLoading) {
+    return (
+      <div className="dev-dashboard-shell">
+        <div className="dev-dashboard-loading">
+          <div className="dev-dashboard-loading-logo">
+            <ExcwaLogo size={44} />
+          </div>
+
+          <RefreshCw
+            size={20}
+            className="dev-loading-icon"
+          />
+
+          <h2>
+            Loading Developer Portal
+          </h2>
+
+          <p>
+            Preparing your workspace...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
 
   return (
     <div className="dev-dashboard-shell">
-      {/* TOPBAR */}
+
+      {/* =================================================
+          TOPBAR
+      ================================================= */}
 
       <header className="dev-dashboard-topbar">
         <div className="container dev-dashboard-topbar-inner">
+
           <div className="dev-dashboard-brand">
             <ExcwaLogo size={36} />
 
             <span>
-              EXCWA <b>Developers</b>
+              EXCWA{" "}
+              <b>Developers</b>
             </span>
           </div>
 
           <div className="dev-dashboard-userbar">
+
+            <div className="dev-user-avatar">
+              {firstName
+                .charAt(0)
+                .toUpperCase()}
+            </div>
+
             <span className="dev-dashboard-user-name">
-              {displayName || "\u00A0"}
+              {displayName}
             </span>
 
             <button
               type="button"
               className="secondary-btn dev-signout-btn"
-              onClick={logout}
+              onClick={handleLogout}
+              disabled={loggingOut}
             >
               <LogOut size={13} />
 
-              Sign Out
+              {loggingOut
+                ? "Signing Out..."
+                : "Sign Out"}
             </button>
+
           </div>
         </div>
       </header>
 
-      {/* CONTENT */}
+      {/* =================================================
+          CONTENT
+      ================================================= */}
 
-      <div className="container dev-dashboard-content">
-        {/* HERO */}
+      <main className="container dev-dashboard-content">
+
+        {/* =================================================
+            HERO
+        ================================================= */}
 
         <section className="dev-dashboard-hero">
+
           <div className="dev-dashboard-hero-copy">
+
             <p className="eyebrow">
               Developer Portal
             </p>
 
             <h1>
               Welcome back,{" "}
-              <span>
-                {firstName || "\u00A0"}
-              </span>
+              <span>{firstName}</span>
             </h1>
 
             <p>
               {hasActiveProject
-                ? "Your current project is assigned and ready to work on."
-                : "Browse available projects and find your next opportunity."}
+                ? "Your current project is active. Track your work and submit your completed deliverables."
+                : "Explore opportunities, manage your applications and find your next project."}
             </p>
+
           </div>
 
           <div className="dev-dashboard-hero-metrics">
+
             <div className="dev-metric-card">
               <span className="dev-metric-label">
-                Status
+                Developer Status
               </span>
 
               <strong>
-                {devProfile?.status ||
-                  "pending"}
+                <StatusBadge
+                  status={
+                    developerStatus
+                  }
+                />
               </strong>
             </div>
 
             <div className="dev-metric-card">
               <span className="dev-metric-label">
-                Project
+                Current Project
               </span>
 
               <strong>
                 {hasActiveProject
                   ? "Assigned"
-                  : "Available"}
+                  : "None"}
               </strong>
             </div>
+
           </div>
         </section>
 
-        {/* TABS */}
+        {/* =================================================
+            ACTIVE PROJECT QUICK INFO
+        ================================================= */}
 
-        <div className="dev-tabs">
+        {hasActiveProject && (
+          <section className="dev-active-project-banner">
+
+            <div className="dev-active-project-icon">
+              <FolderKanban
+                size={20}
+              />
+            </div>
+
+            <div className="dev-active-project-content">
+              <span>
+                Active Project
+              </span>
+
+              <strong>
+                {getOpportunity(
+                  assignment
+                )?.title ||
+                  "Current Project"}
+              </strong>
+            </div>
+
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={() =>
+                setTab("project")
+              }
+            >
+              View Project
+            </button>
+
+          </section>
+        )}
+
+        {/* =================================================
+            TABS
+        ================================================= */}
+
+        <nav className="dev-tabs">
           {tabs.map(
             ({
               id,
               label,
               icon: Icon,
+              badge,
             }) => (
               <button
                 key={id}
@@ -1192,18 +1560,29 @@ export default function DevDashboard() {
               >
                 <Icon size={14} />
 
-                {label}
+                <span>
+                  {label}
+                </span>
+
+                {badge && (
+                  <small>
+                    {badge}
+                  </small>
+                )}
               </button>
             )
           )}
-        </div>
+        </nav>
 
-        {/* PANEL */}
+        {/* =================================================
+            PANEL
+        ================================================= */}
 
-        <div className="dev-dashboard-panel">
+        <section className="dev-dashboard-panel">
           {renderTab()}
-        </div>
-      </div>
+        </section>
+
+      </main>
     </div>
   );
 }
