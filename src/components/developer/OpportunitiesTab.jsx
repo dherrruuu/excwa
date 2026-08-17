@@ -8,6 +8,7 @@ import {
   Code2,
   Layers3,
   CheckCircle2,
+  RefreshCw,
 } from "lucide-react";
 
 import "../../styles/developer.css";
@@ -28,12 +29,15 @@ export default function OpportunitiesTab({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // ============================================================
-  // LOAD OPPORTUNITIES
-  // ============================================================
+  /* =========================================================
+     LOAD OPPORTUNITIES
+  ========================================================= */
 
   useEffect(() => {
-    if (!devProfile?.id) return;
+    if (!devProfile?.id) {
+      setLoading(false);
+      return;
+    }
 
     loadOpportunities();
   }, [devProfile?.id]);
@@ -57,14 +61,16 @@ export default function OpportunitiesTab({
         err?.message ||
           "Unable to load available opportunities."
       );
+
+      setOpportunities([]);
     } finally {
       setLoading(false);
     }
   }
 
-  // ============================================================
-  // APPLY
-  // ============================================================
+  /* =========================================================
+     APPLY
+  ========================================================= */
 
   async function handleApply(opportunity) {
     if (!devProfile?.id) {
@@ -74,28 +80,52 @@ export default function OpportunitiesTab({
       return;
     }
 
+    if (!opportunity?.id) {
+      setError(
+        "Invalid opportunity."
+      );
+      return;
+    }
+
     try {
       setApplyingId(opportunity.id);
       setError("");
       setSuccess("");
 
-      const result = await applyToOpportunity({
-        opportunityId: opportunity.id,
-        developerId: devProfile.id,
-        coverMessage: "",
-        estimatedDays: null,
-      });
+      /*
+       * IMPORTANT
+       *
+       * applyToOpportunity expects:
+       *
+       * applyToOpportunity(
+       *   opportunityId,
+       *   applicationData
+       * )
+       *
+       * The developer ID is NOT passed here.
+       * The service gets it from the authenticated
+       * Supabase user.
+       */
+
+      const result =
+        await applyToOpportunity(
+          opportunity.id,
+          {
+            coverMessage: "",
+            estimatedDays: null,
+          }
+        );
 
       console.log(
         "Application result:",
         result
       );
 
-      setSuccess(
-        `Your application for "${opportunity.title}" has been submitted.`
-      );
+      /*
+       * Remove immediately from this developer's
+       * opportunity list.
+       */
 
-      // Remove applied opportunity immediately
       setOpportunities((current) =>
         current.filter(
           (item) =>
@@ -103,7 +133,18 @@ export default function OpportunitiesTab({
         )
       );
 
-      // Refresh dashboard assignment state
+      setSuccess(
+        `Your application for "${opportunity.title}" has been submitted.`
+      );
+
+      /*
+       * Refresh dashboard assignment state.
+       *
+       * If the backend automatically creates an
+       * assignment after application, the dashboard
+       * can immediately switch to the project view.
+       */
+
       if (onAssignmentCreated) {
         await onAssignmentCreated();
       }
@@ -112,6 +153,24 @@ export default function OpportunitiesTab({
         "Application failed:",
         err
       );
+
+      /*
+       * If another developer claimed the project
+       * between loading and clicking Apply,
+       * refresh the opportunities list so the stale
+       * card disappears.
+       */
+
+      if (
+        err?.message?.toLowerCase().includes(
+          "already been assigned"
+        ) ||
+        err?.message?.toLowerCase().includes(
+          "no longer open"
+        )
+      ) {
+        await loadOpportunities();
+      }
 
       setError(
         err?.message ||
@@ -122,9 +181,9 @@ export default function OpportunitiesTab({
     }
   }
 
-  // ============================================================
-  // HELPERS
-  // ============================================================
+  /* =========================================================
+     FORMAT DATE
+  ========================================================= */
 
   function formatDate(date) {
     if (!date) {
@@ -147,6 +206,10 @@ export default function OpportunitiesTab({
     );
   }
 
+  /* =========================================================
+     FORMAT ARRAY
+  ========================================================= */
+
   function formatArray(value) {
     if (!value) {
       return [];
@@ -165,6 +228,10 @@ export default function OpportunitiesTab({
 
     return [];
   }
+
+  /* =========================================================
+     FORMAT AMOUNT
+  ========================================================= */
 
   function formatAmount(amount) {
     if (
@@ -186,9 +253,9 @@ export default function OpportunitiesTab({
     )}`;
   }
 
-  // ============================================================
-  // LOADING
-  // ============================================================
+  /* =========================================================
+     LOADING
+  ========================================================= */
 
   if (loading) {
     return (
@@ -207,16 +274,16 @@ export default function OpportunitiesTab({
     );
   }
 
-  // ============================================================
-  // PAGE
-  // ============================================================
+  /* =========================================================
+     PAGE
+  ========================================================= */
 
   return (
     <div className="developer-opportunities-page">
 
-      {/* ======================================================
+      {/* =====================================================
           HEADER
-          ====================================================== */}
+      ===================================================== */}
 
       <div className="developer-opportunities-header">
 
@@ -251,9 +318,10 @@ export default function OpportunitiesTab({
 
       </div>
 
-      {/* ======================================================
+
+      {/* =====================================================
           ERROR
-          ====================================================== */}
+      ===================================================== */}
 
       {error && (
         <div className="developer-opportunity-alert error">
@@ -266,7 +334,7 @@ export default function OpportunitiesTab({
             type="button"
             onClick={loadOpportunities}
           >
-            <RefreshIcon />
+            <RefreshCw size={16} />
 
             Retry
           </button>
@@ -274,9 +342,10 @@ export default function OpportunitiesTab({
         </div>
       )}
 
-      {/* ======================================================
+
+      {/* =====================================================
           SUCCESS
-          ====================================================== */}
+      ===================================================== */}
 
       {success && (
         <div className="developer-opportunity-alert success">
@@ -290,9 +359,10 @@ export default function OpportunitiesTab({
         </div>
       )}
 
-      {/* ======================================================
+
+      {/* =====================================================
           EMPTY STATE
-          ====================================================== */}
+      ===================================================== */}
 
       {opportunities.length === 0 &&
         !error && (
@@ -317,15 +387,18 @@ export default function OpportunitiesTab({
               className="developer-refresh-button"
               onClick={loadOpportunities}
             >
+              <RefreshCw size={16} />
+
               Refresh Opportunities
             </button>
 
           </div>
         )}
 
-      {/* ======================================================
+
+      {/* =====================================================
           OPPORTUNITY GRID
-          ====================================================== */}
+      ===================================================== */}
 
       {opportunities.length > 0 && (
         <div className="developer-opportunities-grid">
@@ -348,13 +421,19 @@ export default function OpportunitiesTab({
                   opportunity.deliverables
                 );
 
+              const isApplying =
+                applyingId ===
+                opportunity.id;
+
               return (
                 <article
                   className="opportunity-card"
                   key={opportunity.id}
                 >
 
-                  {/* CARD TOP */}
+                  {/* =================================================
+                      CARD TOP
+                  ================================================= */}
 
                   <div className="opportunity-card-top">
 
@@ -370,7 +449,10 @@ export default function OpportunitiesTab({
 
                   </div>
 
-                  {/* TITLE */}
+
+                  {/* =================================================
+                      TITLE
+                  ================================================= */}
 
                   <div className="opportunity-card-title">
 
@@ -386,9 +468,14 @@ export default function OpportunitiesTab({
 
                   </div>
 
-                  {/* INFO */}
+
+                  {/* =================================================
+                      PROJECT INFO
+                  ================================================= */}
 
                   <div className="opportunity-info-grid">
+
+                    {/* PROJECT TYPE */}
 
                     <div className="opportunity-info-item">
 
@@ -410,6 +497,9 @@ export default function OpportunitiesTab({
 
                     </div>
 
+
+                    {/* DEADLINE */}
+
                     <div className="opportunity-info-item">
 
                       <div className="opportunity-info-icon">
@@ -430,6 +520,9 @@ export default function OpportunitiesTab({
 
                     </div>
 
+
+                    {/* PAYOUT */}
+
                     <div className="opportunity-info-item payout">
 
                       <div className="opportunity-info-icon">
@@ -438,7 +531,7 @@ export default function OpportunitiesTab({
 
                       <div>
                         <span>
-                          Freelancer Payout
+                          Developer Payout
                         </span>
 
                         <strong>
@@ -452,17 +545,22 @@ export default function OpportunitiesTab({
 
                   </div>
 
-                  {/* TECHNOLOGY */}
+
+                  {/* =================================================
+                      TECHNOLOGY
+                  ================================================= */}
 
                   {technologies.length > 0 && (
                     <div className="opportunity-section">
 
                       <div className="opportunity-section-heading">
+
                         <Code2 size={16} />
 
                         <span>
                           Technology
                         </span>
+
                       </div>
 
                       <div className="opportunity-tags">
@@ -486,17 +584,22 @@ export default function OpportunitiesTab({
                     </div>
                   )}
 
-                  {/* SKILLS */}
+
+                  {/* =================================================
+                      REQUIRED SKILLS
+                  ================================================= */}
 
                   {skills.length > 0 && (
                     <div className="opportunity-section">
 
                       <div className="opportunity-section-heading">
+
                         <Layers3 size={16} />
 
                         <span>
                           Required Skills
                         </span>
+
                       </div>
 
                       <div className="opportunity-tags">
@@ -520,17 +623,22 @@ export default function OpportunitiesTab({
                     </div>
                   )}
 
-                  {/* DELIVERABLES */}
+
+                  {/* =================================================
+                      DELIVERABLES
+                  ================================================= */}
 
                   {deliverables.length > 0 && (
                     <div className="opportunity-section">
 
                       <div className="opportunity-section-heading">
+
                         <CheckCircle2 size={16} />
 
                         <span>
                           Deliverables
                         </span>
+
                       </div>
 
                       <ul className="opportunity-deliverables">
@@ -553,7 +661,10 @@ export default function OpportunitiesTab({
                     </div>
                   )}
 
-                  {/* FOOTER */}
+
+                  {/* =================================================
+                      FOOTER
+                  ================================================= */}
 
                   <div className="opportunity-card-footer">
 
@@ -572,14 +683,10 @@ export default function OpportunitiesTab({
                           opportunity
                         )
                       }
-                      disabled={
-                        applyingId ===
-                        opportunity.id
-                      }
+                      disabled={isApplying}
                     >
 
-                      {applyingId ===
-                      opportunity.id ? (
+                      {isApplying ? (
                         <>
                           <Loader2
                             size={17}
@@ -611,28 +718,5 @@ export default function OpportunitiesTab({
       )}
 
     </div>
-  );
-}
-
-// ============================================================
-// REFRESH ICON
-// ============================================================
-
-function RefreshIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4" />
-      <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4" />
-    </svg>
   );
 }

@@ -20,7 +20,7 @@ import { useDeveloper } from "../../hooks/useDeveloper";
 import {
   getMyApplications,
   getMyCurrentAssignment,
-  submitWork,
+  submitProject,
 } from "../../services/developerService";
 
 // ============================================================
@@ -69,6 +69,12 @@ const STATUS_COLORS = {
     bg: "rgba(255,115,115,.08)",
     border: "rgba(255,115,115,.2)",
   },
+
+  in_progress: {
+    color: "#62e2ff",
+    bg: "rgba(98,226,255,.08)",
+    border: "rgba(98,226,255,.2)",
+  },
 };
 
 // ============================================================
@@ -76,9 +82,15 @@ const STATUS_COLORS = {
 // ============================================================
 
 function StatusBadge({ status }) {
-  const s =
-    STATUS_COLORS[status] ||
+  const normalizedStatus =
+    status?.toLowerCase?.() || "approved";
+
+  const style =
+    STATUS_COLORS[normalizedStatus] ||
     STATUS_COLORS.approved;
+
+  const label =
+    normalizedStatus.replace(/_/g, " ");
 
   return (
     <span
@@ -89,9 +101,9 @@ function StatusBadge({ status }) {
         padding: "5px 10px",
         borderRadius: 999,
         fontSize: 10,
-        color: s.color,
-        background: s.bg,
-        border: `1px solid ${s.border}`,
+        color: style.color,
+        background: style.bg,
+        border: `1px solid ${style.border}`,
         textTransform: "capitalize",
       }}
     >
@@ -100,11 +112,11 @@ function StatusBadge({ status }) {
           width: 5,
           height: 5,
           borderRadius: "50%",
-          background: s.color,
+          background: style.color,
         }}
       />
 
-      {status?.replace(/_/g, " ") || "Approved"}
+      {label}
     </span>
   );
 }
@@ -134,10 +146,15 @@ function CurrentProjectTab({ assignment }) {
     );
   }
 
-  const project = assignment.opportunities;
+  const project =
+    assignment.opportunities ||
+    assignment.opportunity ||
+    null;
 
   return (
     <div className="dev-current-project">
+      {/* HEADER */}
+
       <div className="dev-project-header">
         <div>
           <span className="dev-opp-category">
@@ -153,8 +170,15 @@ function CurrentProjectTab({ assignment }) {
           </p>
         </div>
 
-        <StatusBadge status="approved" />
+        <StatusBadge
+          status={
+            assignment.status ||
+            "in_progress"
+          }
+        />
       </div>
+
+      {/* REQUIREMENT */}
 
       <div className="dev-project-section">
         <h3>Project Requirement</h3>
@@ -164,6 +188,8 @@ function CurrentProjectTab({ assignment }) {
             "No description provided."}
         </p>
       </div>
+
+      {/* PROJECT INFORMATION */}
 
       <div className="dev-project-grid">
         <div className="dev-project-info">
@@ -187,10 +213,10 @@ function CurrentProjectTab({ assignment }) {
         </div>
 
         <div className="dev-project-info">
-          <span>Freelancer Payout</span>
+          <span>Developer Payout</span>
 
           <strong>
-            {project?.freelancer_payout
+            {project?.freelancer_payout != null
               ? `₹${Number(
                   project.freelancer_payout
                 ).toLocaleString("en-IN")}`
@@ -211,6 +237,8 @@ function CurrentProjectTab({ assignment }) {
         </div>
       </div>
 
+      {/* TECHNOLOGY STACK */}
+
       {project?.tech_stack?.length > 0 && (
         <div className="dev-project-section">
           <h3>Technology Stack</h3>
@@ -227,6 +255,8 @@ function CurrentProjectTab({ assignment }) {
           </div>
         </div>
       )}
+
+      {/* REQUIRED SKILLS */}
 
       {project?.required_skills?.length > 0 && (
         <div className="dev-project-section">
@@ -247,11 +277,15 @@ function CurrentProjectTab({ assignment }) {
         </div>
       )}
 
+      {/* DELIVERABLES */}
+
       {project?.deliverables && (
         <div className="dev-project-section">
           <h3>Deliverables</h3>
 
-          <p>{project.deliverables}</p>
+          <p>
+            {project.deliverables}
+          </p>
         </div>
       )}
     </div>
@@ -287,10 +321,12 @@ function SubmitWorkTab({
 
   const existingSubmission =
     assignment?.project_submissions?.[0] ||
+    assignment?.submission ||
     null;
 
   const submissionStatus =
-    existingSubmission?.status || null;
+    existingSubmission?.status
+      ?.toLowerCase?.() || null;
 
   // ----------------------------------------------------------
   // SUBMIT
@@ -300,7 +336,13 @@ function SubmitWorkTab({
     setError("");
     setMessage("");
 
-    if (!githubUrl.trim()) {
+    const cleanGithubUrl =
+      githubUrl.trim();
+
+    const cleanNotes =
+      notes.trim();
+
+    if (!cleanGithubUrl) {
       setError(
         "GitHub repository URL is required."
       );
@@ -308,7 +350,7 @@ function SubmitWorkTab({
     }
 
     if (
-      !githubUrl.startsWith(
+      !cleanGithubUrl.startsWith(
         "https://github.com/"
       )
     ) {
@@ -328,27 +370,34 @@ function SubmitWorkTab({
     setSubmitting(true);
 
     try {
-      await submitWork({
-        assignmentId:
-          assignment.id,
+      await submitProject({
+        assignmentId: assignment.id,
 
         githubUrl:
-          githubUrl.trim(),
+          cleanGithubUrl,
 
-        notes:
-          notes.trim(),
+        submissionNotes:
+          cleanNotes || null,
       });
 
       setMessage(
         "Your work has been submitted successfully. It is now waiting for reviewer approval."
       );
 
+      setGithubUrl("");
+      setNotes("");
+
       if (onSubmitted) {
         await onSubmitted();
       }
     } catch (err) {
+      console.error(
+        "Project submission failed:",
+        err
+      );
+
       setError(
-        err.message ||
+        err?.message ||
           "Unable to submit your work."
       );
     } finally {
@@ -381,11 +430,16 @@ function SubmitWorkTab({
   }
 
   // ----------------------------------------------------------
-  // SUBMISSION ALREADY APPROVED / COMPLETED
+  // COMPLETED PROJECT
   // ----------------------------------------------------------
 
   if (
-    submissionStatus === "completed"
+    submissionStatus ===
+      "completed" ||
+    submissionStatus ===
+      "approved" &&
+      assignment.status?.toLowerCase?.() ===
+        "completed"
   ) {
     return (
       <div className="dev-tab-empty">
@@ -406,8 +460,14 @@ function SubmitWorkTab({
     );
   }
 
+  // ----------------------------------------------------------
+  // SUBMISSION FORM
+  // ----------------------------------------------------------
+
   return (
     <div className="dev-auth-card dev-submit-card">
+      {/* HEADER */}
+
       <div className="dev-submit-header">
         <div>
           <span className="dev-opp-category">
@@ -415,17 +475,22 @@ function SubmitWorkTab({
           </span>
 
           <h2>
-            {assignment.opportunities?.title}
+            {assignment.opportunities?.title ||
+              assignment.opportunity?.title ||
+              "Project"}
           </h2>
         </div>
 
         <StatusBadge
           status={
             submissionStatus ||
-            "approved"
+            assignment.status ||
+            "in_progress"
           }
         />
       </div>
+
+      {/* CHANGES REQUESTED */}
 
       {submissionStatus ===
         "changes_requested" && (
@@ -462,6 +527,8 @@ function SubmitWorkTab({
         </div>
       )}
 
+      {/* SUBMITTED */}
+
       {submissionStatus ===
         "submitted" && (
         <div
@@ -489,22 +556,32 @@ function SubmitWorkTab({
         </div>
       )}
 
+      {/* GITHUB */}
+
       <div className="field">
         <label>
-          GitHub Repository URL <em>*</em>
+          GitHub Repository URL{" "}
+          <em>*</em>
         </label>
 
         <input
           type="url"
           placeholder="https://github.com/username/project"
           value={githubUrl}
-          onChange={(e) =>
+          onChange={(event) =>
             setGithubUrl(
-              e.target.value
+              event.target.value
             )
+          }
+          disabled={
+            submitting ||
+            submissionStatus ===
+              "submitted"
           }
         />
       </div>
+
+      {/* NOTES */}
 
       <div
         className="field"
@@ -530,19 +607,28 @@ function SubmitWorkTab({
           rows={5}
           placeholder="Add setup instructions or any important notes..."
           value={notes}
-          onChange={(e) =>
+          onChange={(event) =>
             setNotes(
-              e.target.value
+              event.target.value
             )
+          }
+          disabled={
+            submitting ||
+            submissionStatus ===
+              "submitted"
           }
         />
       </div>
+
+      {/* ERROR */}
 
       {error && (
         <p className="error">
           {error}
         </p>
       )}
+
+      {/* SUCCESS */}
 
       {message && (
         <p
@@ -555,7 +641,10 @@ function SubmitWorkTab({
         </p>
       )}
 
+      {/* SUBMIT BUTTON */}
+
       <button
+        type="button"
         className="primary-btn form-submit"
         onClick={handleSubmit}
         disabled={
@@ -595,7 +684,7 @@ function ApplicationsTab() {
       const data =
         await getMyApplications();
 
-      setApplications(data);
+      setApplications(data || []);
     } catch (error) {
       console.error(
         "Unable to load applications:",
@@ -637,45 +726,47 @@ function ApplicationsTab() {
   return (
     <div className="dev-app-list">
       {applications.map(
-        (application) => (
-          <div
-            key={application.id}
-            className="dev-app-card"
-          >
-            <div>
-              <span className="dev-opp-category">
-                {
-                  application
-                    .opportunities
-                    ?.category
-                }
-              </span>
+        (application) => {
+          const opportunity =
+            application.opportunities ||
+            application.opportunity;
 
-              <h3>
-                {
-                  application
-                    .opportunities
-                    ?.title
-                }
-              </h3>
+          return (
+            <div
+              key={application.id}
+              className="dev-app-card"
+            >
+              <div>
+                <span className="dev-opp-category">
+                  {opportunity?.category ||
+                    "Project"}
+                </span>
 
-              <p>
-                Applied{" "}
-                {new Date(
-                  application.applied_at
-                ).toLocaleDateString(
-                  "en-IN"
-                )}
-              </p>
+                <h3>
+                  {opportunity?.title ||
+                    "Untitled Project"}
+                </h3>
+
+                <p>
+                  Applied{" "}
+                  {application.applied_at
+                    ? new Date(
+                        application.applied_at
+                      ).toLocaleDateString(
+                        "en-IN"
+                      )
+                    : "—"}
+                </p>
+              </div>
+
+              <StatusBadge
+                status={
+                  application.status
+                }
+              />
             </div>
-
-            <StatusBadge
-              status={
-                application.status
-              }
-            />
-          </div>
-        )
+          );
+        }
       )}
     </div>
   );
@@ -689,6 +780,51 @@ function ProfileTab({
   profile,
   devProfile,
 }) {
+  const profileItems = [
+    [
+      "Full Name",
+      profile?.full_name ||
+        devProfile?.full_name,
+    ],
+
+    [
+      "Email",
+      profile?.email ||
+        devProfile?.email,
+    ],
+
+    [
+      "Phone",
+      devProfile?.phone ||
+        profile?.phone,
+    ],
+
+    [
+      "City",
+      devProfile?.city,
+    ],
+
+    [
+      "GitHub",
+      devProfile?.github_url,
+    ],
+
+    [
+      "LinkedIn",
+      devProfile?.linkedin_url,
+    ],
+
+    [
+      "Portfolio",
+      devProfile?.portfolio_url,
+    ],
+
+    [
+      "Status",
+      devProfile?.status,
+    ],
+  ];
+
   return (
     <div
       className="dev-auth-card"
@@ -699,82 +835,42 @@ function ProfileTab({
       <h3>Your Profile</h3>
 
       <div className="admin-detail-grid">
-        {[
-          [
-            "Full Name",
-            profile?.full_name ||
-              devProfile?.full_name,
-          ],
+        {profileItems.map(
+          ([label, value]) => {
+            const isLink =
+              typeof value === "string" &&
+              value.startsWith("http");
 
-          [
-            "Email",
-            profile?.email,
-          ],
+            return (
+              <div
+                key={label}
+                className="admin-detail-item"
+              >
+                <span>{label}</span>
 
-          [
-            "Phone",
-            devProfile?.phone ||
-              profile?.phone ||
-              "—",
-          ],
+                {isLink ? (
+                  <a
+                    href={value}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {value.replace(
+                      /^https?:\/\//,
+                      ""
+                    )}
 
-          [
-            "City",
-            devProfile?.city ||
-              "—",
-          ],
-
-          [
-            "GitHub",
-            devProfile?.github_url,
-          ],
-
-          [
-            "LinkedIn",
-            devProfile?.linkedin_url,
-          ],
-
-          [
-            "Portfolio",
-            devProfile?.portfolio_url,
-          ],
-
-          [
-            "Status",
-            devProfile?.status,
-          ],
-        ].map(
-          ([label, value]) => (
-            <div
-              key={label}
-              className="admin-detail-item"
-            >
-              <span>{label}</span>
-
-              {value?.startsWith?.(
-                "http"
-              ) ? (
-                <a
-                  href={value}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {value.replace(
-                    "https://",
-                    ""
-                  )}
-
-                  <ExternalLink
-                    size={10}
-                  />
-                </a>
-              ) : (
-                <strong>
-                  {value || "—"}
-                </strong>
-              )}
-            </div>
-          )
+                    <ExternalLink
+                      size={10}
+                    />
+                  </a>
+                ) : (
+                  <strong>
+                    {value || "—"}
+                  </strong>
+                )}
+              </div>
+            );
+          }
         )}
       </div>
     </div>
@@ -798,15 +894,18 @@ export default function DevDashboard() {
   const [tab, setTab] =
     useState("opportunities");
 
-  const [loadingAssignment, setLoadingAssignment] =
-    useState(true);
+  const [
+    loadingAssignment,
+    setLoadingAssignment,
+  ] = useState(true);
 
   // ==========================================================
-  // LOAD ASSIGNMENT
+  // LOAD CURRENT ASSIGNMENT
   // ==========================================================
 
   async function loadAssignment() {
     if (!devProfile?.id) {
+      setAssignment(null);
       setLoadingAssignment(false);
       return;
     }
@@ -817,10 +916,8 @@ export default function DevDashboard() {
       const data =
         await getMyCurrentAssignment();
 
-      setAssignment(data);
+      setAssignment(data || null);
 
-      // If developer has active project,
-      // always show it.
       if (data) {
         setTab((currentTab) => {
           if (
@@ -834,11 +931,7 @@ export default function DevDashboard() {
 
           return currentTab;
         });
-      }
-
-      // If project was completed,
-      // automatically unlock opportunities.
-      if (!data) {
+      } else {
         setTab((currentTab) => {
           if (
             currentTab ===
@@ -852,11 +945,13 @@ export default function DevDashboard() {
           return currentTab;
         });
       }
-    } catch (err) {
+    } catch (error) {
       console.error(
         "Unable to load current assignment:",
-        err
+        error
       );
+
+      setAssignment(null);
     } finally {
       setLoadingAssignment(false);
     }
@@ -885,7 +980,7 @@ export default function DevDashboard() {
   // ==========================================================
 
   const hasActiveProject =
-    !!assignment;
+    Boolean(assignment);
 
   // ==========================================================
   // TABS
@@ -944,54 +1039,47 @@ export default function DevDashboard() {
       );
     }
 
-    if (tab === "project") {
-      return (
-        <CurrentProjectTab
-          assignment={assignment}
-        />
-      );
-    }
+    switch (tab) {
+      case "project":
+        return (
+          <CurrentProjectTab
+            assignment={assignment}
+          />
+        );
 
-    if (tab === "submissions") {
-      return (
-        <SubmitWorkTab
-          assignment={assignment}
-          onSubmitted={
-            loadAssignment
-          }
-        />
-      );
-    }
+      case "submissions":
+        return (
+          <SubmitWorkTab
+            assignment={assignment}
+            onSubmitted={loadAssignment}
+          />
+        );
 
-    if (tab === "opportunities") {
-      return (
-        <OpportunitiesTab
-          devProfile={devProfile}
-          onAssignmentCreated={
-            async () => {
+      case "opportunities":
+        return (
+          <OpportunitiesTab
+            devProfile={devProfile}
+            onAssignmentCreated={async () => {
               await loadAssignment();
-
               setTab("project");
-            }
-          }
-        />
-      );
-    }
+            }}
+          />
+        );
 
-    if (tab === "applications") {
-      return <ApplicationsTab />;
-    }
+      case "applications":
+        return <ApplicationsTab />;
 
-    if (tab === "profile") {
-      return (
-        <ProfileTab
-          profile={profile}
-          devProfile={devProfile}
-        />
-      );
-    }
+      case "profile":
+        return (
+          <ProfileTab
+            profile={profile}
+            devProfile={devProfile}
+          />
+        );
 
-    return null;
+      default:
+        return null;
+    }
   }
 
   // ==========================================================
@@ -1000,9 +1088,7 @@ export default function DevDashboard() {
 
   return (
     <div className="dev-dashboard-shell">
-      {/* =====================================================
-          TOPBAR
-          ===================================================== */}
+      {/* TOPBAR */}
 
       <header className="dev-dashboard-topbar">
         <div className="container dev-dashboard-topbar-inner">
@@ -1016,11 +1102,11 @@ export default function DevDashboard() {
 
           <div className="dev-dashboard-userbar">
             <span className="dev-dashboard-user-name">
-              {displayName ||
-                "\u00A0"}
+              {displayName || "\u00A0"}
             </span>
 
             <button
+              type="button"
               className="secondary-btn dev-signout-btn"
               onClick={logout}
             >
@@ -1032,9 +1118,7 @@ export default function DevDashboard() {
         </div>
       </header>
 
-      {/* =====================================================
-          CONTENT
-          ===================================================== */}
+      {/* CONTENT */}
 
       <div className="container dev-dashboard-content">
         {/* HERO */}
@@ -1048,8 +1132,7 @@ export default function DevDashboard() {
             <h1>
               Welcome back,{" "}
               <span>
-                {firstName ||
-                  "\u00A0"}
+                {firstName || "\u00A0"}
               </span>
             </h1>
 
@@ -1097,6 +1180,7 @@ export default function DevDashboard() {
             }) => (
               <button
                 key={id}
+                type="button"
                 className={`dev-tab ${
                   tab === id
                     ? "active"
