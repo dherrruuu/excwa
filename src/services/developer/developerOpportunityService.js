@@ -1,89 +1,207 @@
 import { supabase } from "../../lib/supabase";
 
+/*
+============================================================
+EXCWA DEVELOPER OPPORTUNITY SERVICE
+============================================================
+
+Responsibilities:
+- Load available opportunities
+- Get opportunity details
+- Apply to opportunities
+- Get developer applications
+- Get one application
+- Withdraw applications
+
+IMPORTANT BUSINESS RULES
+------------------------------------------------------------
+1. Only OPEN opportunities are displayed.
+2. An active assignment does NOT hide all opportunities.
+3. A developer with an active assignment cannot apply.
+4. A developer cannot apply twice to the same opportunity.
+5. An opportunity that is already assigned cannot be applied to.
+6. Final business validation should also happen in Supabase/RPC.
+
+DATABASE RELATIONSHIP
+------------------------------------------------------------
+project_assignments.id
+        ↓
+project_submissions.assignment_id
+
+IMPORTANT:
+- project_assignments DOES NOT have assignment_id.
+- project_assignments.id is the assignment ID.
+- project_submissions.assignment_id stores that assignment ID.
+============================================================
+*/
+
+
 /* =========================================================
-   DEVELOPER OPPORTUNITY SERVICE
-
-   Handles:
-   - Available opportunities
-   - Opportunity details
-   - Developer applications
-   - Apply to opportunity
-   - Withdraw application
-   - My applications
-
-   IMPORTANT BUSINESS RULES:
-   1. Only open opportunities are shown.
-   2. Already-assigned opportunities are hidden.
-   3. A developer cannot apply if they already have
-      an active assignment.
-   4. A developer cannot apply twice to the same opportunity.
-   5. The database should also enforce one assignment
-      per opportunity.
+   ACTIVE ASSIGNMENT STATUSES
 ========================================================= */
 
+const ACTIVE_ASSIGNMENT_STATUSES = [
+  "pending",
+  "assigned",
+  "in_progress",
+  "submitted",
+  "under_review",
+  "changes_requested",
+];
+
 
 /* =========================================================
-   GET CURRENT DEVELOPER PROFILE
+   AUTH
 ========================================================= */
 
-async function getCurrentDeveloperProfile() {
+async function getCurrentUser() {
   const {
     data: { user },
-    error: authError,
+    error,
   } = await supabase.auth.getUser();
 
-  if (authError) {
-    throw authError;
-  }
-
-  if (!user) {
-    throw new Error("You must be logged in.");
-  }
-
-  const {
-    data: developer,
-    error,
-  } = await supabase
-    .from("developer_profiles")
-    .select("*")
-    .eq("user_id", user.id)
-    .single();
-
   if (error) {
+    console.error(
+      "getCurrentUser error:",
+      error
+    );
+
     throw error;
   }
 
-  if (!developer) {
+  if (!user) {
+    throw new Error(
+      "You must be logged in."
+    );
+  }
+
+  return user;
+}
+
+
+/* =========================================================
+   CURRENT DEVELOPER
+========================================================= */
+
+export async function getCurrentDeveloperProfile() {
+  const user = await getCurrentUser();
+
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("developer_profiles")
+    .select(`
+      id,
+      user_id,
+      full_name,
+      phone,
+      city,
+      github_url,
+      linkedin_url,
+      portfolio_url,
+      status,
+      rejection_reason,
+      primary_roles,
+      created_at,
+      updated_at
+    `)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error(
+      "Developer profile query error:",
+      error
+    );
+
+    throw error;
+  }
+
+  if (!data) {
     throw new Error(
       "Developer profile not found."
     );
   }
 
-  return developer;
+  return {
+    ...data,
+    email: user.email || null,
+  };
 }
 
 
 /* =========================================================
-   CHECK WHETHER OPPORTUNITY IS ALREADY ASSIGNED
+   CHECK ACTIVE ASSIGNMENT
 ========================================================= */
 
-async function getOpportunityAssignment(
-  opportunityId
-) {
+/**
+ * project_assignments schema:
+ *
+ * id
+ * opportunity_id
+ * developer_id
+ * assigned_by
+ * assigned_at
+ * started_at
+ * completed_at
+ * payment_status
+ * status
+ * reviewer_id
+ * reviewer_notes
+ * updated_at
+ *
+ * IMPORTANT:
+ * There is NO assignment_id column here.
+ *
+ * The assignment ID is:
+ *
+ * project_assignments.id
+ */
+export async function getMyActiveAssignment() {
+  const developer =
+    await getCurrentDeveloperProfile();
+
   const {
     data,
     error,
   } = await supabase
     .from("project_assignments")
     .select(`
-      assignment_id,
+      id,
       developer_id,
-      opportunity_id
+      opportunity_id,
+      status,
+      assigned_at,
+      completed_at
     `)
-    .eq("opportunity_id", opportunityId)
+    .eq(
+      "developer_id",
+      developer.id
+    )
+    .in(
+      "status",
+      ACTIVE_ASSIGNMENT_STATUSES
+    )
+    .is(
+      "completed_at",
+      null
+    )
+    .order(
+      "assigned_at",
+      {
+        ascending: false,
+      }
+    )
+    .limit(1)
     .maybeSingle();
 
   if (error) {
+    console.error(
+      "getMyActiveAssignment error:",
+      error
+    );
+
     throw error;
   }
 
@@ -92,116 +210,89 @@ async function getOpportunityAssignment(
 
 
 /* =========================================================
-   CHECK WHETHER DEVELOPER ALREADY HAS AN ASSIGNMENT
+   HAS ACTIVE ASSIGNMENT
 ========================================================= */
 
-async function getDeveloperAssignment(
-  developerId
-) {
-  const {
-    data,
-    error,
-  } = await supabase
-    .from("project_assignments")
-    .select(`
-      assignment_id,
-      developer_id,
-      opportunity_id
-    `)
-    .eq("developer_id", developerId)
-    .maybeSingle();
+export async function hasActiveAssignment() {
+  const assignment =
+    await getMyActiveAssignment();
 
-  if (error) {
-    throw error;
-  }
-
-  return data || null;
+  return Boolean(assignment);
 }
 
 
 /* =========================================================
    GET OPEN OPPORTUNITIES
+=========================================================
 
-   Returns ONLY opportunities that:
+IMPORTANT:
 
-   - have status = open
-   - have NO project assignment
+DO NOT check developer approval here.
 
-   This prevents an already-assigned project from being
-   displayed to other developers.
+DO NOT check active assignment here.
+
+The developer should still be able to SEE available
+opportunities.
+
+Eligibility is checked when APPLY is pressed.
+
+This prevents the dashboard from becoming empty simply
+because the developer currently has an assignment.
 ========================================================= */
 
 export async function getOpenOpportunities() {
   const {
-    data: opportunities,
+    data,
     error,
   } = await supabase
     .from("opportunities")
-    .select("*")
-    .eq("status", "open")
-    .order("created_at", {
-      ascending: false,
-    });
+    .select(`
+      id,
+      title,
+      description,
+      category,
+      project_type,
+      required_roles,
+      required_skills,
+      tech_stack,
+      deliverables,
+      deadline,
+      application_deadline,
+      budget,
+      freelancer_payout,
+      attachment_path,
+      status,
+      created_at,
+      updated_at
+    `)
+    .eq(
+      "status",
+      "open"
+    )
+    .order(
+      "created_at",
+      {
+        ascending: false,
+      }
+    );
 
   if (error) {
+    console.error(
+      "getOpenOpportunities error:",
+      error
+    );
+
     throw error;
   }
 
-  if (!opportunities || opportunities.length === 0) {
-    return [];
-  }
-
-  /* -------------------------------------------------------
-     Get opportunity IDs
-  ------------------------------------------------------- */
-
-  const opportunityIds =
-    opportunities.map(
-      (opportunity) => opportunity.id
-    );
-
-  /* -------------------------------------------------------
-     Find opportunities that already have assignments
-  ------------------------------------------------------- */
-
-  const {
-    data: assignments,
-    error: assignmentError,
-  } = await supabase
-    .from("project_assignments")
-    .select("opportunity_id")
-    .in(
-      "opportunity_id",
-      opportunityIds
-    );
-
-  if (assignmentError) {
-    throw assignmentError;
-  }
-
-  const assignedOpportunityIds =
-    new Set(
-      (assignments || []).map(
-        (assignment) =>
-          assignment.opportunity_id
-      )
-    );
-
-  /* -------------------------------------------------------
-     Only return unassigned opportunities
-  ------------------------------------------------------- */
-
-  return opportunities.filter(
-    (opportunity) =>
-      !assignedOpportunityIds.has(
-        opportunity.id
-      )
-  );
+  return Array.isArray(data)
+    ? data
+    : [];
 }
 
 
 /* =========================================================
-   GET SINGLE OPPORTUNITY
+   GET OPPORTUNITY BY ID
 ========================================================= */
 
 export async function getOpportunityById(
@@ -219,11 +310,25 @@ export async function getOpportunityById(
   } = await supabase
     .from("opportunities")
     .select("*")
-    .eq("id", opportunityId)
-    .single();
+    .eq(
+      "id",
+      opportunityId
+    )
+    .maybeSingle();
 
   if (error) {
+    console.error(
+      "getOpportunityById error:",
+      error
+    );
+
     throw error;
+  }
+
+  if (!data) {
+    throw new Error(
+      "Opportunity not found."
+    );
   }
 
   return data;
@@ -231,58 +336,152 @@ export async function getOpportunityById(
 
 
 /* =========================================================
+   CHECK OPPORTUNITY ASSIGNMENT
+========================================================= */
+
+/**
+ * project_assignments.id is the assignment ID.
+ *
+ * DO NOT use:
+ *
+ * assignment_id
+ *
+ * because project_assignments does not contain that column.
+ */
+async function getOpportunityAssignment(
+  opportunityId
+) {
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("project_assignments")
+    .select(`
+      id,
+      developer_id,
+      opportunity_id,
+      status
+    `)
+    .eq(
+      "opportunity_id",
+      opportunityId
+    )
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error(
+      "getOpportunityAssignment error:",
+      error
+    );
+
+    throw error;
+  }
+
+  return data || null;
+}
+
+
+/* =========================================================
+   CHECK EXISTING APPLICATION
+========================================================= */
+
+async function getExistingApplication(
+  developerId,
+  opportunityId
+) {
+  const {
+    data,
+    error,
+  } = await supabase
+    .from("opportunity_applications")
+    .select(`
+      id,
+      opportunity_id,
+      developer_id,
+      status,
+      applied_at
+    `)
+    .eq(
+      "developer_id",
+      developerId
+    )
+    .eq(
+      "opportunity_id",
+      opportunityId
+    )
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error(
+      "getExistingApplication error:",
+      error
+    );
+
+    throw error;
+  }
+
+  return data || null;
+}
+
+
+/* =========================================================
    APPLY TO OPPORTUNITY
 ========================================================= */
 
-export async function applyToOpportunity(
+export async function applyToOpportunity({
   opportunityId,
-  applicationData = {}
-) {
-  /* -------------------------------------------------------
-     Validate opportunity ID
-  ------------------------------------------------------- */
-
+  coverMessage = "",
+  estimatedDays = null,
+}) {
   if (!opportunityId) {
     throw new Error(
       "Opportunity ID is required."
     );
   }
 
-  /* -------------------------------------------------------
-     Get logged-in developer
-  ------------------------------------------------------- */
-
   const developer =
     await getCurrentDeveloperProfile();
 
+
   /* -------------------------------------------------------
-     Developer must be approved
+     DEVELOPER APPROVAL
   ------------------------------------------------------- */
 
-  if (developer.status !== "approved") {
+  const developerStatus =
+    String(
+      developer.status || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  if (
+    developerStatus !==
+    "approved"
+  ) {
     throw new Error(
       "Only approved developers can apply for opportunities."
     );
   }
 
+
   /* -------------------------------------------------------
-     IMPORTANT:
-     One developer can only work on one assignment
+     ACTIVE ASSIGNMENT
   ------------------------------------------------------- */
 
-  const existingDeveloperAssignment =
-    await getDeveloperAssignment(
-      developer.id
-    );
+  const activeAssignment =
+    await getMyActiveAssignment();
 
-  if (existingDeveloperAssignment) {
+  if (activeAssignment) {
     throw new Error(
-      "You already have an active project. Complete your current project before applying for another opportunity."
+      "You already have an active project. Complete or finish the current project before applying for another opportunity."
     );
   }
 
+
   /* -------------------------------------------------------
-     Get opportunity
+     GET OPPORTUNITY
   ------------------------------------------------------- */
 
   const opportunity =
@@ -290,20 +489,30 @@ export async function applyToOpportunity(
       opportunityId
     );
 
+
   /* -------------------------------------------------------
-     Opportunity must still be open
+     OPPORTUNITY MUST BE OPEN
   ------------------------------------------------------- */
 
-  if (opportunity.status !== "open") {
+  const opportunityStatus =
+    String(
+      opportunity.status || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  if (
+    opportunityStatus !==
+    "open"
+  ) {
     throw new Error(
       "This opportunity is no longer open."
     );
   }
 
+
   /* -------------------------------------------------------
-     IMPORTANT:
-     Check whether another developer already
-     received this opportunity.
+     CHECK EXISTING ASSIGNMENT
   ------------------------------------------------------- */
 
   const existingAssignment =
@@ -317,29 +526,16 @@ export async function applyToOpportunity(
     );
   }
 
+
   /* -------------------------------------------------------
-     Check whether THIS developer already applied
+     CHECK DUPLICATE APPLICATION
   ------------------------------------------------------- */
 
-  const {
-    data: existingApplication,
-    error: existingApplicationError,
-  } = await supabase
-    .from("opportunity_applications")
-    .select("id, status")
-    .eq(
-      "opportunity_id",
+  const existingApplication =
+    await getExistingApplication(
+      developer.id,
       opportunityId
-    )
-    .eq(
-      "developer_id",
-      developer.id
-    )
-    .maybeSingle();
-
-  if (existingApplicationError) {
-    throw existingApplicationError;
-  }
+    );
 
   if (existingApplication) {
     throw new Error(
@@ -347,42 +543,81 @@ export async function applyToOpportunity(
     );
   }
 
+
   /* -------------------------------------------------------
-     Create application
+     APPLY USING DATABASE RPC
+  -------------------------------------------------------
+
+     The RPC remains the final authority for application
+     creation and assignment rules.
   ------------------------------------------------------- */
 
   const {
     data,
     error,
-  } = await supabase
-    .from("opportunity_applications")
-    .insert({
-      opportunity_id:
+  } = await supabase.rpc(
+    "apply_to_opportunity",
+    {
+      p_opportunity_id:
         opportunityId,
 
-      developer_id:
-        developer.id,
-
-      cover_message:
-        applicationData.cover_message ??
-        applicationData.coverMessage ??
+      p_cover_message:
+        coverMessage?.trim() ||
         null,
 
-      estimated_days:
-        applicationData.estimated_days ??
-        applicationData.estimatedDays ??
-        null,
-
-      status: "pending",
-    })
-    .select()
-    .single();
+      p_estimated_days:
+        estimatedDays !== null &&
+        estimatedDays !== undefined &&
+        estimatedDays !== ""
+          ? Number(
+              estimatedDays
+            )
+          : null,
+    }
+  );
 
   if (error) {
+    console.error(
+      "apply_to_opportunity RPC error:",
+      error
+    );
+
     throw error;
   }
 
-  return data;
+  if (!data) {
+    throw new Error(
+      "Application could not be created."
+    );
+  }
+
+  if (
+    typeof data === "object" &&
+    data.success === false
+  ) {
+    throw new Error(
+      data.message ||
+        "Unable to apply for this opportunity."
+    );
+  }
+
+  return {
+    ...(
+      typeof data === "object"
+        ? data
+        : {}
+    ),
+
+    success: true,
+
+    application:
+      data?.application ||
+      null,
+
+    assignment:
+      data?.assignment ||
+      null,
+  };
 }
 
 
@@ -407,20 +642,30 @@ export async function getMyOpportunityApplications() {
       "developer_id",
       developer.id
     )
-    .order("applied_at", {
-      ascending: false,
-    });
+    .order(
+      "applied_at",
+      {
+        ascending: false,
+      }
+    );
 
   if (error) {
+    console.error(
+      "getMyOpportunityApplications error:",
+      error
+    );
+
     throw error;
   }
 
-  return data || [];
+  return Array.isArray(data)
+    ? data
+    : [];
 }
 
 
 /* =========================================================
-   GET MY APPLICATION FOR ONE OPPORTUNITY
+   GET MY APPLICATION
 ========================================================= */
 
 export async function getMyApplication(
@@ -440,7 +685,10 @@ export async function getMyApplication(
     error,
   } = await supabase
     .from("opportunity_applications")
-    .select("*")
+    .select(`
+      *,
+      opportunity:opportunities(*)
+    `)
     .eq(
       "opportunity_id",
       opportunityId
@@ -452,6 +700,11 @@ export async function getMyApplication(
     .maybeSingle();
 
   if (error) {
+    console.error(
+      "getMyApplication error:",
+      error
+    );
+
     throw error;
   }
 
@@ -483,18 +736,52 @@ export async function withdrawApplication(
     .update({
       status: "withdrawn",
     })
-    .eq("id", applicationId)
+    .eq(
+      "id",
+      applicationId
+    )
     .eq(
       "developer_id",
       developer.id
     )
-    .eq("status", "pending")
+    .eq(
+      "status",
+      "pending"
+    )
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
+    console.error(
+      "withdrawApplication error:",
+      error
+    );
+
     throw error;
+  }
+
+  if (!data) {
+    throw new Error(
+      "Application could not be withdrawn."
+    );
   }
 
   return data;
 }
+
+
+/* =========================================================
+   DEFAULT EXPORT
+========================================================= */
+
+export default {
+  getCurrentDeveloperProfile,
+  getMyActiveAssignment,
+  hasActiveAssignment,
+  getOpenOpportunities,
+  getOpportunityById,
+  applyToOpportunity,
+  getMyOpportunityApplications,
+  getMyApplication,
+  withdrawApplication,
+};

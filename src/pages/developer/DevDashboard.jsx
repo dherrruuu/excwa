@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   LogOut,
@@ -11,6 +16,8 @@ import {
   RefreshCw,
   AlertCircle,
   CheckCircle2,
+  MessageSquareWarning,
+  Clock3,
 } from "lucide-react";
 
 import "../../styles/developer.css";
@@ -29,8 +36,23 @@ import {
   submitProject,
 } from "../../services/developer/developerSubmissionService";
 
+
 /* =========================================================
-   STATUS CONFIG
+   ACTIVE ASSIGNMENT STATUSES
+========================================================= */
+
+const ACTIVE_ASSIGNMENT_STATUSES = [
+  "pending",
+  "assigned",
+  "in_progress",
+  "submitted",
+  "under_review",
+  "changes_requested",
+];
+
+
+/* =========================================================
+   STATUS COLORS
 ========================================================= */
 
 const STATUS_COLORS = {
@@ -93,17 +115,31 @@ const STATUS_COLORS = {
     bg: "rgba(255,202,112,.08)",
     border: "rgba(255,202,112,.22)",
   },
+
+  cancelled: {
+    color: "#ff7373",
+    bg: "rgba(255,115,115,.08)",
+    border: "rgba(255,115,115,.22)",
+  },
+
+  finalized: {
+    color: "#69e5b7",
+    bg: "rgba(105,229,183,.08)",
+    border: "rgba(105,229,183,.22)",
+  },
 };
+
 
 /* =========================================================
    STATUS BADGE
 ========================================================= */
 
 function StatusBadge({ status }) {
-  const normalizedStatus =
-    String(status || "pending")
-      .trim()
-      .toLowerCase();
+  const normalizedStatus = String(
+    status || "pending"
+  )
+    .trim()
+    .toLowerCase();
 
   const style =
     STATUS_COLORS[normalizedStatus] ||
@@ -130,6 +166,7 @@ function StatusBadge({ status }) {
   );
 }
 
+
 /* =========================================================
    HELPERS
 ========================================================= */
@@ -146,6 +183,7 @@ function getOpportunity(assignment) {
   );
 }
 
+
 function getAssignmentId(assignment) {
   return (
     assignment?.id ||
@@ -153,6 +191,51 @@ function getAssignmentId(assignment) {
     null
   );
 }
+
+
+function getLatestSubmission(assignment) {
+  if (!assignment) {
+    return null;
+  }
+
+  /*
+   * Preferred structure.
+   */
+  if (assignment.submission) {
+    return assignment.submission;
+  }
+
+  /*
+   * Fallback for services returning an array.
+   */
+  if (
+    Array.isArray(
+      assignment.project_submissions
+    )
+  ) {
+    return (
+      assignment.project_submissions[0] ||
+      null
+    );
+  }
+
+  /*
+   * Another possible structure.
+   */
+  if (
+    Array.isArray(
+      assignment.submissions
+    )
+  ) {
+    return (
+      assignment.submissions[0] ||
+      null
+    );
+  }
+
+  return null;
+}
+
 
 function formatDate(value) {
   if (!value) {
@@ -172,6 +255,28 @@ function formatDate(value) {
   });
 }
 
+
+function formatDateTime(value) {
+  if (!value) {
+    return "—";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+
 function formatCurrency(value) {
   if (
     value === null ||
@@ -190,9 +295,11 @@ function formatCurrency(value) {
   return `₹${number.toLocaleString("en-IN")}`;
 }
 
+
 function getArray(value) {
   return Array.isArray(value) ? value : [];
 }
+
 
 /* =========================================================
    EMPTY STATE
@@ -231,8 +338,96 @@ function EmptyState({
   );
 }
 
+
 /* =========================================================
-   CURRENT PROJECT
+   CHANGES REQUESTED PANEL
+========================================================= */
+
+function ChangesRequestedPanel({
+  submission,
+}) {
+  if (
+    !submission ||
+    String(submission.status || "")
+      .trim()
+      .toLowerCase() !==
+      "changes_requested"
+  ) {
+    return null;
+  }
+
+  const reviewMessage =
+    submission.review_message?.trim();
+
+  return (
+    <div className="dev-changes-requested-panel">
+      <div className="dev-changes-requested-header">
+        <div className="dev-changes-requested-icon">
+          <MessageSquareWarning size={20} />
+        </div>
+
+        <div>
+          <span>
+            Reviewer Feedback
+          </span>
+
+          <h3>
+            Changes Requested
+          </h3>
+        </div>
+
+        <StatusBadge
+          status="changes_requested"
+        />
+      </div>
+
+      <div className="dev-changes-requested-body">
+        {reviewMessage ? (
+          <>
+            <p className="dev-feedback-label">
+              Changes required
+            </p>
+
+            <div className="dev-review-message">
+              {reviewMessage}
+            </div>
+          </>
+        ) : (
+          <p className="dev-review-message-empty">
+            The reviewer requested changes to
+            your submission but did not provide
+            additional written instructions.
+          </p>
+        )}
+
+        {submission.reviewed_at && (
+          <div className="dev-review-meta">
+            <Clock3 size={13} />
+
+            <span>
+              Reviewed{" "}
+              {formatDateTime(
+                submission.reviewed_at
+              )}
+            </span>
+          </div>
+        )}
+
+        <p className="dev-feedback-instruction">
+          Please make the requested changes,
+          update your GitHub repository, and
+          submit the updated work from the
+          <strong> Submit Work </strong>
+          tab.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+
+/* =========================================================
+   CURRENT PROJECT / MY WORK
 ========================================================= */
 
 function CurrentProjectTab({
@@ -244,13 +439,16 @@ function CurrentProjectTab({
       <EmptyState
         icon={FolderKanban}
         title="No active project"
-        description="You don't currently have a project assigned. Browse opportunities to find your next project."
+        description="You don't currently have a project assigned."
       />
     );
   }
 
   const project =
     getOpportunity(assignment);
+
+  const submission =
+    getLatestSubmission(assignment);
 
   const projectTitle =
     project?.title ||
@@ -271,14 +469,21 @@ function CurrentProjectTab({
   return (
     <div className="dev-current-project">
 
+      {/* ===============================================
+          PROJECT HEADER
+      =============================================== */}
+
       <div className="dev-project-header">
+
         <div className="dev-project-heading">
 
           <span className="dev-opp-category">
             {project?.category || "Project"}
           </span>
 
-          <h2>{projectTitle}</h2>
+          <h2>
+            {projectTitle}
+          </h2>
 
           <p>
             Project ID:{" "}
@@ -290,6 +495,7 @@ function CurrentProjectTab({
         </div>
 
         <div className="dev-project-actions">
+
           <StatusBadge
             status={
               assignment?.status ||
@@ -310,16 +516,41 @@ function CurrentProjectTab({
         </div>
       </div>
 
-      <div className="dev-project-section">
-        <h3>Project Requirement</h3>
 
-        <p>{projectDescription}</p>
+      {/* ===============================================
+          IMPORTANT REVIEW FEEDBACK
+      =============================================== */}
+
+      <ChangesRequestedPanel
+        submission={submission}
+      />
+
+
+      {/* ===============================================
+          PROJECT REQUIREMENT
+      =============================================== */}
+
+      <div className="dev-project-section">
+        <h3>
+          Project Requirement
+        </h3>
+
+        <p>
+          {projectDescription}
+        </p>
       </div>
+
+
+      {/* ===============================================
+          PROJECT INFORMATION
+      =============================================== */}
 
       <div className="dev-project-grid">
 
         <div className="dev-project-info">
-          <span>Project Type</span>
+          <span>
+            Project Type
+          </span>
 
           <strong>
             {project?.project_type || "—"}
@@ -327,15 +558,21 @@ function CurrentProjectTab({
         </div>
 
         <div className="dev-project-info">
-          <span>Deadline</span>
+          <span>
+            Deadline
+          </span>
 
           <strong>
-            {formatDate(project?.deadline)}
+            {formatDate(
+              project?.deadline
+            )}
           </strong>
         </div>
 
         <div className="dev-project-info">
-          <span>Developer Payout</span>
+          <span>
+            Developer Payout
+          </span>
 
           <strong>
             {formatCurrency(
@@ -345,22 +582,33 @@ function CurrentProjectTab({
         </div>
 
         <div className="dev-project-info">
-          <span>Assigned On</span>
+          <span>
+            Assigned On
+          </span>
 
           <strong>
             {formatDate(
-              assignment?.assigned_at
+              assignment?.assigned_at ||
+              assignment?.started_at
             )}
           </strong>
         </div>
-
       </div>
+
+
+      {/* ===============================================
+          TECHNOLOGY STACK
+      =============================================== */}
 
       {techStack.length > 0 && (
         <div className="dev-project-section">
-          <h3>Technology Stack</h3>
+
+          <h3>
+            Technology Stack
+          </h3>
 
           <div className="dev-opp-tags">
+
             {techStack.map(
               (tech, index) => (
                 <span
@@ -371,15 +619,25 @@ function CurrentProjectTab({
                 </span>
               )
             )}
+
           </div>
         </div>
       )}
 
+
+      {/* ===============================================
+          REQUIRED SKILLS
+      =============================================== */}
+
       {requiredSkills.length > 0 && (
         <div className="dev-project-section">
-          <h3>Required Skills</h3>
+
+          <h3>
+            Required Skills
+          </h3>
 
           <div className="dev-opp-tags">
+
             {requiredSkills.map(
               (skill, index) => (
                 <span
@@ -390,20 +648,34 @@ function CurrentProjectTab({
                 </span>
               )
             )}
+
           </div>
         </div>
       )}
 
+
+      {/* ===============================================
+          DELIVERABLES
+      =============================================== */}
+
       {project?.deliverables && (
         <div className="dev-project-section">
-          <h3>Deliverables</h3>
 
-          <p>{project.deliverables}</p>
+          <h3>
+            Deliverables
+          </h3>
+
+          <p>
+            {project.deliverables}
+          </p>
+
         </div>
       )}
+
     </div>
   );
 }
+
 
 /* =========================================================
    SUBMIT WORK
@@ -434,17 +706,8 @@ function SubmitWorkTab({
   const assignmentId =
     getAssignmentId(assignment);
 
-  /*
-   * Support both possible nested response structures.
-   */
-  const submissions = getArray(
-    assignment?.project_submissions
-  );
-
   const submission =
-    assignment?.submission ||
-    submissions[0] ||
-    null;
+    getLatestSubmission(assignment);
 
   const submissionStatus =
     String(
@@ -460,10 +723,21 @@ function SubmitWorkTab({
       .trim()
       .toLowerCase();
 
+  /*
+   * Developer is allowed to resubmit ONLY
+   * when the reviewer explicitly requested
+   * changes.
+   */
   const canResubmit =
     submissionStatus ===
+    "changes_requested" ||
+    assignmentStatus ===
     "changes_requested";
 
+  /*
+   * A submitted / under-review submission
+   * cannot be edited or submitted again.
+   */
   const submissionLocked =
     submissionStatus ===
       "submitted" ||
@@ -473,8 +747,17 @@ function SubmitWorkTab({
   const projectCompleted =
     assignmentStatus ===
       "completed" ||
+    assignmentStatus ===
+      "finalized" ||
+    assignmentStatus ===
+      "cancelled" ||
     submissionStatus ===
       "completed";
+
+
+  /* ===============================================
+     SUBMIT
+  =============================================== */
 
   async function handleSubmit() {
     setError("");
@@ -527,12 +810,30 @@ function SubmitWorkTab({
       return;
     }
 
+    /*
+     * Only allow GitHub repositories.
+     */
+    if (
+      !cleanGithubUrl
+        .toLowerCase()
+        .startsWith(
+          "https://github.com/"
+        )
+    ) {
+      setError(
+        "Please enter a valid GitHub repository URL."
+      );
+
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       await submitProject({
         assignmentId,
-        githubUrl: cleanGithubUrl,
+        githubUrl:
+          cleanGithubUrl,
         submissionNotes:
           cleanNotes || null,
       });
@@ -541,12 +842,15 @@ function SubmitWorkTab({
       setNotes("");
 
       setMessage(
-        "Your work has been submitted successfully."
+        canResubmit
+          ? "Your updated work has been resubmitted successfully."
+          : "Your work has been submitted successfully."
       );
 
       if (onSubmitted) {
         await onSubmitted();
       }
+
     } catch (err) {
       console.error(
         "Project submission failed:",
@@ -557,10 +861,16 @@ function SubmitWorkTab({
         err?.message ||
           "Unable to submit your work."
       );
+
     } finally {
       setSubmitting(false);
     }
   }
+
+
+  /* ===============================================
+     NO PROJECT
+  =============================================== */
 
   if (!assignment) {
     return (
@@ -572,6 +882,11 @@ function SubmitWorkTab({
     );
   }
 
+
+  /* ===============================================
+     COMPLETED
+  =============================================== */
+
   if (projectCompleted) {
     return (
       <EmptyState
@@ -582,10 +897,16 @@ function SubmitWorkTab({
     );
   }
 
+
   return (
     <div className="dev-auth-card dev-submit-card">
 
+      {/* =============================================
+          HEADER
+      ============================================= */}
+
       <div className="dev-submit-header">
+
         <div>
           <span className="dev-opp-category">
             Current Project
@@ -606,51 +927,127 @@ function SubmitWorkTab({
         />
       </div>
 
+
+      {/* =============================================
+          CHANGES REQUESTED
+      ============================================= */}
+
       {canResubmit && (
-        <div className="dev-submit-notice warning">
-          <strong>
-            Changes requested
-          </strong>
+        <div className="dev-changes-requested-panel">
 
-          {submission?.review_message && (
-            <p>
-              {submission.review_message}
+          <div className="dev-changes-requested-header">
+
+            <div className="dev-changes-requested-icon">
+              <MessageSquareWarning
+                size={20}
+              />
+            </div>
+
+            <div>
+              <span>
+                Action Required
+              </span>
+
+              <h3>
+                Changes Requested
+              </h3>
+            </div>
+
+            <StatusBadge
+              status="changes_requested"
+            />
+          </div>
+
+          <div className="dev-changes-requested-body">
+
+            <p className="dev-feedback-label">
+              Reviewer instructions
             </p>
-          )}
 
-          <p>
-            Update your work and submit it again.
-          </p>
+            {submission?.review_message ? (
+              <div className="dev-review-message">
+                {submission.review_message}
+              </div>
+            ) : (
+              <div className="dev-review-message-empty">
+                The reviewer requested changes,
+                but no written instructions were
+                provided.
+              </div>
+            )}
+
+            {submission?.reviewed_at && (
+              <div className="dev-review-meta">
+                <Clock3 size={13} />
+
+                <span>
+                  Reviewed{" "}
+                  {formatDateTime(
+                    submission.reviewed_at
+                  )}
+                </span>
+              </div>
+            )}
+
+            <p className="dev-feedback-instruction">
+              Make the requested changes in your
+              project and then submit the updated
+              GitHub repository below.
+            </p>
+
+          </div>
         </div>
       )}
+
+
+      {/* =============================================
+          SUBMITTED
+      ============================================= */}
 
       {submissionStatus ===
         "submitted" && (
         <div className="dev-submit-notice info">
+
           <strong>
             Work submitted
           </strong>
 
           <p>
-            Your submission is waiting for reviewer approval.
+            Your submission is waiting for
+            reviewer approval.
           </p>
+
         </div>
       )}
+
+
+      {/* =============================================
+          UNDER REVIEW
+      ============================================= */}
 
       {submissionStatus ===
         "under_review" && (
         <div className="dev-submit-notice review">
+
           <strong>
             Under review
           </strong>
 
           <p>
-            A reviewer is currently reviewing your submission.
+            A reviewer is currently reviewing
+            your submission.
           </p>
+
         </div>
       )}
 
+
+      {/* =============================================
+          GITHUB URL
+      ============================================= */}
+
       <div className="field">
+
         <label>
           GitHub Repository URL{" "}
           <em>*</em>
@@ -670,7 +1067,13 @@ function SubmitWorkTab({
             submissionLocked
           }
         />
+
       </div>
+
+
+      {/* =============================================
+          NOTES
+      ============================================= */}
 
       <div
         className="field"
@@ -678,6 +1081,7 @@ function SubmitWorkTab({
           marginTop: 16,
         }}
       >
+
         <label>
           Submission Notes{" "}
           <em className="optional-label">
@@ -687,7 +1091,11 @@ function SubmitWorkTab({
 
         <textarea
           rows={5}
-          placeholder="Add setup instructions or any important notes..."
+          placeholder={
+            canResubmit
+              ? "Explain what you changed in this version..."
+              : "Add setup instructions or any important notes..."
+          }
           value={notes}
           onChange={(event) =>
             setNotes(
@@ -699,21 +1107,47 @@ function SubmitWorkTab({
             submissionLocked
           }
         />
+
       </div>
+
+
+      {/* =============================================
+          ERROR
+      ============================================= */}
 
       {error && (
         <div className="dev-form-message error">
+
           <AlertCircle size={14} />
-          <span>{error}</span>
+
+          <span>
+            {error}
+          </span>
+
         </div>
       )}
 
+
+      {/* =============================================
+          SUCCESS
+      ============================================= */}
+
       {message && (
         <div className="dev-form-message success">
+
           <CheckCircle2 size={14} />
-          <span>{message}</span>
+
+          <span>
+            {message}
+          </span>
+
         </div>
       )}
+
+
+      {/* =============================================
+          SUBMIT BUTTON
+      ============================================= */}
 
       <button
         type="button"
@@ -724,6 +1158,7 @@ function SubmitWorkTab({
           submissionLocked
         }
       >
+
         <Send size={14} />
 
         {submitting
@@ -731,12 +1166,15 @@ function SubmitWorkTab({
           : submissionLocked
           ? "Work Submitted"
           : canResubmit
-          ? "Resubmit Work"
+          ? "Resubmit Updated Work"
           : "Submit Work"}
+
       </button>
+
     </div>
   );
 }
+
 
 /* =========================================================
    APPLICATIONS
@@ -754,6 +1192,7 @@ function ApplicationsTab({
   const [error, setError] =
     useState("");
 
+
   const loadApplications =
     useCallback(async () => {
       try {
@@ -768,6 +1207,7 @@ function ApplicationsTab({
             ? data
             : []
         );
+
       } catch (err) {
         console.error(
           "Unable to load applications:",
@@ -778,10 +1218,12 @@ function ApplicationsTab({
           err?.message ||
             "Unable to load your applications."
         );
+
       } finally {
         setLoading(false);
       }
     }, []);
+
 
   useEffect(() => {
     loadApplications();
@@ -790,9 +1232,11 @@ function ApplicationsTab({
     refreshKey,
   ]);
 
+
   if (loading) {
     return (
       <div className="dev-tab-empty">
+
         <RefreshCw
           size={28}
           className="dev-loading-icon"
@@ -805,9 +1249,11 @@ function ApplicationsTab({
         <p>
           Please wait...
         </p>
+
       </div>
     );
   }
+
 
   if (error) {
     return (
@@ -821,6 +1267,7 @@ function ApplicationsTab({
     );
   }
 
+
   if (!applications.length) {
     return (
       <EmptyState
@@ -831,8 +1278,10 @@ function ApplicationsTab({
     );
   }
 
+
   return (
     <div className="dev-app-list">
+
       {applications.map(
         (application) => {
           const opportunity =
@@ -848,6 +1297,7 @@ function ApplicationsTab({
               }
               className="dev-app-card"
             >
+
               <div className="dev-app-content">
 
                 <span className="dev-opp-category">
@@ -873,6 +1323,7 @@ function ApplicationsTab({
                     {opportunity.description}
                   </span>
                 )}
+
               </div>
 
               <StatusBadge
@@ -881,13 +1332,16 @@ function ApplicationsTab({
                   "pending"
                 }
               />
+
             </div>
           );
         }
       )}
+
     </div>
   );
 }
+
 
 /* =========================================================
    PROFILE
@@ -897,76 +1351,87 @@ function ProfileTab({
   profile,
   devProfile,
 }) {
-  const profileItems = useMemo(
-    () => [
-      [
-        "Full Name",
-        profile?.full_name ||
-          devProfile?.full_name,
-      ],
+  const profileItems =
+    useMemo(
+      () => [
+        [
+          "Full Name",
+          profile?.full_name ||
+            devProfile?.full_name,
+        ],
 
-      [
-        "Email",
-        profile?.email ||
-          devProfile?.email,
-      ],
+        [
+          "Email",
+          profile?.email ||
+            devProfile?.email,
+        ],
 
-      [
-        "Phone",
-        devProfile?.phone ||
-          profile?.phone,
-      ],
+        [
+          "Phone",
+          devProfile?.phone ||
+            profile?.phone,
+        ],
 
-      [
-        "City",
-        devProfile?.city,
-      ],
+        [
+          "City",
+          devProfile?.city,
+        ],
 
-      [
-        "GitHub",
-        devProfile?.github_url,
-      ],
+        [
+          "GitHub",
+          devProfile?.github_url,
+        ],
 
-      [
-        "LinkedIn",
-        devProfile?.linkedin_url,
-      ],
+        [
+          "LinkedIn",
+          devProfile?.linkedin_url,
+        ],
 
-      [
-        "Portfolio",
-        devProfile?.portfolio_url,
-      ],
+        [
+          "Portfolio",
+          devProfile?.portfolio_url,
+        ],
 
-      [
-        "Developer Status",
-        devProfile?.status,
+        [
+          "Developer Status",
+          devProfile?.status,
+        ],
       ],
-    ],
-    [profile, devProfile]
-  );
+      [profile, devProfile]
+    );
+
 
   return (
     <div className="dev-auth-card dev-profile-card">
 
       <div className="dev-section-heading">
+
         <div>
+
           <span className="eyebrow">
             Account
           </span>
 
-          <h2>Your Profile</h2>
+          <h2>
+            Your Profile
+          </h2>
 
           <p>
             Your developer account information.
           </p>
+
         </div>
 
         <User size={22} />
+
       </div>
 
+
       <div className="admin-detail-grid">
+
         {profileItems.map(
           ([label, value]) => {
+
             const isLink =
               typeof value ===
                 "string" &&
@@ -979,7 +1444,10 @@ function ProfileTab({
                 key={label}
                 className="admin-detail-item"
               >
-                <span>{label}</span>
+
+                <span>
+                  {label}
+                </span>
 
                 {isLink ? (
                   <a
@@ -987,6 +1455,7 @@ function ProfileTab({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
+
                     <span>
                       {value.replace(
                         /^https?:\/\//i,
@@ -997,32 +1466,39 @@ function ProfileTab({
                     <ExternalLink
                       size={11}
                     />
+
                   </a>
                 ) : (
                   <strong>
                     {value || "—"}
                   </strong>
                 )}
+
               </div>
             );
           }
         )}
+
       </div>
+
     </div>
   );
 }
+
 
 /* =========================================================
    MAIN DASHBOARD
 ========================================================= */
 
 export default function DevDashboard() {
+
   const {
     profile,
     devProfile,
     loading: profileLoading,
     logout,
   } = useDeveloper();
+
 
   const [assignment, setAssignment] =
     useState(null);
@@ -1036,11 +1512,14 @@ export default function DevDashboard() {
   const [tab, setTab] =
     useState("opportunities");
 
-  const [applicationsRefreshKey, setApplicationsRefreshKey] =
-    useState(0);
+  const [
+    applicationsRefreshKey,
+    setApplicationsRefreshKey,
+  ] = useState(0);
 
   const [loggingOut, setLoggingOut] =
     useState(false);
+
 
   /* =======================================================
      LOAD CURRENT ASSIGNMENT
@@ -1048,17 +1527,21 @@ export default function DevDashboard() {
 
   const loadAssignment =
     useCallback(async () => {
+
       setAssignmentLoading(true);
       setAssignmentError("");
 
       try {
+
         const data =
           await getMyCurrentAssignment();
 
         setAssignment(
           data || null
         );
+
       } catch (error) {
+
         console.error(
           "Unable to load current assignment:",
           error
@@ -1070,38 +1553,100 @@ export default function DevDashboard() {
           error?.message ||
             "Unable to load your current project."
         );
+
       } finally {
+
         setAssignmentLoading(false);
+
       }
+
     }, []);
 
+
   /* =======================================================
-     LOAD ASSIGNMENT AFTER PROFILE IS READY
+     LOAD ASSIGNMENT AFTER PROFILE
   ======================================================= */
 
   useEffect(() => {
+
     if (profileLoading) {
       return;
     }
 
     if (!devProfile) {
+
       setAssignment(null);
       setAssignmentError("");
+
       return;
     }
 
     loadAssignment();
+
   }, [
     profileLoading,
     devProfile,
     loadAssignment,
   ]);
 
+
+  /* =======================================================
+     DETERMINE ACTIVE ASSIGNMENT
+  ======================================================= */
+
+  const assignmentStatus =
+    String(
+      assignment?.status || ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const hasActiveProject =
+    Boolean(assignment) &&
+    ACTIVE_ASSIGNMENT_STATUSES.includes(
+      assignmentStatus
+    );
+
+
+  /* =======================================================
+     AUTOMATIC TAB SWITCHING
+  ======================================================= */
+
+  useEffect(() => {
+
+    if (hasActiveProject) {
+
+      if (
+        tab !== "project" &&
+        tab !== "submissions" &&
+        tab !== "profile"
+      ) {
+        setTab("project");
+      }
+
+      return;
+    }
+
+    if (
+      tab !== "opportunities" &&
+      tab !== "applications" &&
+      tab !== "profile"
+    ) {
+      setTab("opportunities");
+    }
+
+  }, [
+    hasActiveProject,
+    tab,
+  ]);
+
+
   /* =======================================================
      PERIODIC REFRESH
   ======================================================= */
 
   useEffect(() => {
+
     if (
       profileLoading ||
       !devProfile
@@ -1117,17 +1662,20 @@ export default function DevDashboard() {
     return () => {
       clearInterval(interval);
     };
+
   }, [
     profileLoading,
     devProfile,
     loadAssignment,
   ]);
 
+
   /* =======================================================
      LOGOUT
   ======================================================= */
 
   async function handleLogout() {
+
     if (loggingOut) {
       return;
     }
@@ -1140,6 +1688,7 @@ export default function DevDashboard() {
       setLoggingOut(false);
     }
   }
+
 
   /* =======================================================
      USER INFORMATION
@@ -1156,78 +1705,75 @@ export default function DevDashboard() {
       .split(/\s+/)[0] ||
     "Developer";
 
-  const hasActiveProject =
-    Boolean(assignment);
 
   /* =======================================================
-     TABS
-     
-     IMPORTANT:
-     Keep ALL tabs available.
-     
-     A developer with an active project should still be able
-     to see Opportunities, Applications and Profile.
+     CONDITIONAL TABS
   ======================================================= */
 
-  const tabs = [
-    {
-      id: "opportunities",
-      label: "Opportunities",
-      icon: Briefcase,
-    },
+  const tabs = hasActiveProject
+    ? [
+        {
+          id: "project",
+          label: "My Work",
+          icon: FolderKanban,
+        },
 
-    {
-      id: "applications",
-      label: "My Applications",
-      icon: FileCheck,
-    },
+        {
+          id: "submissions",
+          label: "Submit Work",
+          icon: Send,
+        },
 
-    {
-      id: "project",
-      label: "Current Project",
-      icon: FolderKanban,
-      badge: hasActiveProject
-        ? "Active"
-        : null,
-    },
+        {
+          id: "profile",
+          label: "My Profile",
+          icon: User,
+        },
+      ]
+    : [
+        {
+          id: "opportunities",
+          label: "Opportunities",
+          icon: Briefcase,
+        },
 
-    {
-      id: "submissions",
-      label: "Submit Work",
-      icon: Send,
-      badge: hasActiveProject
-        ? null
-        : "No Project",
-    },
+        {
+          id: "applications",
+          label: "My Applications",
+          icon: FileCheck,
+        },
 
-    {
-      id: "profile",
-      label: "Profile",
-      icon: User,
-    },
-  ];
+        {
+          id: "profile",
+          label: "My Profile",
+          icon: User,
+        },
+      ];
+
 
   /* =======================================================
-     DASHBOARD STATS
+     DEVELOPER STATUS
   ======================================================= */
 
   const developerStatus =
     devProfile?.status ||
     "pending";
 
+
   /* =======================================================
      TAB CONTENT
   ======================================================= */
 
   function renderTab() {
+
     if (tab === "opportunities") {
+
       return (
         <OpportunitiesTab
           devProfile={devProfile}
           onAssignmentCreated={
             async () => {
               await loadAssignment();
-
               setTab("project");
             }
           }
@@ -1235,7 +1781,9 @@ export default function DevDashboard() {
       );
     }
 
+
     if (tab === "applications") {
+
       return (
         <ApplicationsTab
           refreshKey={
@@ -1245,10 +1793,14 @@ export default function DevDashboard() {
       );
     }
 
+
     if (tab === "project") {
+
       if (assignmentLoading) {
+
         return (
           <div className="dev-tab-empty">
+
             <RefreshCw
               size={28}
               className="dev-loading-icon"
@@ -1261,14 +1813,17 @@ export default function DevDashboard() {
             <p>
               Please wait...
             </p>
+
           </div>
         );
       }
+
 
       if (
         assignmentError &&
         !assignment
       ) {
+
         return (
           <EmptyState
             icon={AlertCircle}
@@ -1280,6 +1835,7 @@ export default function DevDashboard() {
         );
       }
 
+
       return (
         <CurrentProjectTab
           assignment={assignment}
@@ -1288,10 +1844,14 @@ export default function DevDashboard() {
       );
     }
 
+
     if (tab === "submissions") {
+
       if (assignmentLoading) {
+
         return (
           <div className="dev-tab-empty">
+
             <RefreshCw
               size={28}
               className="dev-loading-icon"
@@ -1304,14 +1864,17 @@ export default function DevDashboard() {
             <p>
               Please wait...
             </p>
+
           </div>
         );
       }
+
 
       if (
         assignmentError &&
         !assignment
       ) {
+
         return (
           <EmptyState
             icon={AlertCircle}
@@ -1323,11 +1886,13 @@ export default function DevDashboard() {
         );
       }
 
+
       return (
         <SubmitWorkTab
           assignment={assignment}
           onSubmitted={
             async () => {
+
               await loadAssignment();
 
               setApplicationsRefreshKey(
@@ -1340,7 +1905,9 @@ export default function DevDashboard() {
       );
     }
 
+
     if (tab === "profile") {
+
       return (
         <ProfileTab
           profile={profile}
@@ -1349,17 +1916,22 @@ export default function DevDashboard() {
       );
     }
 
+
     return null;
   }
+
 
   /* =======================================================
      LOADING SCREEN
   ======================================================= */
 
   if (profileLoading) {
+
     return (
       <div className="dev-dashboard-shell">
+
         <div className="dev-dashboard-loading">
+
           <div className="dev-dashboard-loading-logo">
             <ExcwaLogo size={44} />
           </div>
@@ -1376,10 +1948,13 @@ export default function DevDashboard() {
           <p>
             Preparing your workspace...
           </p>
+
         </div>
+
       </div>
     );
   }
+
 
   /* =======================================================
      RENDER
@@ -1393,16 +1968,20 @@ export default function DevDashboard() {
       ================================================= */}
 
       <header className="dev-dashboard-topbar">
+
         <div className="container dev-dashboard-topbar-inner">
 
           <div className="dev-dashboard-brand">
+
             <ExcwaLogo size={36} />
 
             <span>
               EXCWA{" "}
               <b>Developers</b>
             </span>
+
           </div>
+
 
           <div className="dev-dashboard-userbar">
 
@@ -1422,16 +2001,21 @@ export default function DevDashboard() {
               onClick={handleLogout}
               disabled={loggingOut}
             >
+
               <LogOut size={13} />
 
               {loggingOut
                 ? "Signing Out..."
                 : "Sign Out"}
+
             </button>
 
           </div>
+
         </div>
+
       </header>
+
 
       {/* =================================================
           CONTENT
@@ -1458,15 +2042,17 @@ export default function DevDashboard() {
 
             <p>
               {hasActiveProject
-                ? "Your current project is active. Track your work and submit your completed deliverables."
-                : "Explore opportunities, manage your applications and find your next project."}
+                ? "Your project is currently active. Manage your work and submit your completed deliverables."
+                : "Explore available opportunities, manage your applications and find your next project."}
             </p>
 
           </div>
 
+
           <div className="dev-dashboard-hero-metrics">
 
             <div className="dev-metric-card">
+
               <span className="dev-metric-label">
                 Developer Status
               </span>
@@ -1478,37 +2064,48 @@ export default function DevDashboard() {
                   }
                 />
               </strong>
+
             </div>
 
+
             <div className="dev-metric-card">
+
               <span className="dev-metric-label">
                 Current Project
               </span>
 
               <strong>
                 {hasActiveProject
-                  ? "Assigned"
+                  ? "Active"
                   : "None"}
               </strong>
+
             </div>
 
           </div>
+
         </section>
+
 
         {/* =================================================
             ACTIVE PROJECT QUICK INFO
         ================================================= */}
 
         {hasActiveProject && (
+
           <section className="dev-active-project-banner">
 
             <div className="dev-active-project-icon">
+
               <FolderKanban
                 size={20}
               />
+
             </div>
 
+
             <div className="dev-active-project-content">
+
               <span>
                 Active Project
               </span>
@@ -1519,7 +2116,9 @@ export default function DevDashboard() {
                 )?.title ||
                   "Current Project"}
               </strong>
+
             </div>
+
 
             <button
               type="button"
@@ -1528,24 +2127,26 @@ export default function DevDashboard() {
                 setTab("project")
               }
             >
-              View Project
+              View My Work
             </button>
 
           </section>
         )}
+
 
         {/* =================================================
             TABS
         ================================================= */}
 
         <nav className="dev-tabs">
+
           {tabs.map(
             ({
               id,
               label,
               icon: Icon,
-              badge,
             }) => (
+
               <button
                 key={id}
                 type="button"
@@ -1558,31 +2159,32 @@ export default function DevDashboard() {
                   setTab(id)
                 }
               >
+
                 <Icon size={14} />
 
                 <span>
                   {label}
                 </span>
 
-                {badge && (
-                  <small>
-                    {badge}
-                  </small>
-                )}
               </button>
             )
           )}
+
         </nav>
+
 
         {/* =================================================
             PANEL
         ================================================= */}
 
         <section className="dev-dashboard-panel">
+
           {renderTab()}
+
         </section>
 
       </main>
+
     </div>
   );
 }

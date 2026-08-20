@@ -1,462 +1,741 @@
-/* =========================================================
+/* ============================================================
    EXCWA TECH
    ADMIN — OPPORTUNITIES
-   Premium Dark Admin UI
-   ========================================================= */
+   COMPLETE CSS REPLACEMENT
+   ============================================================ */
+
+:root {
+  --opp-bg: #070a0f;
+  --opp-surface: #0d1219;
+  --opp-surface-2: #111821;
+  --opp-surface-3: #151d27;
+
+  --opp-text: #f2f5f8;
+  --opp-text-soft: #c4ccd6;
+  --opp-text-muted: #8994a4;
+  --opp-text-dim: #687485;
+  --opp-text-faint: #505c6c;
+
+  --opp-border: rgba(255, 255, 255, 0.075);
+  --opp-border-soft: rgba(255, 255, 255, 0.05);
+  --opp-border-strong: rgba(255, 255, 255, 0.13);
+
+  --opp-accent: #6d7cff;
+  --opp-accent-soft: rgba(109, 124, 255, 0.08);
+
+  --opp-cyan: #62e2ff;
+  --opp-green: #69e5b7;
+  --opp-yellow: #ffca70;
+  --opp-red: #ff7777;
+  --opp-purple: #b194ff;
+
+  --opp-radius-sm: 7px;
+  --opp-radius: 10px;
+  --opp-radius-lg: 14px;
+  --opp-radius-xl: 18px;
+
+  --opp-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.28);
+
+  --opp-transition: 180ms ease;
+}
 
 
-/* =========================================================
-   PAGE
-   ========================================================= */
+/* ============================================================
+   RESET / BASE
+   ============================================================ */
 
 .admin-page {
   width: 100%;
-  max-width: 100%;
   min-width: 0;
   min-height: 100%;
 
-  box-sizing: border-box;
+  padding: 34px 34px 60px;
 
-  padding: 34px 38px;
+  color: var(--opp-text);
 
-  color: #e9edf5;
-
-  background:
-    radial-gradient(
-      circle at 85% 0%,
-      rgba(91, 76, 255, 0.08),
-      transparent 32%
-    ),
-    radial-gradient(
-      circle at 10% 100%,
-      rgba(41, 201, 255, 0.035),
-      transparent 30%
-    ),
-    #070a10;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
 
   overflow-x: hidden;
 }
 
+.admin-page *,
+.admin-page *::before,
+.admin-page *::after {
+  box-sizing: border-box;
+}
 
-/* =========================================================
+.admin-page button,
+.admin-page input,
+.admin-page select,
+.admin-page textarea {
+  font: inherit;
+}
+
+.admin-page button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-page h1,
+.admin-page h2,
+.admin-page h3,
+.admin-page h4,
+.admin-page p {
+  overflow-wrap: anywhere;
+}
+
+.admin-page input,
+.admin-page textarea,
+.admin-page select {
+  max-width: 100%;
+}
+
+
+/* ============================================================
    PAGE HEADER
-   ========================================================= */
+   ============================================================ */
 
 .admin-page-header {
+  width: 100%;
+
   display: flex;
-  align-items: flex-start;
+
+  align-items: flex-end;
   justify-content: space-between;
 
   gap: 24px;
 
-  margin-bottom: 30px;
+  margin-bottom: 24px;
+}
+
+.admin-page-header > div {
+  min-width: 0;
 }
 
 .admin-page-header h1 {
   margin: 0;
 
-  color: #f7f9fc;
+  color: #f5f8fb;
 
-  font-size: 30px;
+  font-size: 27px;
+
   line-height: 1.2;
-  font-weight: 700;
 
-  letter-spacing: -0.7px;
+  font-weight: 680;
+
+  letter-spacing: -0.55px;
 }
 
 .admin-page-header p {
-  margin: 8px 0 0;
+  margin: 7px 0 0;
 
-  color: #8c99ad;
+  color: var(--opp-text-muted);
 
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 11px;
+
+  line-height: 1.55;
 }
 
 
-/* =========================================================
+/* ============================================================
    BUTTONS
-   ========================================================= */
+   ============================================================ */
 
 .admin-primary-btn,
-.admin-secondary-btn {
-  height: 44px;
+.admin-secondary-btn,
+.admin-opportunity-delete-btn {
+  min-height: 36px;
 
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  gap: 8px;
+  gap: 7px;
 
-  padding: 0 17px;
+  padding: 0 13px;
 
-  box-sizing: border-box;
+  border-radius: 8px;
 
-  border-radius: 10px;
-
-  font-family: inherit;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 650;
+
+  line-height: 1;
 
   cursor: pointer;
 
-  white-space: nowrap;
-
   transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    color 0.2s ease;
+    color var(--opp-transition),
+    background var(--opp-transition),
+    border-color var(--opp-transition),
+    transform var(--opp-transition),
+    opacity var(--opp-transition);
 }
 
 .admin-primary-btn {
-  color: #ffffff;
-
-  border: 1px solid rgba(116, 132, 255, 0.35);
+  border: 1px solid rgba(109, 124, 255, 0.25);
 
   background:
     linear-gradient(
       135deg,
-      #4bc8ff 0%,
-      #596bff 48%,
-      #8148f5 100%
+      rgba(109, 124, 255, 0.15),
+      rgba(98, 226, 255, 0.055)
     );
 
-  box-shadow:
-    0 8px 28px rgba(78, 103, 255, 0.20);
+  color: #cbd2ff;
 }
 
 .admin-primary-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
+  border-color: rgba(109, 124, 255, 0.42);
 
-  box-shadow:
-    0 12px 34px rgba(78, 103, 255, 0.30);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(109, 124, 255, 0.22),
+      rgba(98, 226, 255, 0.08)
+    );
+
+  transform: translateY(-1px);
 }
 
 .admin-secondary-btn {
-  color: #b9c3d2;
+  border: 1px solid var(--opp-border);
 
-  border: 1px solid #293240;
+  background: rgba(255, 255, 255, 0.025);
 
-  background: #111720;
+  color: #aab4c1;
 }
 
 .admin-secondary-btn:hover:not(:disabled) {
-  color: #ffffff;
+  border-color: var(--opp-border-strong);
 
-  border-color: #3a4658;
+  background: rgba(255, 255, 255, 0.055);
 
-  background: #171e29;
+  color: #edf2f7;
 }
 
 .admin-primary-btn:disabled,
-.admin-secondary-btn:disabled {
-  opacity: 0.5;
+.admin-secondary-btn:disabled,
+.admin-opportunity-delete-btn:disabled {
+  opacity: 0.45;
+
   cursor: not-allowed;
+
+  transform: none;
 }
 
 
-/* =========================================================
-   SUCCESS / ERROR
-   ========================================================= */
+/* ============================================================
+   DELETE BUTTON
+   ============================================================ */
+
+.admin-opportunity-delete-btn {
+  border: 1px solid rgba(255, 119, 119, 0.16);
+
+  background: rgba(255, 119, 119, 0.045);
+
+  color: var(--opp-red);
+}
+
+.admin-opportunity-delete-btn:hover:not(:disabled) {
+  border-color: rgba(255, 119, 119, 0.32);
+
+  background: rgba(255, 119, 119, 0.09);
+
+  transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   ICON BUTTON
+   ============================================================ */
+
+.admin-icon-btn {
+  width: 36px;
+  height: 36px;
+
+  flex: 0 0 36px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid var(--opp-border);
+
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #8793a4;
+
+  cursor: pointer;
+
+  transition:
+    color var(--opp-transition),
+    background var(--opp-transition),
+    border-color var(--opp-transition);
+}
+
+.admin-icon-btn:hover {
+  color: #ffffff;
+
+  background: rgba(255, 255, 255, 0.065);
+
+  border-color: var(--opp-border-strong);
+}
+
+
+/* ============================================================
+   MESSAGES
+   ============================================================ */
 
 .admin-success-message,
 .admin-error-message {
-  margin-bottom: 18px;
+  width: 100%;
 
-  padding: 13px 16px;
+  margin-bottom: 15px;
 
-  border-radius: 10px;
+  padding: 11px 13px;
 
-  font-size: 13px;
+  border-radius: 8px;
 
-  border: 1px solid;
+  font-size: 10px;
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
 .admin-success-message {
-  color: #8ce5b6;
+  border: 1px solid rgba(105, 229, 183, 0.16);
 
-  background: rgba(34, 197, 94, 0.06);
+  background: rgba(105, 229, 183, 0.045);
 
-  border-color: rgba(34, 197, 94, 0.18);
+  color: var(--opp-green);
 }
 
 .admin-error-message {
-  color: #ff9999;
+  border: 1px solid rgba(255, 119, 119, 0.17);
 
-  background: rgba(239, 68, 68, 0.06);
+  background: rgba(255, 119, 119, 0.045);
 
-  border-color: rgba(239, 68, 68, 0.18);
+  color: var(--opp-red);
 }
 
 
-/* =========================================================
+/* ============================================================
    MAIN CARD
-   ========================================================= */
+   ============================================================ */
 
 .admin-card {
   width: 100%;
-  max-width: 100%;
   min-width: 0;
 
-  box-sizing: border-box;
+  border: 1px solid var(--opp-border);
 
-  overflow: hidden;
-
-  border: 1px solid rgba(255, 255, 255, 0.075);
-
-  border-radius: 17px;
+  border-radius: var(--opp-radius-lg);
 
   background:
     linear-gradient(
       145deg,
-      rgba(18, 23, 33, 0.98),
-      rgba(10, 14, 21, 0.98)
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
     );
 
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.22);
+    0 14px 45px rgba(0, 0, 0, 0.17);
+
+  overflow: hidden;
 }
 
 
-/* =========================================================
+/* ============================================================
    CARD HEADER
-   ========================================================= */
+   ============================================================ */
 
 .admin-card-header {
-  min-height: 74px;
+  min-width: 0;
 
-  box-sizing: border-box;
-
-  padding: 18px 22px;
+  min-height: 69px;
 
   display: flex;
+
   align-items: center;
   justify-content: space-between;
 
-  gap: 16px;
+  gap: 20px;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  padding: 15px 20px;
+
+  border-bottom: 1px solid var(--opp-border-soft);
 
   background:
     linear-gradient(
       90deg,
-      rgba(81, 104, 255, 0.025),
-      transparent 60%
+      rgba(109, 124, 255, 0.035),
+      transparent 65%
     );
 }
 
 .admin-card-header > div {
+  min-width: 0;
+}
+
+.admin-card-header > div:first-child {
   display: flex;
+
   align-items: center;
 
-  gap: 11px;
+  flex-wrap: wrap;
 
-  min-width: 0;
+  gap: 9px;
 }
 
 .admin-card-header h2 {
   margin: 0;
 
-  color: #f1f4f8;
+  color: #e9eef4;
 
-  font-size: 16px;
+  font-size: 14px;
+
   font-weight: 650;
 }
 
 .admin-card-header span {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  min-height: 24px;
+  min-height: 23px;
 
-  padding: 0 9px;
+  padding: 0 8px;
 
-  color: #8592a6;
+  border: 1px solid var(--opp-border);
 
-  border: 1px solid #293240;
   border-radius: 999px;
 
-  background: #141a23;
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #778395;
+
+  font-size: 8px;
+
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   FILTER
+   ============================================================ */
+
+.admin-opportunity-filter {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  flex-shrink: 0;
+}
+
+.admin-opportunity-filter label {
+  color: #647083;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.07em;
+
+  text-transform: uppercase;
+}
+
+.admin-opportunity-filter select {
+  height: 34px;
+
+  min-width: 150px;
+
+  padding: 0 30px 0 10px;
+
+  border: 1px solid var(--opp-border);
+
+  border-radius: 7px;
+
+  outline: none;
+
+  background:
+    #0e141c;
+
+  color: #b9c3cf;
+
+  font-size: 9px;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--opp-transition),
+    background var(--opp-transition);
+}
+
+.admin-opportunity-filter select:hover {
+  border-color: var(--opp-border-strong);
+}
+
+.admin-opportunity-filter select:focus {
+  border-color: rgba(109, 124, 255, 0.3);
+
+  box-shadow:
+    0 0 0 3px rgba(109, 124, 255, 0.045);
+}
+
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.admin-loading {
+  min-height: 220px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  padding: 35px;
+
+  color: var(--opp-text-muted);
 
   font-size: 10px;
+
+  text-align: center;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.admin-empty-state {
+  min-height: 260px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 35px;
+
+  text-align: center;
+}
+
+.admin-empty-state > svg {
+  margin-bottom: 13px;
+
+  color: #596678;
+}
+
+.admin-empty-state h3 {
+  margin: 0;
+
+  color: #dce3eb;
+
+  font-size: 14px;
+
   font-weight: 650;
 }
 
-.admin-card-header > svg {
-  color: #7180ff;
+.admin-empty-state p {
+  max-width: 410px;
+
+  margin: 7px 0 0;
+
+  color: #697587;
+
+  font-size: 10px;
+
+  line-height: 1.6;
 }
 
 
-/* =========================================================
+/* ============================================================
    TABLE WRAPPER
-   ========================================================= */
+   ============================================================ */
 
 .admin-table-wrapper {
   width: 100%;
   max-width: 100%;
   min-width: 0;
 
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: thin;
+  scrollbar-color: #303b4b transparent;
+}
+
+.admin-table-wrapper::-webkit-scrollbar {
+  height: 7px;
+}
+
+.admin-table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-table-wrapper::-webkit-scrollbar-thumb {
+  background: #303b4b;
+
+  border-radius: 10px;
+}
+
+.admin-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #455268;
 }
 
 
-/* =========================================================
-   TABLE
-   ========================================================= */
+/* ============================================================
+   MAIN TABLE
+   ============================================================ */
 
 .admin-table {
   width: 100%;
-  max-width: 100%;
-  min-width: 0;
+
+  min-width: 1000px;
 
   table-layout: fixed;
 
   border-collapse: separate;
+
   border-spacing: 0;
 }
 
-
-/* =========================================================
-   TABLE HEADER
-   ========================================================= */
-
 .admin-table thead th {
-  height: 47px;
+  height: 45px;
 
-  box-sizing: border-box;
+  padding: 0 13px;
 
-  padding: 0 14px;
+  color: #667285;
+
+  background: #0a0f15;
+
+  border-bottom: 1px solid var(--opp-border);
 
   text-align: left;
 
-  color: #718096;
+  font-size: 8px;
 
-  background: #0b1017;
-
-  border-bottom: 1px solid #202936;
-
-  font-size: 10px;
   font-weight: 700;
 
-  letter-spacing: 0.65px;
+  letter-spacing: 0.07em;
 
   text-transform: uppercase;
 
   white-space: nowrap;
 }
 
-
-/* =========================================================
-   COLUMN WIDTHS
-   ========================================================= */
-
-/* Project */
-
-.admin-table th:nth-child(1),
-.admin-table td:nth-child(1) {
-  width: 21%;
-}
-
-/* Category */
-
-.admin-table th:nth-child(2),
-.admin-table td:nth-child(2) {
-  width: 15%;
-}
-
-/* Developer Payout */
-
-.admin-table th:nth-child(3),
-.admin-table td:nth-child(3) {
-  width: 14%;
-}
-
-/* Deadline */
-
-.admin-table th:nth-child(4),
-.admin-table td:nth-child(4) {
-  width: 14%;
-}
-
-/* Status */
-
-.admin-table th:nth-child(5),
-.admin-table td:nth-child(5) {
-  width: 10%;
-}
-
-/* Created */
-
-.admin-table th:nth-child(6),
-.admin-table td:nth-child(6) {
-  width: 12%;
-}
-
-/* Actions */
-
-.admin-table th:nth-child(7),
-.admin-table td:nth-child(7) {
-  width: 14%;
-}
-
-
-/* =========================================================
-   TABLE BODY
-   ========================================================= */
-
 .admin-table tbody td {
-  box-sizing: border-box;
+  height: 66px;
 
-  padding: 16px 14px;
+  padding: 11px 13px;
 
-  color: #cbd3df;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
 
-  border-bottom: 1px solid #1b2330;
+  color: #a8b2bf;
 
-  font-size: 12px;
+  font-size: 10px;
 
   vertical-align: middle;
-
-  overflow: hidden;
-}
-
-.admin-table tbody tr {
-  transition: background 0.18s ease;
-}
-
-.admin-table tbody tr:hover {
-  background: rgba(91, 103, 255, 0.035);
 }
 
 .admin-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-
-/* =========================================================
-   PROJECT CELL
-   ========================================================= */
-
-.admin-table tbody td:first-child {
-  min-width: 0;
+.admin-table tbody tr {
+  transition:
+    background var(--opp-transition);
 }
+
+.admin-table tbody tr:hover {
+  background:
+    rgba(255, 255, 255, 0.018);
+}
+
+
+/* ============================================================
+   TABLE COLUMN WIDTHS
+   ============================================================ */
+
+.admin-table th:nth-child(1),
+.admin-table td:nth-child(1) {
+  width: 22%;
+}
+
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+  width: 13%;
+}
+
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+  width: 13%;
+}
+
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4) {
+  width: 13%;
+}
+
+.admin-table th:nth-child(5),
+.admin-table td:nth-child(5) {
+  width: 10%;
+}
+
+.admin-table th:nth-child(6),
+.admin-table td:nth-child(6) {
+  width: 10%;
+}
+
+.admin-table th:nth-child(7),
+.admin-table td:nth-child(7) {
+  width: 19%;
+}
+
+
+/* ============================================================
+   PROJECT CELL
+   ============================================================ */
 
 .admin-table td strong {
   display: block;
 
   max-width: 100%;
 
+  color: #e3e8ee;
+
+  font-size: 11px;
+
+  font-weight: 620;
+
+  line-height: 1.4;
+
   overflow: hidden;
-
-  color: #edf1f7;
-
-  font-size: 13px;
-  font-weight: 650;
-
-  line-height: 1.45;
 
   text-overflow: ellipsis;
 
@@ -470,13 +749,13 @@
 
   margin-top: 4px;
 
-  overflow: hidden;
+  color: #606c7b;
 
-  color: #68758a;
-
-  font-size: 10px;
+  font-size: 8px;
 
   line-height: 1.4;
+
+  overflow: hidden;
 
   text-overflow: ellipsis;
 
@@ -484,21 +763,20 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    DATE
-   ========================================================= */
+   ============================================================ */
 
 .admin-date {
   display: inline-flex;
+
   align-items: center;
 
   gap: 6px;
 
-  max-width: 100%;
+  color: #9ca7b5;
 
-  color: #9da8b8;
-
-  font-size: 12px;
+  font-size: 9px;
 
   white-space: nowrap;
 }
@@ -506,316 +784,330 @@
 .admin-date svg {
   flex: 0 0 auto;
 
-  color: #657287;
+  color: #687588;
 }
 
 
-/* =========================================================
+/* ============================================================
    STATUS BADGES
-   ========================================================= */
+   ============================================================ */
 
 .status-badge,
 .applicant-status {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  min-height: 27px;
+  min-height: 25px;
 
-  padding: 4px 10px;
+  max-width: 100%;
 
-  box-sizing: border-box;
-
-  border-radius: 999px;
+  padding: 4px 9px;
 
   border: 1px solid transparent;
 
-  font-size: 10px;
-  font-weight: 650;
+  border-radius: 999px;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
 
   text-transform: capitalize;
 
   white-space: nowrap;
 }
 
+
+/* SUCCESS */
+
 .status-success {
   color: #79e2ac;
 
-  background: rgba(34, 197, 94, 0.075);
+  background: rgba(34, 197, 94, 0.065);
 
-  border-color: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.17);
 }
+
+
+/* WARNING */
 
 .status-warning {
   color: #ffd27d;
 
-  background: rgba(245, 158, 11, 0.075);
+  background: rgba(245, 158, 11, 0.065);
 
-  border-color: rgba(245, 158, 11, 0.18);
+  border-color: rgba(245, 158, 11, 0.17);
 }
+
+
+/* DANGER */
 
 .status-danger {
   color: #ff9494;
 
-  background: rgba(239, 68, 68, 0.075);
+  background: rgba(239, 68, 68, 0.065);
 
-  border-color: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.17);
 }
+
+
+/* NEUTRAL */
 
 .status-neutral {
-  color: #a8b2c1;
+  color: #a9b3c1;
 
-  background: rgba(148, 163, 184, 0.075);
+  background: rgba(148, 163, 184, 0.065);
 
-  border-color: rgba(148, 163, 184, 0.16);
+  border-color: rgba(148, 163, 184, 0.14);
 }
 
 
+/* ============================================================
+   TABLE ACTIONS
+   ============================================================ */
+
 /* =========================================================
-   ACTIONS
+   OPPORTUNITY ACTIONS
    ICON ONLY
-   COMPACT + FITS INSIDE TABLE
    ========================================================= */
 
 .admin-opportunity-actions {
-  width: 100%;
-  min-width: 0;
-
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-
-  gap: 5px;
+  gap: 7px;
 
   white-space: nowrap;
-
-  box-sizing: border-box;
+  overflow: visible;
 }
 
 
 /* =========================================================
-   ACTION BUTTON
+   BASE ACTION BUTTON
    ========================================================= */
 
 .admin-opportunity-action-btn {
   position: relative;
 
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
 
-  min-width: 30px;
-  max-width: 30px;
+  min-width: 34px;
+  max-width: 34px;
 
-  flex: 0 0 30px;
-
-  padding: 0;
-  margin: 0;
+  flex: 0 0 34px;
 
   display: inline-flex;
   align-items: center;
   justify-content: center;
 
-  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 
   border: 1px solid #293341;
-
   border-radius: 8px;
 
   background: #111720;
 
-  color: #8f9bad;
+  color: #7f8b9d;
 
   cursor: pointer;
 
   outline: none;
 
-  overflow: visible;
-
   transition:
     color 0.18s ease,
     background 0.18s ease,
     border-color 0.18s ease,
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
 }
 
 
-/* Lucide icons */
+/* ICON */
 
 .admin-opportunity-action-btn svg {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
 
-  min-width: 15px;
-  min-height: 15px;
-
-  flex: 0 0 15px;
+  flex: 0 0 16px;
 }
 
 
-/* Hide any action text */
+/* HIDE TEXT */
 
 .admin-opportunity-action-btn span {
   display: none !important;
 }
 
 
-/* Hover */
-
-.admin-opportunity-action-btn:hover {
-  transform: translateY(-1px);
-}
-
-
-/* Active */
-
-.admin-opportunity-action-btn:active {
-  transform: translateY(0);
-}
-
-
-/* =========================================================
-   IMPORTANT
-   REMOVE TOOLTIP / DELETE TEXT
-   ========================================================= */
+/* REMOVE ANY OLD TOOLTIP PSEUDO ELEMENTS */
 
 .admin-opportunity-action-btn::before,
 .admin-opportunity-action-btn::after {
   content: none !important;
-
   display: none !important;
 }
 
 
 /* =========================================================
    VIEW
+   Blue
    ========================================================= */
 
 .admin-opportunity-view-btn:hover {
-  color: #69c8ff;
+  color: #60a5fa;
 
-  background: rgba(59, 130, 246, 0.09);
+  background: rgba(59, 130, 246, 0.10);
 
-  border-color: rgba(59, 130, 246, 0.32);
+  border-color: rgba(59, 130, 246, 0.38);
 
   box-shadow:
-    0 4px 14px rgba(59, 130, 246, 0.08);
+    0 0 14px rgba(59, 130, 246, 0.10);
+
+  transform: translateY(-1px);
 }
 
 
 /* =========================================================
    EDIT
+   Purple
    ========================================================= */
 
 .admin-opportunity-edit-btn:hover {
-  color: #bd9eff;
+  color: #b794ff;
 
-  background: rgba(139, 92, 246, 0.09);
+  background: rgba(139, 92, 246, 0.10);
 
-  border-color: rgba(139, 92, 246, 0.32);
+  border-color: rgba(139, 92, 246, 0.38);
 
   box-shadow:
-    0 4px 14px rgba(139, 92, 246, 0.08);
+    0 0 14px rgba(139, 92, 246, 0.10);
+
+  transform: translateY(-1px);
 }
 
 
 /* =========================================================
    APPLICANTS
+   Teal
    ========================================================= */
 
 .admin-opportunity-applicants-btn:hover {
-  color: #61e1d8;
+  color: #5eead4;
 
-  background: rgba(20, 184, 166, 0.09);
+  background: rgba(20, 184, 166, 0.10);
 
-  border-color: rgba(20, 184, 166, 0.32);
+  border-color: rgba(20, 184, 166, 0.38);
 
   box-shadow:
-    0 4px 14px rgba(20, 184, 166, 0.08);
+    0 0 14px rgba(20, 184, 166, 0.10);
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   CHANGE DEVELOPER
+   Cyan
+   ========================================================= */
+
+.admin-opportunity-change-developer-btn:hover {
+  color: #67e8f9;
+
+  background: rgba(6, 182, 212, 0.10);
+
+  border-color: rgba(6, 182, 212, 0.38);
+
+  box-shadow:
+    0 0 14px rgba(6, 182, 212, 0.10);
+
+  transform: translateY(-1px);
 }
 
 
 /* =========================================================
    DELETE
+   Red
    ========================================================= */
 
 .admin-opportunity-delete-action-btn {
-  color: #a97882;
+  color: #f87171 !important;
 
-  border-color: #33272d;
+  background: rgba(239, 68, 68, 0.055) !important;
 
-  background: rgba(239, 68, 68, 0.035);
+  border-color: rgba(239, 68, 68, 0.22) !important;
 }
 
 .admin-opportunity-delete-action-btn:hover {
-  color: #ff858f;
+  color: #ffffff !important;
 
-  background: rgba(239, 68, 68, 0.09);
+  background: rgba(239, 68, 68, 0.15) !important;
 
-  border-color: rgba(239, 68, 68, 0.32);
+  border-color: rgba(239, 68, 68, 0.45) !important;
 
   box-shadow:
-    0 4px 14px rgba(239, 68, 68, 0.08);
+    0 0 15px rgba(239, 68, 68, 0.12);
+
+  transform: translateY(-1px);
 }
 
 
 /* =========================================================
-   EMPTY / LOADING
+   CLICK
    ========================================================= */
 
-.admin-loading,
-.admin-empty-state {
-  min-height: 250px;
-
-  padding: 40px;
-
-  box-sizing: border-box;
-
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  text-align: center;
-}
-
-.admin-loading {
-  color: #7f8ba0;
-
-  font-size: 13px;
-}
-
-.admin-empty-state svg {
-  margin-bottom: 14px;
-
-  color: #4f5c70;
-}
-
-.admin-empty-state h3 {
-  margin: 0;
-
-  color: #dfe4ec;
-
-  font-size: 15px;
-}
-
-.admin-empty-state p {
-  max-width: 390px;
-
-  margin: 7px 0 0;
-
-  color: #69768a;
-
-  font-size: 12px;
-
-  line-height: 1.5;
+.admin-opportunity-action-btn:active {
+  transform: translateY(0) scale(0.96);
 }
 
 
 /* =========================================================
+   FOCUS
+   ========================================================= */
+
+.admin-opportunity-action-btn:focus {
+  outline: none;
+}
+
+.admin-opportunity-action-btn:focus-visible {
+  outline: 2px solid rgba(109, 124, 255, 0.35);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .admin-opportunity-actions {
+    gap: 5px;
+  }
+
+  .admin-opportunity-action-btn {
+    width: 31px;
+    height: 31px;
+
+    min-width: 31px;
+    max-width: 31px;
+
+    flex-basis: 31px;
+  }
+
+  .admin-opportunity-action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+
+/* ============================================================
    MODAL OVERLAY
-   ========================================================= */
+   ============================================================ */
 
 .admin-modal-overlay {
   position: fixed;
@@ -824,154 +1116,182 @@
 
   z-index: 1000;
 
-  padding: 28px;
-
-  box-sizing: border-box;
-
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  background: rgba(2, 5, 10, 0.76);
+  padding: 28px;
 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background:
+    rgba(2, 5, 9, 0.78);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  animation: admin-overlay-in 160ms ease;
+}
+
+@keyframes admin-overlay-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 
-/* =========================================================
+/* ============================================================
    MODAL
-   ========================================================= */
+   ============================================================ */
 
 .admin-modal {
-  width: min(900px, 100%);
+  width: min(
+    900px,
+    100%
+  );
 
-  max-height: calc(100vh - 56px);
+  max-height:
+    calc(100vh - 56px);
 
   display: flex;
+
   flex-direction: column;
 
-  overflow: hidden;
+  min-width: 0;
 
-  border: 1px solid #293341;
+  border: 1px solid var(--opp-border-strong);
 
-  border-radius: 18px;
+  border-radius: 16px;
 
   background:
     linear-gradient(
-      180deg,
-      #121821 0%,
-      #0c1118 100%
+      145deg,
+      #10161f,
+      #0c1118
     );
 
   box-shadow:
-    0 30px 90px rgba(0, 0, 0, 0.55);
+    0 35px 100px rgba(0, 0, 0, 0.55);
+
+  overflow: hidden;
+
+  animation: admin-modal-in 180ms ease;
 }
 
-.admin-opportunity-modal {
-  width: min(940px, 100%);
+@keyframes admin-modal-in {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(8px)
+      scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
 }
 
-.admin-opportunity-view-modal {
+
+/* ============================================================
+   MODAL VARIANTS
+   ============================================================ */
+
+.admin-opportunity-form-modal {
   width: min(900px, 100%);
 }
 
+.admin-opportunity-view-modal {
+  width: min(820px, 100%);
+}
+
 .admin-applicants-modal {
-  width: min(1120px, 100%);
+  width: min(1080px, 100%);
+}
+
+.admin-change-developer-modal {
+  width: min(650px, 100%);
 }
 
 
-/* =========================================================
+/* ============================================================
    MODAL HEADER
-   ========================================================= */
+   ============================================================ */
 
 .admin-modal-header {
-  min-height: 76px;
-
-  padding: 18px 22px;
-
-  box-sizing: border-box;
+  min-width: 0;
 
   display: flex;
-  align-items: center;
+
+  align-items: flex-start;
   justify-content: space-between;
 
   gap: 18px;
 
-  border-bottom: 1px solid #222b38;
+  padding: 19px 22px;
+
+  border-bottom: 1px solid var(--opp-border-soft);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(109, 124, 255, 0.045),
+      transparent 65%
+    );
+}
+
+.admin-modal-header > div {
+  min-width: 0;
 }
 
 .admin-modal-header h2 {
   margin: 0;
 
-  color: #f3f6fa;
+  color: #eef2f7;
 
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 17px;
 
-  letter-spacing: -0.25px;
+  line-height: 1.4;
+
+  font-weight: 670;
+
+  overflow-wrap: anywhere;
 }
 
 .admin-modal-header p {
   margin: 5px 0 0;
 
-  color: #737f92;
+  color: #667386;
 
-  font-size: 12px;
+  font-size: 9px;
+
+  line-height: 1.5;
 }
 
 
-/* =========================================================
-   CLOSE BUTTON
-   ========================================================= */
-
-.admin-icon-btn {
-  width: 36px;
-  height: 36px;
-
-  min-width: 36px;
-
-  padding: 0;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1px solid #2a3341;
-
-  border-radius: 9px;
-
-  background: #151b24;
-
-  color: #8995a8;
-
-  cursor: pointer;
-
-  transition:
-    color 0.18s ease,
-    background 0.18s ease,
-    border-color 0.18s ease;
-}
-
-.admin-icon-btn:hover {
-  color: #ffffff;
-
-  background: #1c2430;
-
-  border-color: #3a4557;
-}
-
-
-/* =========================================================
+/* ============================================================
    MODAL BODY
-   ========================================================= */
+   ============================================================ */
 
 .admin-modal-body {
-  padding: 26px;
+  min-height: 0;
+
+  padding: 23px;
 
   overflow-y: auto;
 
-  box-sizing: border-box;
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    #303b4b
+    transparent;
 }
 
 .admin-modal-body::-webkit-scrollbar {
@@ -983,24 +1303,45 @@
 }
 
 .admin-modal-body::-webkit-scrollbar-thumb {
-  border-radius: 10px;
+  background: #303b4b;
 
-  background: #293342;
+  border-radius: 10px;
 }
 
 .admin-modal-body::-webkit-scrollbar-thumb:hover {
-  background: #3b4759;
+  background: #455267;
 }
 
 
-/* =========================================================
+/* ============================================================
+   MODAL FOOTER
+   ============================================================ */
+
+.admin-modal-footer {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  padding: 13px 22px;
+
+  border-top: 1px solid var(--opp-border-soft);
+
+  background:
+    rgba(8, 12, 17, 0.72);
+}
+
+
+/* ============================================================
    FORM SECTIONS
-   ========================================================= */
+   ============================================================ */
 
 .admin-form-section {
-  padding: 22px 0;
+  padding: 21px 0;
 
-  border-bottom: 1px solid #202936;
+  border-bottom: 1px solid var(--opp-border-soft);
 }
 
 .admin-form-section:first-child {
@@ -1012,18 +1353,33 @@
 }
 
 .admin-form-section h3 {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
 
-  color: #e8edf4;
+  color: #e5ebf2;
 
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+
+  font-weight: 680;
+
+  letter-spacing: 0.01em;
+}
+
+.admin-form-section > label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #aab4c2;
+
+  font-size: 10px;
+
+  font-weight: 600;
 }
 
 
-/* =========================================================
+/* ============================================================
    FORM GRID
-   ========================================================= */
+   ============================================================ */
 
 .admin-form-grid {
   display: grid;
@@ -1031,7 +1387,7 @@
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
 
-  gap: 18px;
+  gap: 15px;
 }
 
 .admin-form-field {
@@ -1042,22 +1398,34 @@
   grid-column: 1 / -1;
 }
 
-.admin-form-field label,
-.admin-form-section > label {
+.admin-form-field label {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 
-  color: #aab4c3;
+  color: #aab4c2;
 
-  font-size: 12px;
+  font-size: 10px;
+
   font-weight: 600;
 }
 
+.admin-form-field small {
+  display: block;
 
-/* =========================================================
-   INPUTS
-   ========================================================= */
+  margin-top: 5px;
+
+  color: #596678;
+
+  font-size: 8px;
+
+  line-height: 1.45;
+}
+
+
+/* ============================================================
+   FORM INPUTS
+   ============================================================ */
 
 .admin-form-field input,
 .admin-form-field select,
@@ -1065,202 +1433,176 @@
 .admin-form-section > textarea {
   width: 100%;
 
-  box-sizing: border-box;
-
-  outline: none;
-
-  border: 1px solid #283140;
+  border: 1px solid #27313f;
 
   border-radius: 9px;
 
-  color: #e7ebf2;
+  outline: none;
 
-  background: #0d131b;
+  background:
+    #0b1118;
+
+  color: #e5ebf2;
 
   font-family: inherit;
-  font-size: 13px;
+
+  font-size: 11px;
 
   transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    background 0.18s ease;
+    border-color var(--opp-transition),
+    background var(--opp-transition),
+    box-shadow var(--opp-transition);
 }
 
 .admin-form-field input,
 .admin-form-field select {
-  height: 42px;
+  height: 40px;
 
-  padding: 0 12px;
+  padding: 0 11px;
 }
 
 .admin-form-field textarea,
 .admin-form-section > textarea {
-  min-height: 110px;
+  min-height: 105px;
 
-  padding: 12px;
+  padding: 11px;
 
   resize: vertical;
 
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
 .admin-form-field input::placeholder,
 .admin-form-field textarea::placeholder,
-.admin-form-section textarea::placeholder {
-  color: #4f5b6d;
+.admin-form-section > textarea::placeholder {
+  color: #4d5969;
 }
 
 .admin-form-field input:hover,
 .admin-form-field select:hover,
 .admin-form-field textarea:hover,
 .admin-form-section > textarea:hover {
-  border-color: #354153;
+  border-color: #344052;
 }
 
 .admin-form-field input:focus,
 .admin-form-field select:focus,
 .admin-form-field textarea:focus,
 .admin-form-section > textarea:focus {
-  border-color: #5c6dff;
+  border-color: rgba(109, 124, 255, 0.34);
 
-  background: #101722;
+  background:
+    #0d141d;
 
   box-shadow:
-    0 0 0 3px rgba(92, 109, 255, 0.10);
+    0 0 0 3px rgba(109, 124, 255, 0.045);
 }
 
-.admin-form-field small {
-  display: block;
+.admin-form-field input:disabled,
+.admin-form-field select:disabled,
+.admin-form-field textarea:disabled,
+.admin-form-section > textarea:disabled {
+  opacity: 0.5;
 
-  margin-top: 6px;
-
-  color: #626e81;
-
-  font-size: 10px;
+  cursor: not-allowed;
 }
 
 
-/* =========================================================
+/* ============================================================
    ROLE CHIPS
-   ========================================================= */
+   ============================================================ */
 
 .admin-role-grid {
   display: flex;
+
   flex-wrap: wrap;
 
-  gap: 8px;
+  gap: 6px;
 
-  margin-bottom: 18px;
+  margin-bottom: 17px;
 }
 
 .admin-role-chip {
-  min-height: 34px;
+  min-height: 29px;
 
-  padding: 6px 11px;
+  padding: 0 9px;
 
-  box-sizing: border-box;
+  border: 1px solid #27313f;
 
-  border: 1px solid #293342;
+  border-radius: 7px;
 
-  border-radius: 8px;
+  background: #0e141c;
 
-  color: #8995a8;
+  color: #7f8b9d;
 
-  background: #111720;
+  font-size: 8px;
 
-  font-size: 11px;
   font-weight: 600;
 
   cursor: pointer;
 
   transition:
-    color 0.18s ease,
-    border-color 0.18s ease,
-    background 0.18s ease;
+    color var(--opp-transition),
+    border-color var(--opp-transition),
+    background var(--opp-transition),
+    transform var(--opp-transition);
 }
 
-.admin-role-chip:hover {
-  color: #d7deea;
+.admin-role-chip:hover:not(:disabled) {
+  color: #c6cfdb;
 
-  border-color: #3b4659;
+  border-color: #3a4658;
 
-  background: #171e29;
+  background: #131a24;
 }
 
 .admin-role-chip.selected {
-  color: #bdc7ff;
+  border-color: rgba(109, 124, 255, 0.3);
 
-  background: rgba(83, 101, 255, 0.10);
+  background:
+    rgba(109, 124, 255, 0.095);
 
-  border-color: rgba(83, 101, 255, 0.38);
+  color: #bdc5ff;
+}
+
+.admin-role-chip.selected:hover:not(:disabled) {
+  border-color: rgba(109, 124, 255, 0.42);
+
+  background:
+    rgba(109, 124, 255, 0.14);
+}
+
+.admin-role-chip:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
 }
 
 
-/* =========================================================
-   MODAL FOOTER
-   ========================================================= */
-
-.admin-modal-footer {
-  min-height: 70px;
-
-  padding: 14px 22px;
-
-  box-sizing: border-box;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-
-  gap: 10px;
-
-  border-top: 1px solid #222b38;
-
-  background: #0d1219;
-}
-
-.admin-opportunity-view-footer {
-  flex-wrap: wrap;
-}
-
-
-/* =========================================================
-   OPPORTUNITY VIEW
-   ========================================================= */
+/* ============================================================
+   VIEW OPPORTUNITY
+   ============================================================ */
 
 .opportunity-view-status-row {
-  margin-bottom: 24px;
-
-  padding: 13px 15px;
-
-  box-sizing: border-box;
-
   display: flex;
+
   align-items: center;
-  justify-content: space-between;
 
-  gap: 16px;
+  flex-wrap: wrap;
 
-  border: 1px solid #222c3a;
+  gap: 9px;
 
-  border-radius: 10px;
+  margin-bottom: 23px;
+}
 
-  background: #10161f;
+.opportunity-view-status-row > span:last-child {
+  color: #697587;
 
-  color: #697589;
-
-  font-size: 11px;
+  font-size: 9px;
 }
 
 .opportunity-view-section {
   margin-bottom: 24px;
-
-  padding: 20px;
-
-  border: 1px solid #202a37;
-
-  border-radius: 12px;
-
-  background: rgba(15, 20, 29, 0.72);
 }
 
 .opportunity-view-section:last-child {
@@ -1268,12 +1610,13 @@
 }
 
 .opportunity-view-section h3 {
-  margin: 0 0 17px;
+  margin: 0 0 13px;
 
-  color: #dfe5ed;
+  color: #e0e6ed;
 
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+
+  font-weight: 680;
 }
 
 .opportunity-view-grid {
@@ -1282,7 +1625,7 @@
   grid-template-columns:
     repeat(2, minmax(0, 1fr));
 
-  gap: 14px;
+  gap: 9px;
 }
 
 .opportunity-view-info {
@@ -1290,11 +1633,12 @@
 
   padding: 13px;
 
-  border: 1px solid #202a36;
+  border: 1px solid var(--opp-border-soft);
 
   border-radius: 9px;
 
-  background: #10161e;
+  background:
+    rgba(255, 255, 255, 0.018);
 }
 
 .opportunity-view-info.full {
@@ -1307,20 +1651,22 @@
 
   margin-bottom: 6px;
 
-  color: #657186;
+  color: #637084;
 
-  font-size: 10px;
-  font-weight: 650;
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.06em;
 
   text-transform: uppercase;
-
-  letter-spacing: 0.5px;
 }
 
 .opportunity-view-info strong {
-  color: #d9e0e9;
+  color: #d7dfe8;
 
-  font-size: 12px;
+  font-size: 10px;
+
   font-weight: 600;
 
   line-height: 1.55;
@@ -1330,13 +1676,15 @@
 .opportunity-view-text {
   margin: 0;
 
-  color: #9ca7b8;
+  color: #919cab;
 
-  font-size: 12px;
+  font-size: 10px;
 
   line-height: 1.7;
 
   white-space: pre-wrap;
+
+  overflow-wrap: anywhere;
 }
 
 .opportunity-view-block {
@@ -1348,9 +1696,26 @@
 }
 
 
-/* =========================================================
+/* ============================================================
+   VIEW TAG / ROLE AREA
+   ============================================================ */
+
+.opportunity-view-block .admin-role-grid {
+  margin-bottom: 0;
+}
+
+.opportunity-view-block .admin-role-grid > p {
+  margin: 0;
+
+  color: #727e8f;
+
+  font-size: 10px;
+}
+
+
+/* ============================================================
    APPLICANTS SUMMARY
-   ========================================================= */
+   ============================================================ */
 
 .admin-applicants-summary {
   display: grid;
@@ -1358,19 +1723,22 @@
   grid-template-columns:
     repeat(4, minmax(0, 1fr));
 
-  gap: 12px;
+  gap: 9px;
 
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .admin-applicants-summary > div {
-  padding: 16px;
+  min-width: 0;
 
-  border: 1px solid #222c39;
+  padding: 14px;
 
-  border-radius: 11px;
+  border: 1px solid var(--opp-border-soft);
 
-  background: #10161f;
+  border-radius: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.018);
 }
 
 .admin-applicants-summary strong {
@@ -1378,88 +1746,162 @@
 
   margin-bottom: 4px;
 
-  color: #edf1f7;
+  color: #edf2f7;
 
-  font-size: 21px;
+  font-size: 20px;
+
   font-weight: 700;
 }
 
 .admin-applicants-summary span {
-  color: #68758a;
+  color: #687487;
 
-  font-size: 11px;
+  font-size: 8px;
+
+  line-height: 1.4;
 }
 
 
-/* =========================================================
+/* ============================================================
    APPLICANTS TABLE
-   ========================================================= */
+   ============================================================ */
 
 .admin-applicants-table-wrapper {
   width: 100%;
   max-width: 100%;
 
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 
-  border: 1px solid #202a37;
+  border: 1px solid var(--opp-border);
 
-  border-radius: 12px;
+  border-radius: 11px;
+
+  scrollbar-width: thin;
 }
 
 .admin-applicants-table {
   width: 100%;
 
-  min-width: 0;
+  min-width: 850px;
 
   table-layout: fixed;
+
+  border-collapse: collapse;
+}
+
+.admin-applicants-table thead th {
+  height: 42px;
+
+  padding: 0 12px;
+
+  color: #657184;
+
+  background: #0a0f15;
+
+  border-bottom: 1px solid var(--opp-border);
+
+  text-align: left;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.06em;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
 }
 
 .admin-applicants-table tbody td {
-  padding: 14px 16px;
+  padding: 12px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+
+  color: #9ba6b5;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.admin-applicants-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-applicants-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.016);
 }
 
 
-/* =========================================================
+/* ============================================================
    APPLICANT DEVELOPER
-   ========================================================= */
+   ============================================================ */
 
 .applicant-developer {
   display: flex;
+
   align-items: center;
 
-  gap: 10px;
+  gap: 9px;
 
   min-width: 0;
 }
 
 .applicant-avatar {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
 
-  min-width: 34px;
+  min-width: 32px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  border: 1px solid #303a4b;
+  border: 1px solid rgba(109, 124, 255, 0.17);
 
-  border-radius: 9px;
+  border-radius: 50%;
 
-  color: #b9c2ff;
+  background:
+    rgba(109, 124, 255, 0.07);
 
-  background: #171d2a;
+  color: #b9c1ff;
 
-  font-size: 10px;
+  font-size: 8px;
+
   font-weight: 700;
 }
 
-.applicant-developer strong {
-  font-size: 12px !important;
+.applicant-developer-info {
+  min-width: 0;
 }
 
-.applicant-developer small {
-  max-width: 150px;
+.applicant-developer-info strong {
+  display: block;
+
+  color: #dfe5ec;
+
+  font-size: 10px;
+
+  font-weight: 620;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.applicant-developer-info small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #667285;
+
+  font-size: 8px;
 
   overflow: hidden;
 
@@ -1469,140 +1911,307 @@
 }
 
 
-/* =========================================================
+/* ============================================================
    APPLICANT NOTES
-   ========================================================= */
+   ============================================================ */
 
 .applicant-notes {
   display: block;
 
-  max-width: 190px;
+  max-width: 220px;
+
+  color: #7f8b9a;
+
+  font-size: 9px;
+
+  line-height: 1.45;
 
   overflow: hidden;
 
-  color: #8995a7;
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  cursor: help;
+}
+
+.admin-muted {
+  color: #4f5b6a;
+
+  font-size: 9px;
+}
+
+
+/* ============================================================
+   FILE / ESTIMATE STATUS
+   ============================================================ */
+
+.admin-file-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  color: #8793a3;
+
+  font-size: 8px;
+
+  white-space: nowrap;
+}
+
+.admin-file-status svg {
+  color: #687689;
+}
+
+
+/* ============================================================
+   APPLICATION ACTIONS
+   ============================================================ */
+
+.admin-application-actions {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 5px;
+}
+
+.admin-application-actions button {
+  min-height: 29px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  padding: 0 8px;
+
+  border-radius: 6px;
+
+  font-size: 8px;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    color var(--opp-transition),
+    border-color var(--opp-transition),
+    background var(--opp-transition);
+}
+
+.admin-application-actions .admin-primary-btn {
+  min-height: 29px;
+
+  padding: 0 8px;
+
+  font-size: 8px;
+}
+
+.admin-application-actions .admin-secondary-btn {
+  min-height: 29px;
+
+  padding: 0 8px;
+
+  font-size: 8px;
+}
+
+.admin-application-actions button:hover:not(:disabled) {
+  transform: none;
+}
+
+
+/* ============================================================
+   REASSIGNMENT
+   ============================================================ */
+
+.admin-reassignment-current {
+  padding: 14px;
+
+  margin-bottom: 4px;
+
+  border: 1px solid rgba(255, 202, 112, 0.15);
+
+  border-radius: 10px;
+
+  background:
+    rgba(255, 202, 112, 0.035);
+}
+
+.admin-reassignment-current span {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #827457;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.07em;
+
+  text-transform: uppercase;
+}
+
+.admin-reassignment-current strong {
+  display: block;
+
+  color: #e6e1d7;
 
   font-size: 11px;
+
+  font-weight: 650;
+
+  overflow-wrap: anywhere;
+}
+
+.admin-reassignment-current small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #766d5d;
+
+  font-size: 8px;
+}
+
+
+/* ============================================================
+   AVAILABLE DEVELOPERS
+   ============================================================ */
+
+.admin-available-developers {
+  display: grid;
+
+  gap: 7px;
+}
+
+.admin-available-developer {
+  width: 100%;
+
+  min-height: 57px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 10px 11px;
+
+  border: 1px solid var(--opp-border);
+
+  border-radius: 9px;
+
+  background:
+    #10161e;
+
+  color: #dfe5ee;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    border-color var(--opp-transition),
+    background var(--opp-transition),
+    transform var(--opp-transition);
+}
+
+.admin-available-developer:hover:not(:disabled) {
+  border-color: rgba(109, 124, 255, 0.27);
+
+  background: #141b25;
+
+  transform: translateY(-1px);
+}
+
+.admin-available-developer:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+.admin-available-developer-info {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.admin-available-developer-info strong,
+.admin-available-developer-info small {
+  display: block;
+
+  overflow: hidden;
 
   text-overflow: ellipsis;
 
   white-space: nowrap;
 }
 
+.admin-available-developer-info strong {
+  color: #e5eaf1;
 
-/* =========================================================
-   LINKS
-   ========================================================= */
+  font-size: 10px;
 
-.admin-link-btn {
-  display: inline-flex;
-  align-items: center;
-
-  gap: 6px;
-
-  color: #73bfff;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  text-decoration: none;
-
-  transition: color 0.18s ease;
+  font-weight: 620;
 }
 
-.admin-link-btn:hover {
-  color: #a7d7ff;
+.admin-available-developer-info small {
+  margin-top: 3px;
+
+  color: #697588;
+
+  font-size: 8px;
 }
 
-.admin-file-status {
-  display: inline-flex;
-  align-items: center;
+.admin-available-badge {
+  padding: 5px 7px;
 
-  gap: 6px;
+  border: 1px solid rgba(34, 197, 94, 0.17);
 
-  color: #93a0b4;
+  border-radius: 999px;
 
-  font-size: 12px;
-}
+  color: #79e2ac;
 
-.admin-muted {
-  color: #596476;
+  background: rgba(34, 197, 94, 0.055);
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  white-space: nowrap;
 }
 
 
-/* =========================================================
-   DELETE BUTTONS
-   ========================================================= */
+/* ============================================================
+   FORM SECTION INSIDE REASSIGNMENT
+   ============================================================ */
 
-.admin-application-delete-btn,
-.admin-opportunity-delete-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.admin-change-developer-modal .admin-form-section {
+  padding-bottom: 0;
 
-  gap: 7px;
-
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  transition:
-    color 0.18s ease,
-    background 0.18s ease,
-    border-color 0.18s ease;
+  border-bottom: none;
 }
 
-.admin-application-delete-btn {
-  width: 34px;
-  height: 34px;
-
-  padding: 0;
-
-  border: 1px solid #33272b;
-
-  background: rgba(239, 68, 68, 0.04);
-
-  color: #b66e78;
-
-  font-size: 0;
-}
-
-.admin-application-delete-btn:hover {
-  color: #ff8e98;
-
-  background: rgba(239, 68, 68, 0.10);
-
-  border-color: rgba(239, 68, 68, 0.28);
-}
-
-.admin-opportunity-delete-btn {
-  min-height: 40px;
-
-  padding: 0 14px;
-
-  border: 1px solid rgba(239, 68, 68, 0.20);
-
-  background: rgba(239, 68, 68, 0.06);
-
-  color: #ff8e98;
-
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.admin-opportunity-delete-btn:hover {
-  background: rgba(239, 68, 68, 0.11);
-
-  border-color: rgba(239, 68, 68, 0.35);
+.admin-change-developer-modal .admin-form-section h3 {
+  margin-bottom: 11px;
 }
 
 
-/* =========================================================
+/* ============================================================
    SPINNER
-   ========================================================= */
+   ============================================================ */
 
 .spin {
-  animation: admin-spin 0.8s linear infinite;
+  animation:
+    admin-spin 0.8s linear infinite;
 }
 
 @keyframes admin-spin {
@@ -1612,63 +2221,97 @@
 }
 
 
-/* =========================================================
+/* ============================================================
+   DESKTOP LARGE
+   ============================================================ */
+
+@media (min-width: 1400px) {
+  .admin-page {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .admin-table {
+    min-width: 1050px;
+  }
+}
+
+
+/* ============================================================
    TABLET
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 1100px) {
-
   .admin-page {
-    padding: 28px 24px;
+    padding: 28px 24px 50px;
+  }
+
+  .admin-table {
+    min-width: 1000px;
   }
 
   .admin-table thead th,
   .admin-table tbody td {
-    padding-left: 11px;
-    padding-right: 11px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   .admin-opportunity-actions {
-    gap: 4px;
+    gap: 5px;
   }
 
   .admin-opportunity-action-btn {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
 
-    min-width: 28px;
-    max-width: 28px;
-
-    flex-basis: 28px;
+    min-width: 30px;
+    flex-basis: 30px;
   }
 
   .admin-opportunity-action-btn svg {
     width: 14px;
     height: 14px;
-
-    min-width: 14px;
-    min-height: 14px;
   }
 }
 
 
-/* =========================================================
+/* ============================================================
    SMALL TABLET
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 900px) {
-
   .admin-page {
-    padding: 22px;
+    padding: 23px 20px 45px;
   }
 
   .admin-page-header {
-    flex-direction: column;
     align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 15px;
   }
 
   .admin-page-header .admin-primary-btn {
-    width: fit-content;
+    width: auto;
+  }
+
+  .admin-card-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 13px;
+  }
+
+  .admin-opportunity-filter {
+    width: 100%;
+  }
+
+  .admin-opportunity-filter select {
+    flex: 1;
+
+    min-width: 0;
   }
 
   .admin-form-grid {
@@ -1688,73 +2331,109 @@
   }
 
   .admin-applicants-summary {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
   .admin-modal-overlay {
-    padding: 16px;
+    padding: 18px;
   }
 
   .admin-modal {
-    max-height: calc(100vh - 32px);
+    max-height:
+      calc(100vh - 36px);
   }
 }
 
 
-/* =========================================================
+/* ============================================================
    MOBILE
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 600px) {
-
   .admin-page {
-    padding: 16px;
+    padding: 17px 14px 35px;
   }
 
   .admin-page-header h1 {
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .admin-page-header p {
-    font-size: 13px;
+    font-size: 10px;
+  }
+
+  .admin-page-header .admin-primary-btn {
+    width: 100%;
   }
 
   .admin-card-header {
-    padding: 16px;
+    padding: 14px;
+  }
+
+  .admin-card-header > div:first-child {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 5px;
+  }
+
+  .admin-opportunity-filter {
+    align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 5px;
+  }
+
+  .admin-opportunity-filter select {
+    width: 100%;
+  }
+
+  /*
+   * Keep table wide enough.
+   * Browser scrolls horizontally.
+   */
+  .admin-table {
+    min-width: 1000px;
   }
 
   .admin-table thead th {
-    font-size: 9px;
+    height: 43px;
 
     padding: 0 8px;
+
+    font-size: 7px;
   }
 
   .admin-table tbody td {
-    padding: 13px 8px;
+    height: 62px;
 
-    font-size: 11px;
-  }
+    padding: 10px 8px;
 
-  .admin-table td strong {
-    font-size: 12px;
-  }
-
-  .admin-table td small {
     font-size: 9px;
   }
 
+  .admin-table td strong {
+    font-size: 10px;
+  }
+
+  .admin-table td small {
+    font-size: 8px;
+  }
+
   .admin-opportunity-actions {
-    gap: 3px;
+    gap: 4px;
   }
 
   .admin-opportunity-action-btn {
-    width: 27px;
-    height: 27px;
+    width: 29px;
+    height: 29px;
 
-    min-width: 27px;
-    max-width: 27px;
+    min-width: 29px;
 
-    flex-basis: 27px;
+    flex-basis: 29px;
 
     border-radius: 7px;
   }
@@ -1762,148 +2441,294 @@
   .admin-opportunity-action-btn svg {
     width: 13px;
     height: 13px;
-
-    min-width: 13px;
-    min-height: 13px;
   }
 
-  /* No tooltip */
-  .admin-opportunity-action-btn::before,
-  .admin-opportunity-action-btn::after {
-    display: none !important;
+  .admin-modal-overlay {
+    align-items: flex-end;
+
+    padding: 0;
+  }
+
+  .admin-modal {
+    width: 100%;
+
+    max-height: 94vh;
+
+    border-radius:
+      16px
+      16px
+      0
+      0;
+  }
+
+  .admin-modal-header {
+    padding: 16px;
   }
 
   .admin-modal-body {
-    padding: 18px;
+    padding: 17px;
   }
 
   .admin-modal-footer {
-    padding: 13px 16px;
+    padding: 12px 16px;
 
     flex-wrap: wrap;
   }
 
   .admin-modal-footer .admin-secondary-btn,
-  .admin-modal-footer .admin-primary-btn {
+  .admin-modal-footer .admin-primary-btn,
+  .admin-modal-footer .admin-opportunity-delete-btn {
     flex: 1;
   }
 
   .admin-applicants-summary {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
-  .opportunity-view-section {
-    padding: 16px;
+  .admin-applicants-table {
+    min-width: 850px;
+  }
+
+  .admin-application-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .admin-application-actions button {
+    width: 100%;
   }
 }
-/* =========================================================
-   CHANGE DEVELOPER
-   ========================================================= */
-.admin-opportunity-change-developer-btn:hover {
-  color: #70d9ff;
-  border-color: rgba(59, 130, 246, 0.32);
-  background: rgba(59, 130, 246, 0.09);
+
+
+/* ============================================================
+   VERY SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 420px) {
+  .admin-page {
+    padding-left: 11px;
+    padding-right: 11px;
+  }
+
+  .admin-page-header h1 {
+    font-size: 21px;
+  }
+
+  .admin-modal-header h2 {
+    font-size: 15px;
+  }
+
+  .admin-modal-body {
+    padding: 14px;
+  }
+
+  .admin-form-section {
+    padding: 18px 0;
+  }
+
+  .admin-role-grid {
+    gap: 5px;
+  }
+
+  .admin-role-chip {
+    min-height: 27px;
+
+    padding: 0 7px;
+
+    font-size: 7px;
+  }
+
+  .admin-applicants-summary > div {
+    padding: 12px;
+  }
+
+  .admin-applicants-summary strong {
+    font-size: 18px;
+  }
 }
 
-.admin-change-developer-modal {
-  width: min(760px, 100%);
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+  }
+}
+/* ============================================================
+   FINAL SMALL UI POLISH
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   FILTER — remove the bright cyan focus ring
+   ------------------------------------------------------------ */
+
+.admin-opportunity-filter select {
+  outline: none !important;
+
+  border-color: var(--opp-border) !important;
+
+  box-shadow: none !important;
 }
 
-.admin-reassignment-current {
-  margin-bottom: 22px;
-  padding: 16px;
-  border: 1px solid #252f3e;
-  border-radius: 11px;
-  background: #10161f;
+.admin-opportunity-filter select:focus {
+  outline: none !important;
+
+  border-color: rgba(109, 124, 255, 0.35) !important;
+
+  box-shadow: none !important;
 }
 
-.admin-reassignment-current span {
-  display: block;
-  margin-bottom: 7px;
-  color: #68758a;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .5px;
+
+/* ------------------------------------------------------------
+   TABLE — give actions more space
+   ------------------------------------------------------------ */
+
+.admin-table {
+  min-width: 1080px;
 }
 
-.admin-reassignment-current strong {
-  display: block;
-  color: #e9eef6;
-  font-size: 13px;
+.admin-table th:nth-child(1),
+.admin-table td:nth-child(1) {
+  width: 23%;
 }
 
-.admin-reassignment-current small {
-  display: block;
-  margin-top: 5px;
-  color: #6d798b;
-  font-size: 10px;
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+  width: 12%;
 }
 
-.admin-available-developers {
-  display: grid;
-  gap: 9px;
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+  width: 13%;
 }
 
-.admin-available-developer {
-  width: 100%;
-  min-height: 62px;
-  padding: 11px 13px;
+.admin-table th:nth-child(4),
+.admin-table td:nth-child(4) {
+  width: 12%;
+}
+
+.admin-table th:nth-child(5),
+.admin-table td:nth-child(5) {
+  width: 10%;
+}
+
+.admin-table th:nth-child(6),
+.admin-table td:nth-child(6) {
+  width: 10%;
+}
+
+.admin-table th:nth-child(7),
+.admin-table td:nth-child(7) {
+  width: 20%;
+}
+
+
+/* ------------------------------------------------------------
+   ACTION BUTTONS
+   ------------------------------------------------------------ */
+
+.admin-opportunity-actions {
   display: flex;
+
   align-items: center;
-  gap: 11px;
-  box-sizing: border-box;
-  border: 1px solid #273140;
-  border-radius: 10px;
-  background: #111720;
-  color: #dfe5ee;
-  text-align: left;
-  cursor: pointer;
-  transition: .18s ease;
-}
 
-.admin-available-developer:hover:not(:disabled) {
-  border-color: rgba(83, 101, 255, .45);
-  background: #151d29;
-  transform: translateY(-1px);
-}
+  gap: 7px;
 
-.admin-available-developer:disabled {
-  opacity: .55;
-  cursor: not-allowed;
-}
+  flex-wrap: nowrap;
 
-.admin-available-developer-info {
-  min-width: 0;
-  flex: 1;
-}
-
-.admin-available-developer-info strong,
-.admin-available-developer-info small {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.admin-available-developer-info strong {
-  color: #e8edf5;
-  font-size: 12px;
+.admin-opportunity-action-btn {
+  width: 38px;
+  height: 38px;
+
+  min-width: 38px;
+  flex: 0 0 38px;
+
+  border-radius: 8px;
 }
 
-.admin-available-developer-info small {
-  margin-top: 4px;
-  color: #718096;
-  font-size: 10px;
+
+/* ------------------------------------------------------------
+   VIEW / EDIT / APPLICANTS
+   Text buttons should have enough room
+   ------------------------------------------------------------ */
+
+.admin-opportunity-actions
+.admin-opportunity-view-btn,
+.admin-opportunity-actions
+.admin-opportunity-edit-btn,
+.admin-opportunity-actions
+.admin-opportunity-applicants-btn {
+  width: auto;
+
+  min-width: 38px;
+
+  padding-left: 9px;
+  padding-right: 9px;
+
+  gap: 5px;
 }
 
-.admin-available-badge {
-  padding: 5px 8px;
-  border: 1px solid rgba(34, 197, 94, .18);
-  border-radius: 999px;
-  color: #79e2ac;
-  background: rgba(34, 197, 94, .06);
-  font-size: 9px;
-  font-weight: 700;
-  white-space: nowrap;
+
+/* ------------------------------------------------------------
+   DELETE ICON
+   ------------------------------------------------------------ */
+
+.admin-opportunity-actions
+.admin-opportunity-delete-btn {
+  width: 38px;
+  min-width: 38px;
+
+  padding: 0;
+}
+
+
+/* ------------------------------------------------------------
+   TABLE ROW — slightly more comfortable
+   ------------------------------------------------------------ */
+
+.admin-table tbody td {
+  padding-top: 13px;
+  padding-bottom: 13px;
+}
+
+
+/* ------------------------------------------------------------
+   STATUS — prevent awkward wrapping
+   ------------------------------------------------------------ */
+
+.admin-table .status-badge {
+  min-width: max-content;
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE — keep horizontal table scrolling
+   ------------------------------------------------------------ */
+
+@media (max-width: 600px) {
+  .admin-table {
+    min-width: 1080px;
+  }
+
+  .admin-opportunity-action-btn {
+    width: 36px;
+    height: 36px;
+
+    min-width: 36px;
+    flex-basis: 36px;
+  }
 }

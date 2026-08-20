@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import {
   Briefcase,
@@ -10,6 +14,7 @@ import {
   Layers3,
   CheckCircle2,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 
 import "../../styles/developer.css";
@@ -17,53 +22,195 @@ import "../../styles/developer.css";
 import {
   getOpenOpportunities,
   applyToOpportunity,
-} from "../../services/developerService";
+} from "../../services/developer/developerOpportunityService";
 
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function formatDate(value) {
+  if (!value) {
+    return "Not specified";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not specified";
+  }
+
+  return date.toLocaleDateString(
+    "en-IN",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  );
+}
+
+
+function formatAmount(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "Not specified";
+  }
+
+  const number = Number(value);
+
+  if (Number.isNaN(number)) {
+    return "Not specified";
+  }
+
+  return `₹${number.toLocaleString(
+    "en-IN"
+  )}`;
+}
+
+
+function formatArray(value) {
+  if (!value) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map(
+        (item) =>
+          item.trim()
+      )
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+
+/* =========================================================
+   COMPONENT
+========================================================= */
 
 export default function OpportunitiesTab({
   devProfile,
   onAssignmentCreated,
 }) {
-  const [opportunities, setOpportunities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [applyingId, setApplyingId] = useState(null);
+  const [
+    opportunities,
+    setOpportunities,
+  ] = useState([]);
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    refreshing,
+    setRefreshing,
+  ] = useState(false);
+
+  const [
+    applyingId,
+    setApplyingId,
+  ] = useState(null);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    success,
+    setSuccess,
+  ] = useState("");
 
 
-  /* =========================================================
+  /* =======================================================
      LOAD OPPORTUNITIES
-  ========================================================= */
+  ======================================================= */
 
-  async function loadOpportunities() {
-    try {
-      setLoading(true);
-      setError("");
-      setSuccess("");
+  const loadOpportunities =
+    useCallback(
+      async ({
+        refresh = false,
+      } = {}) => {
+        try {
+          setError("");
 
-      const data = await getOpenOpportunities();
+          setSuccess("");
 
-      setOpportunities(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(
-        "Failed to load opportunities:",
-        err
-      );
+          if (refresh) {
+            setRefreshing(true);
+          } else {
+            setLoading(true);
+          }
 
-      setError(
-        err?.message ||
-          "Unable to load available opportunities."
-      );
+          /*
+           * IMPORTANT:
+           *
+           * We intentionally DO NOT check:
+           *
+           * devProfile.status
+           * active assignment
+           *
+           * here.
+           *
+           * A developer should be able to see open
+           * opportunities.
+           *
+           * Eligibility is checked during APPLY.
+           */
 
-      setOpportunities([]);
-    } finally {
-      setLoading(false);
-    }
-  }
+          const data =
+            await getOpenOpportunities();
 
+          setOpportunities(
+            Array.isArray(data)
+              ? data
+              : []
+          );
+        } catch (err) {
+          console.error(
+            "Failed to load opportunities:",
+            err
+          );
+
+          setOpportunities([]);
+
+          setError(
+            err?.message ||
+              "Unable to load available opportunities."
+          );
+        } finally {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      },
+      []
+    );
+
+
+  /* =======================================================
+     INITIAL LOAD
+  ======================================================= */
 
   useEffect(() => {
+    /*
+     * We only need the authenticated developer profile
+     * to exist before loading the page.
+     *
+     * We do NOT require status === approved here.
+     */
+
     if (!devProfile?.id) {
       setOpportunities([]);
       setLoading(false);
@@ -71,253 +218,166 @@ export default function OpportunitiesTab({
     }
 
     loadOpportunities();
-  }, [devProfile?.id]);
+  }, [
+    devProfile?.id,
+    loadOpportunities,
+  ]);
 
 
-  /* =========================================================
-     APPLY TO OPPORTUNITY
-  ========================================================= */
+  /* =======================================================
+     APPLY
+  ======================================================= */
 
-  async function handleApply(opportunity) {
-    if (!devProfile?.id) {
-      setError(
-        "Developer profile not found."
-      );
-      return;
-    }
+  const handleApply =
+    useCallback(
+      async (opportunity) => {
+        if (!opportunity?.id) {
+          setError(
+            "Invalid opportunity."
+          );
 
-    if (!opportunity?.id) {
-      setError(
-        "Invalid opportunity."
-      );
-      return;
-    }
+          return;
+        }
 
-    try {
-      setApplyingId(opportunity.id);
+        if (!devProfile?.id) {
+          setError(
+            "Developer profile not found."
+          );
 
-      setError("");
-      setSuccess("");
+          return;
+        }
 
+        try {
+          setApplyingId(
+            opportunity.id
+          );
 
-      /*
-       * IMPORTANT
-       *
-       * developerService.js expects ONE OBJECT:
-       *
-       * applyToOpportunity({
-       *   opportunityId,
-       *   coverMessage,
-       *   estimatedDays
-       * })
-       *
-       * NOT:
-       *
-       * applyToOpportunity(
-       *   opportunity.id,
-       *   {...}
-       * )
-       */
+          setError("");
 
-      const result = await applyToOpportunity({
-        opportunityId: opportunity.id,
-        coverMessage: "",
-        estimatedDays: null,
-      });
+          setSuccess("");
+
+          const result =
+            await applyToOpportunity({
+              opportunityId:
+                opportunity.id,
+
+              coverMessage:
+                "",
+
+              estimatedDays:
+                null,
+            });
 
 
-      console.log(
-        "Application result:",
-        result
-      );
+          console.log(
+            "Application result:",
+            result
+          );
 
 
-      /*
-       * Remove the applied opportunity
-       * from the current list.
-       */
+          /*
+           * Remove the opportunity immediately.
+           */
 
-      setOpportunities((current) =>
-        current.filter(
-          (item) =>
-            item.id !== opportunity.id
-        )
-      );
-
-
-      /*
-       * Show success message.
-       */
-
-      setSuccess(
-        `Your application for "${opportunity.title}" has been submitted successfully.`
-      );
+          setOpportunities(
+            (current) =>
+              current.filter(
+                (item) =>
+                  item.id !==
+                  opportunity.id
+              )
+          );
 
 
-      /*
-       * If database created an assignment,
-       * refresh dashboard.
-       */
-
-      if (
-        result?.assignment &&
-        onAssignmentCreated
-      ) {
-        await onAssignmentCreated();
-      } else if (onAssignmentCreated) {
-        /*
-         * Still refresh the dashboard because
-         * the assignment may have been created
-         * by a database trigger.
-         */
-
-        await onAssignmentCreated();
-      }
-
-    } catch (err) {
-      console.error(
-        "Application failed:",
-        err
-      );
+          setSuccess(
+            `Your application for "${opportunity.title}" has been submitted successfully.`
+          );
 
 
-      const message =
-        err?.message ||
-        "Unable to apply for this opportunity.";
+          /*
+           * Refresh dashboard assignment.
+           */
+
+          if (
+            onAssignmentCreated
+          ) {
+            await onAssignmentCreated();
+          }
 
 
-      /*
-       * Refresh if the opportunity became
-       * unavailable while the developer
-       * was applying.
-       */
+          /*
+           * Refresh opportunities from DB
+           * because the opportunity may now have
+           * changed state.
+           */
 
-      const lowerMessage =
-        message.toLowerCase();
+          await loadOpportunities({
+            refresh: true,
+          });
+        } catch (err) {
+          console.error(
+            "Application failed:",
+            err
+          );
 
-      if (
-        lowerMessage.includes(
-          "already been assigned"
-        ) ||
-        lowerMessage.includes(
-          "no longer open"
-        ) ||
-        lowerMessage.includes(
-          "no longer available"
-        ) ||
-        lowerMessage.includes(
-          "already applied"
-        )
-      ) {
-        await loadOpportunities();
-      }
+          const message =
+            err?.message ||
+            "Unable to apply for this opportunity.";
+
+          setError(message);
 
 
-      setError(message);
+          /*
+           * If another developer got it,
+           * refresh the list.
+           */
 
-    } finally {
-      setApplyingId(null);
-    }
-  }
+          const normalized =
+            message.toLowerCase();
 
-
-  /* =========================================================
-     FORMAT DATE
-  ========================================================= */
-
-  function formatDate(date) {
-    if (!date) {
-      return "Not specified";
-    }
-
-    const parsed = new Date(date);
-
-    if (
-      Number.isNaN(
-        parsed.getTime()
-      )
-    ) {
-      return date;
-    }
-
-    return parsed.toLocaleDateString(
-      "en-IN",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }
+          if (
+            normalized.includes(
+              "already been assigned"
+            ) ||
+            normalized.includes(
+              "no longer open"
+            ) ||
+            normalized.includes(
+              "already applied"
+            ) ||
+            normalized.includes(
+              "no longer available"
+            )
+          ) {
+            await loadOpportunities({
+              refresh: true,
+            });
+          }
+        } finally {
+          setApplyingId(null);
+        }
+      },
+      [
+        devProfile?.id,
+        loadOpportunities,
+        onAssignmentCreated,
+      ]
     );
-  }
 
 
-  /* =========================================================
-     FORMAT ARRAY
-  ========================================================= */
-
-  function formatArray(value) {
-    if (!value) {
-      return [];
-    }
-
-    if (Array.isArray(value)) {
-      return value.filter(Boolean);
-    }
-
-    if (typeof value === "string") {
-      return value
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-
-    return [];
-  }
-
-
-  /* =========================================================
-     FORMAT AMOUNT
-  ========================================================= */
-
-  function formatAmount(amount) {
-    if (
-      amount === null ||
-      amount === undefined ||
-      amount === ""
-    ) {
-      return "₹0";
-    }
-
-    const numericAmount =
-      Number(amount);
-
-    if (
-      Number.isNaN(
-        numericAmount
-      )
-    ) {
-      return "₹0";
-    }
-
-    return `₹${numericAmount.toLocaleString(
-      "en-IN"
-    )}`;
-  }
-
-
-  /* =========================================================
+  /* =======================================================
      LOADING
-  ========================================================= */
+  ======================================================= */
 
   if (loading) {
     return (
-      <div className="developer-opportunities-page">
+      <section className="developer-opportunities-page">
 
         <div className="developer-opportunities-loading">
 
           <Loader2
-            className="spin"
             size={28}
+            className="spin"
           />
 
           <span>
@@ -326,18 +386,17 @@ export default function OpportunitiesTab({
 
         </div>
 
-      </div>
+      </section>
     );
   }
 
 
-  /* =========================================================
+  /* =======================================================
      PAGE
-  ========================================================= */
+  ======================================================= */
 
   return (
-    <div className="developer-opportunities-page">
-
+    <section className="developer-opportunities-page">
 
       {/* =====================================================
           HEADER
@@ -355,11 +414,9 @@ export default function OpportunitiesTab({
 
           </div>
 
-
           <h1>
             Opportunities
           </h1>
-
 
           <p>
             Browse projects currently
@@ -393,20 +450,23 @@ export default function OpportunitiesTab({
       {error && (
         <div className="developer-opportunity-alert error">
 
+          <AlertCircle size={18} />
+
           <span>
             {error}
           </span>
 
-
           <button
             type="button"
-            onClick={loadOpportunities}
+            onClick={() =>
+              loadOpportunities({
+                refresh: true,
+              })
+            }
           >
-
             <RefreshCw size={16} />
 
             Retry
-
           </button>
 
         </div>
@@ -431,7 +491,48 @@ export default function OpportunitiesTab({
 
 
       {/* =====================================================
-          EMPTY STATE
+          REFRESH
+      ===================================================== */}
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: "16px",
+        }}
+      >
+
+        <button
+          type="button"
+          className="developer-refresh-button"
+          disabled={refreshing}
+          onClick={() =>
+            loadOpportunities({
+              refresh: true,
+            })
+          }
+        >
+
+          <RefreshCw
+            size={16}
+            className={
+              refreshing
+                ? "spin"
+                : ""
+            }
+          />
+
+          {refreshing
+            ? "Refreshing..."
+            : "Refresh"}
+
+        </button>
+
+      </div>
+
+
+      {/* =====================================================
+          EMPTY
       ===================================================== */}
 
       {opportunities.length === 0 &&
@@ -445,23 +546,25 @@ export default function OpportunitiesTab({
 
             </div>
 
-
             <h2>
               No opportunities available
             </h2>
 
-
             <p>
-              There are currently no projects
-              available for you. Check back
-              later for new opportunities.
+              There are currently no open
+              projects available. New
+              opportunities will appear here
+              when the admin publishes them.
             </p>
-
 
             <button
               type="button"
               className="developer-refresh-button"
-              onClick={loadOpportunities}
+              onClick={() =>
+                loadOpportunities({
+                  refresh: true,
+                })
+              }
             >
 
               <RefreshCw size={16} />
@@ -475,7 +578,7 @@ export default function OpportunitiesTab({
 
 
       {/* =====================================================
-          OPPORTUNITY GRID
+          OPPORTUNITIES
       ===================================================== */}
 
       {opportunities.length > 0 && (
@@ -495,6 +598,11 @@ export default function OpportunitiesTab({
                   opportunity.required_skills
                 );
 
+              const roles =
+                formatArray(
+                  opportunity.required_roles
+                );
+
               const deliverables =
                 formatArray(
                   opportunity.deliverables
@@ -506,78 +614,69 @@ export default function OpportunitiesTab({
 
 
               return (
-
                 <article
+                  key={
+                    opportunity.id
+                  }
                   className="opportunity-card"
-                  key={opportunity.id}
                 >
 
-
                   {/* =================================================
-                      CARD TOP
+                      TOP
                   ================================================= */}
 
                   <div className="opportunity-card-top">
 
-                    <span className="opportunity-type">
+                    <div>
 
-                      {opportunity.project_type ||
-                        opportunity.category ||
-                        "Project"}
+                      <span className="developer-section-label">
 
-                    </span>
+                        <Briefcase
+                          size={14}
+                        />
 
+                        {opportunity.category ||
+                          "Project"}
+
+                      </span>
+
+                      <h2>
+                        {opportunity.title ||
+                          "Untitled Opportunity"}
+                      </h2>
+
+                    </div>
 
                     <span className="opportunity-status">
-
                       Open
-
                     </span>
 
                   </div>
 
 
                   {/* =================================================
-                      TITLE
+                      DESCRIPTION
                   ================================================= */}
 
-                  <div className="opportunity-card-title">
+                  <p className="opportunity-description">
 
-                    <h2>
+                    {opportunity.description ||
+                      "No project description provided."}
 
-                      {opportunity.title ||
-                        "Untitled Project"}
-
-                    </h2>
-
-
-                    <p>
-
-                      {opportunity.description ||
-                        "No project description available."}
-
-                    </p>
-
-                  </div>
+                  </p>
 
 
                   {/* =================================================
                       PROJECT INFORMATION
                   ================================================= */}
 
-                  <div className="opportunity-info-grid">
+                  <div className="opportunity-meta-grid">
 
+                    <div className="opportunity-meta-item">
 
-                    {/* PROJECT TYPE */}
-
-                    <div className="opportunity-info-item">
-
-                      <div className="opportunity-info-icon">
-
-                        <Briefcase size={16} />
-
-                      </div>
-
+                      <Layers3
+                        size={17}
+                      />
 
                       <div>
 
@@ -585,13 +684,9 @@ export default function OpportunitiesTab({
                           Project Type
                         </span>
 
-
                         <strong>
-
                           {opportunity.project_type ||
-                            opportunity.category ||
                             "Not specified"}
-
                         </strong>
 
                       </div>
@@ -599,16 +694,35 @@ export default function OpportunitiesTab({
                     </div>
 
 
-                    {/* DEADLINE */}
+                    <div className="opportunity-meta-item">
 
-                    <div className="opportunity-info-item">
+                      <DollarSign
+                        size={17}
+                      />
 
-                      <div className="opportunity-info-icon">
+                      <div>
 
-                        <Calendar size={16} />
+                        <span>
+                          Budget
+                        </span>
+
+                        <strong>
+                          {formatAmount(
+                            opportunity.budget ??
+                              opportunity.freelancer_payout
+                          )}
+                        </strong>
 
                       </div>
 
+                    </div>
+
+
+                    <div className="opportunity-meta-item">
+
+                      <Calendar
+                        size={17}
+                      />
 
                       <div>
 
@@ -616,44 +730,11 @@ export default function OpportunitiesTab({
                           Deadline
                         </span>
 
-
                         <strong>
-
                           {formatDate(
-                            opportunity.deadline
+                            opportunity.deadline ||
+                              opportunity.application_deadline
                           )}
-
-                        </strong>
-
-                      </div>
-
-                    </div>
-
-
-                    {/* PAYOUT */}
-
-                    <div className="opportunity-info-item payout">
-
-                      <div className="opportunity-info-icon">
-
-                        <DollarSign size={16} />
-
-                      </div>
-
-
-                      <div>
-
-                        <span>
-                          Developer Payout
-                        </span>
-
-
-                        <strong>
-
-                          {formatAmount(
-                            opportunity.freelancer_payout
-                          )}
-
                         </strong>
 
                       </div>
@@ -664,39 +745,36 @@ export default function OpportunitiesTab({
 
 
                   {/* =================================================
-                      TECHNOLOGY
+                      ROLES
                   ================================================= */}
 
-                  {technologies.length > 0 && (
+                  {roles.length > 0 && (
 
                     <div className="opportunity-section">
 
-                      <div className="opportunity-section-heading">
+                      <div className="opportunity-section-title">
 
-                        <Code2 size={16} />
+                        <Layers3
+                          size={15}
+                        />
 
-                        <span>
-                          Technology
-                        </span>
+                        Required Roles
 
                       </div>
 
-
                       <div className="opportunity-tags">
 
-                        {technologies.map(
+                        {roles.map(
                           (
-                            technology,
+                            role,
                             index
                           ) => (
-
                             <span
+                              key={`${role}-${index}`}
                               className="opportunity-tag"
-                              key={`${technology}-${index}`}
                             >
-                              {technology}
+                              {role}
                             </span>
-
                           )
                         )}
 
@@ -708,23 +786,22 @@ export default function OpportunitiesTab({
 
 
                   {/* =================================================
-                      REQUIRED SKILLS
+                      SKILLS
                   ================================================= */}
 
                   {skills.length > 0 && (
 
                     <div className="opportunity-section">
 
-                      <div className="opportunity-section-heading">
+                      <div className="opportunity-section-title">
 
-                        <Layers3 size={16} />
+                        <Code2
+                          size={15}
+                        />
 
-                        <span>
-                          Required Skills
-                        </span>
+                        Required Skills
 
                       </div>
-
 
                       <div className="opportunity-tags">
 
@@ -733,14 +810,53 @@ export default function OpportunitiesTab({
                             skill,
                             index
                           ) => (
-
                             <span
-                              className="opportunity-tag"
                               key={`${skill}-${index}`}
+                              className="opportunity-tag"
                             >
                               {skill}
                             </span>
+                          )
+                        )}
 
+                      </div>
+
+                    </div>
+
+                  )}
+
+
+                  {/* =================================================
+                      TECHNOLOGIES
+                  ================================================= */}
+
+                  {technologies.length > 0 && (
+
+                    <div className="opportunity-section">
+
+                      <div className="opportunity-section-title">
+
+                        <Code2
+                          size={15}
+                        />
+
+                        Tech Stack
+
+                      </div>
+
+                      <div className="opportunity-tags">
+
+                        {technologies.map(
+                          (
+                            technology,
+                            index
+                          ) => (
+                            <span
+                              key={`${technology}-${index}`}
+                              className="opportunity-tag"
+                            >
+                              {technology}
+                            </span>
                           )
                         )}
 
@@ -759,16 +875,15 @@ export default function OpportunitiesTab({
 
                     <div className="opportunity-section">
 
-                      <div className="opportunity-section-heading">
+                      <div className="opportunity-section-title">
 
-                        <CheckCircle2 size={16} />
+                        <CheckCircle2
+                          size={15}
+                        />
 
-                        <span>
-                          Deliverables
-                        </span>
+                        Deliverables
 
                       </div>
-
 
                       <ul className="opportunity-deliverables">
 
@@ -777,13 +892,11 @@ export default function OpportunitiesTab({
                             deliverable,
                             index
                           ) => (
-
                             <li
                               key={`${deliverable}-${index}`}
                             >
                               {deliverable}
                             </li>
-
                           )
                         )}
 
@@ -795,51 +908,38 @@ export default function OpportunitiesTab({
 
 
                   {/* =================================================
-                      FOOTER
+                      APPLY
                   ================================================= */}
 
                   <div className="opportunity-card-footer">
 
-                    <span className="opportunity-posted">
-
-                      Posted{" "}
-
-                      {formatDate(
-                        opportunity.created_at
-                      )}
-
-                    </span>
-
-
                     <button
                       type="button"
-                      className="opportunity-apply-button"
+                      className="primary-btn"
+                      disabled={isApplying}
                       onClick={() =>
                         handleApply(
                           opportunity
                         )
                       }
-                      disabled={isApplying}
                     >
 
                       {isApplying ? (
                         <>
-
                           <Loader2
                             size={17}
                             className="spin"
                           />
 
                           Applying...
-
                         </>
                       ) : (
                         <>
+                          <Send
+                            size={17}
+                          />
 
-                          Apply
-
-                          <Send size={16} />
-
+                          Apply Now
                         </>
                       )}
 
@@ -848,15 +948,13 @@ export default function OpportunitiesTab({
                   </div>
 
                 </article>
-
               );
             }
           )}
 
         </div>
-
       )}
 
-    </div>
+    </section>
   );
 }

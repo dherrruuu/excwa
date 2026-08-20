@@ -87,6 +87,61 @@ const ROLES = [
 ];
 
 /* =========================================================
+   OPPORTUNITY FILTERS
+========================================================= */
+
+const OPPORTUNITY_FILTERS = [
+  {
+    value: "open",
+    label: "Open / Pending",
+  },
+  {
+    value: "assigned",
+    label: "Assigned",
+  },
+  {
+    value: "in_progress",
+    label: "In Progress",
+  },
+  {
+    value: "submitted",
+    label: "Submitted",
+  },
+  {
+    value: "under_review",
+    label: "Under Review",
+  },
+  {
+    value: "changes_requested",
+    label: "Changes Requested",
+  },
+  {
+    value: "approved",
+    label: "Approved",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+  },
+  {
+    value: "closed",
+    label: "Closed",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+  },
+  {
+    value: "draft",
+    label: "Draft",
+  },
+  {
+    value: "all",
+    label: "All Opportunities",
+  },
+];
+
+/* =========================================================
    HELPERS
 ========================================================= */
 
@@ -124,6 +179,10 @@ const formatDateTime = (value) => {
   });
 };
 
+/* =========================================================
+   OPPORTUNITY STATUS CLASS
+========================================================= */
+
 const statusClass = (status) => {
   switch (status) {
     case "open":
@@ -150,8 +209,15 @@ const statusClass = (status) => {
   }
 };
 
+/* =========================================================
+   APPLICATION STATUS CLASS
+========================================================= */
+
 const submissionStatusClass = (status) => {
   switch (status) {
+    case "pending":
+      return "applicant-status applicant-status-pending";
+
     case "submitted":
       return "applicant-status applicant-status-submitted";
 
@@ -175,8 +241,15 @@ const submissionStatusClass = (status) => {
   }
 };
 
+/* =========================================================
+   APPLICATION STATUS ICON
+========================================================= */
+
 const submissionStatusIcon = (status) => {
   switch (status) {
+    case "pending":
+      return <Clock3 size={14} />;
+
     case "submitted":
       return <Clock3 size={14} />;
 
@@ -201,37 +274,74 @@ const submissionStatusIcon = (status) => {
 ========================================================= */
 
 export default function AdminOpportunities() {
+  /* =======================================================
+     OPPORTUNITIES
+  ======================================================= */
+
   const [opportunities, setOpportunities] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [opportunityFilter, setOpportunityFilter] =
+    useState("open");
+
+  /* =======================================================
+     MODALS
+  ======================================================= */
+
   const [showForm, setShowForm] = useState(false);
   const [showView, setShowView] = useState(false);
-  const [showApplicants, setShowApplicants] = useState(false);
+  const [showApplicants, setShowApplicants] =
+    useState(false);
   const [showChangeDeveloper, setShowChangeDeveloper] =
+    useState(false);
+
+  /* =======================================================
+     FORM
+  ======================================================= */
+
+  const [form, setForm] = useState(INITIAL_FORM);
+
+  const [editingOpportunity, setEditingOpportunity] =
+    useState(null);
+
+  /* =======================================================
+     SELECTED OPPORTUNITY
+  ======================================================= */
+
+  const [selectedOpportunity, setSelectedOpportunity] =
+    useState(null);
+
+  /* =======================================================
+     APPLICANTS
+  ======================================================= */
+
+  const [applicants, setApplicants] = useState([]);
+
+  const [applicantsLoading, setApplicantsLoading] =
+    useState(false);
+
+  const [processingApplicationId, setProcessingApplicationId] =
+    useState(null);
+
+  /* =======================================================
+     ASSIGNMENT
+  ======================================================= */
+
+  const [assignment, setAssignment] = useState(null);
+
+  const [assignmentLoading, setAssignmentLoading] =
     useState(false);
 
   const [availableDevelopers, setAvailableDevelopers] =
     useState([]);
 
-  const [assignment, setAssignment] = useState(null);
-  const [assignmentLoading, setAssignmentLoading] =
-    useState(false);
-
   const [reassigning, setReassigning] = useState(false);
 
-  const [editingOpportunity, setEditingOpportunity] =
-    useState(null);
-
-  const [selectedOpportunity, setSelectedOpportunity] =
-    useState(null);
-
-  const [applicants, setApplicants] = useState([]);
-  const [applicantsLoading, setApplicantsLoading] =
-    useState(false);
-
-  const [form, setForm] = useState(INITIAL_FORM);
+  /* =======================================================
+     MESSAGES
+  ======================================================= */
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -247,7 +357,9 @@ export default function AdminOpportunities() {
     try {
       const data = await getAllOpportunities();
 
-      setOpportunities(Array.isArray(data) ? data : []);
+      setOpportunities(
+        Array.isArray(data) ? data : []
+      );
     } catch (err) {
       console.error(
         "Load opportunities error:",
@@ -266,6 +378,28 @@ export default function AdminOpportunities() {
   useEffect(() => {
     loadOpportunities();
   }, []);
+
+  /* =========================================================
+     FILTER
+  ========================================================= */
+
+  const filteredOpportunities =
+    opportunities.filter((opportunity) => {
+      if (opportunityFilter === "all") {
+        return true;
+      }
+
+      return (
+        opportunity.status ===
+        opportunityFilter
+      );
+    });
+
+  const currentFilterLabel =
+    OPPORTUNITY_FILTERS.find(
+      (filter) =>
+        filter.value === opportunityFilter
+    )?.label || "Open / Pending";
 
   /* =========================================================
      FORM CHANGE
@@ -288,11 +422,15 @@ export default function AdminOpportunities() {
     setForm((prev) => ({
       ...prev,
 
-      required_roles: prev.required_roles.includes(role)
-        ? prev.required_roles.filter(
-            (item) => item !== role
-          )
-        : [...prev.required_roles, role],
+      required_roles:
+        prev.required_roles.includes(role)
+          ? prev.required_roles.filter(
+              (item) => item !== role
+            )
+          : [
+              ...prev.required_roles,
+              role,
+            ],
     }));
   };
 
@@ -323,10 +461,12 @@ export default function AdminOpportunities() {
   };
 
   /* =========================================================
-     CONVERT OPPORTUNITY TO FORM
+     OPPORTUNITY → FORM
   ========================================================= */
 
-  const opportunityToForm = (opportunity) => {
+  const opportunityToForm = (
+    opportunity
+  ) => {
     return {
       title: opportunity.title || "",
 
@@ -340,18 +480,29 @@ export default function AdminOpportunities() {
         opportunity.project_type || "",
 
       required_roles:
-        Array.isArray(opportunity.required_roles)
+        Array.isArray(
+          opportunity.required_roles
+        )
           ? opportunity.required_roles
           : [],
 
       required_skills:
-        Array.isArray(opportunity.required_skills)
-          ? opportunity.required_skills.join(", ")
-          : opportunity.required_skills || "",
+        Array.isArray(
+          opportunity.required_skills
+        )
+          ? opportunity.required_skills.join(
+              ", "
+            )
+          : opportunity.required_skills ||
+            "",
 
       tech_stack:
-        Array.isArray(opportunity.tech_stack)
-          ? opportunity.tech_stack.join(", ")
+        Array.isArray(
+          opportunity.tech_stack
+        )
+          ? opportunity.tech_stack.join(
+              ", "
+            )
           : opportunity.tech_stack || "",
 
       deliverables:
@@ -359,7 +510,9 @@ export default function AdminOpportunities() {
 
       deadline:
         opportunity.deadline
-          ? String(opportunity.deadline).slice(0, 10)
+          ? String(
+              opportunity.deadline
+            ).slice(0, 10)
           : "",
 
       application_deadline:
@@ -373,7 +526,8 @@ export default function AdminOpportunities() {
         opportunity.budget ?? "",
 
       freelancer_payout:
-        opportunity.freelancer_payout ?? "",
+        opportunity.freelancer_payout ??
+        "",
 
       status:
         opportunity.status || "draft",
@@ -381,7 +535,7 @@ export default function AdminOpportunities() {
   };
 
   /* =========================================================
-     OPEN CREATE
+     CREATE
   ========================================================= */
 
   const openCreate = () => {
@@ -396,7 +550,7 @@ export default function AdminOpportunities() {
   };
 
   /* =========================================================
-     OPEN EDIT
+     EDIT
   ========================================================= */
 
   const openEdit = (opportunity) => {
@@ -409,7 +563,9 @@ export default function AdminOpportunities() {
 
     setEditingOpportunity(opportunity);
 
-    setForm(opportunityToForm(opportunity));
+    setForm(
+      opportunityToForm(opportunity)
+    );
 
     setShowForm(true);
   };
@@ -418,32 +574,44 @@ export default function AdminOpportunities() {
      SAVE OPPORTUNITY
   ========================================================= */
 
-  const saveOpportunity = async (publish = false) => {
+  const saveOpportunity = async (
+    publish = false
+  ) => {
     setError("");
     setSuccess("");
 
     if (!form.title.trim()) {
-      setError("Project title is required.");
+      setError(
+        "Project title is required."
+      );
       return;
     }
 
     if (!form.description.trim()) {
-      setError("Project description is required.");
+      setError(
+        "Project description is required."
+      );
       return;
     }
 
     if (!form.category) {
-      setError("Please select a category.");
+      setError(
+        "Please select a category."
+      );
       return;
     }
 
     if (!form.deliverables.trim()) {
-      setError("Please enter the deliverables.");
+      setError(
+        "Please enter the deliverables."
+      );
       return;
     }
 
     if (!form.freelancer_payout) {
-      setError("Developer payout is required.");
+      setError(
+        "Developer payout is required."
+      );
       return;
     }
 
@@ -488,13 +656,17 @@ export default function AdminOpportunities() {
         required_skills:
           form.required_skills
             .split(",")
-            .map((item) => item.trim())
+            .map(
+              (item) => item.trim()
+            )
             .filter(Boolean),
 
         tech_stack:
           form.tech_stack
             .split(",")
-            .map((item) => item.trim())
+            .map(
+              (item) => item.trim()
+            )
             .filter(Boolean),
 
         deliverables:
@@ -504,18 +676,22 @@ export default function AdminOpportunities() {
           form.deadline || null,
 
         application_deadline:
-          form.application_deadline || null,
+          form.application_deadline ||
+          null,
 
-        budget:
-          form.budget
-            ? Number(form.budget)
-            : null,
+        budget: form.budget
+          ? Number(form.budget)
+          : null,
 
         freelancer_payout:
-          Number(form.freelancer_payout),
+          Number(
+            form.freelancer_payout
+          ),
 
         ...(editingOpportunity
-          ? { status: form.status }
+          ? {
+              status: form.status,
+            }
           : {}),
       };
 
@@ -568,61 +744,69 @@ export default function AdminOpportunities() {
   };
 
   /* =========================================================
-     VIEW OPPORTUNITY
+     VIEW
   ========================================================= */
 
-  const openView = (opportunity) => {
-    setSelectedOpportunity(opportunity);
+  const openView = (
+    opportunity
+  ) => {
+    setSelectedOpportunity(
+      opportunity
+    );
+
     setShowView(true);
+
     setError("");
   };
 
   const closeView = () => {
     setShowView(false);
-    setSelectedOpportunity(null);
+
+    setSelectedOpportunity(
+      null
+    );
   };
 
   /* =========================================================
      LOAD APPLICANTS
-     
-     IMPORTANT:
-     Do NOT query:
-       - reviewed_at
-       - developer_profiles.email
-
-     because those columns do not exist in the
-     current Supabase schema.
   ========================================================= */
 
-  const loadApplicants = async (opportunity) => {
+  const loadApplicants = async (
+    opportunity
+  ) => {
     if (!opportunity?.id) {
-      setError("Invalid opportunity.");
+      setError(
+        "Invalid opportunity."
+      );
       return;
     }
 
-    setSelectedOpportunity(opportunity);
+    setSelectedOpportunity(
+      opportunity
+    );
+
     setShowView(false);
     setShowApplicants(true);
 
     setApplicants([]);
+
     setApplicantsLoading(true);
+
     setError("");
     setSuccess("");
 
     try {
       /* =====================================================
-         STEP 1
-         LOAD APPLICATIONS ONLY
-         
-         Keep this select limited to application columns
-         that are actually used by this component.
+         LOAD APPLICATIONS
       ===================================================== */
 
       const {
         data: applications,
         error: applicationsError,
       } = await supabase
-        .from("opportunity_applications")
+        .from(
+          "opportunity_applications"
+        )
         .select(
           `
             id,
@@ -655,8 +839,7 @@ export default function AdminOpportunities() {
           : [];
 
       /* =====================================================
-         STEP 2
-         GET DEVELOPER IDS
+         DEVELOPER IDS
       ===================================================== */
 
       const developerIds = [
@@ -673,21 +856,20 @@ export default function AdminOpportunities() {
       let developers = [];
 
       /* =====================================================
-         STEP 3
-         LOAD DEVELOPER PROFILES
-         
-         IMPORTANT:
-         "email" has deliberately been removed.
-         
-         We only request fields used by the UI.
+         DEVELOPER PROFILES
       ===================================================== */
 
-      if (developerIds.length > 0) {
+      if (
+        developerIds.length > 0
+      ) {
         const {
           data,
-          error: developersError,
+          error:
+            developersError,
         } = await supabase
-          .from("developer_profiles")
+          .from(
+            "developer_profiles"
+          )
           .select(
             `
               id,
@@ -707,14 +889,14 @@ export default function AdminOpportunities() {
           throw developersError;
         }
 
-        developers = Array.isArray(data)
-          ? data
-          : [];
+        developers =
+          Array.isArray(data)
+            ? data
+            : [];
       }
 
       /* =====================================================
-         STEP 4
-         CREATE DEVELOPER MAP
+         DEVELOPER MAP
       ===================================================== */
 
       const developerMap =
@@ -728,10 +910,7 @@ export default function AdminOpportunities() {
         );
 
       /* =====================================================
-         STEP 5
-         LOAD ASSIGNMENT
-         
-         This is opportunity-level assignment data.
+         ASSIGNMENT
       ===================================================== */
 
       let assignmentData = null;
@@ -741,23 +920,19 @@ export default function AdminOpportunities() {
           await getOpportunityAssignment(
             opportunity.id
           );
-      } catch (assignmentError) {
+      } catch (
+        assignmentError
+      ) {
         console.warn(
           "Unable to load opportunity assignment:",
           assignmentError
         );
 
-        /*
-         * Do not fail the entire applicant list
-         * just because assignment information
-         * could not be loaded.
-         */
         assignmentData = null;
       }
 
       /* =====================================================
-         STEP 6
-         COMBINE APPLICATION + PROFILE
+         COMBINE
       ===================================================== */
 
       const mappedApplicants =
@@ -782,10 +957,6 @@ export default function AdminOpportunities() {
               submission_notes:
                 application.cover_message,
 
-              /*
-               * These aliases make the existing UI
-               * work without changing the JSX below.
-               */
               github_url:
                 developer?.github_url ||
                 null,
@@ -810,11 +981,6 @@ export default function AdminOpportunities() {
         err
       );
 
-      /*
-       * VERY IMPORTANT:
-       * If loading failed, do NOT leave the UI
-       * looking like there are simply no applications.
-       */
       setApplicants([]);
 
       setError(
@@ -822,69 +988,204 @@ export default function AdminOpportunities() {
           "Unable to load applicants."
       );
     } finally {
-      setApplicantsLoading(false);
+      setApplicantsLoading(
+        false
+      );
     }
   };
 
   /* =========================================================
-     OPEN CHANGE DEVELOPER
-  ========================================================= */
+     APPROVE APPLICATION
+========================================================= */
 
-  const openChangeDeveloper = async (
-    opportunity
+  const approveApplicant = async (
+    application
   ) => {
-    if (!opportunity?.id) return;
+    if (!application?.id) {
+      setError(
+        "Invalid application."
+      );
+      return;
+    }
 
-    setSelectedOpportunity(
-      opportunity
+    if (
+      processingApplicationId
+    ) {
+      return;
+    }
+
+    const developerName =
+      application.developer?.full_name ||
+      "this developer";
+
+    const projectTitle =
+      selectedOpportunity?.title ||
+      "this opportunity";
+
+    const confirmed =
+      window.confirm(
+        `Approve ${developerName} for "${projectTitle}"?\n\n` +
+          `This will approve the application and create the project assignment.`
+      );
+
+    if (!confirmed) return;
+
+    setProcessingApplicationId(
+      application.id
     );
 
-    setShowView(false);
-    setShowApplicants(false);
-    setShowChangeDeveloper(true);
-
-    setAssignmentLoading(true);
     setError("");
+    setSuccess("");
 
     try {
-      const [
-        currentAssignment,
-        available,
-      ] = await Promise.all([
-        getOpportunityAssignment(
-          opportunity.id
-        ),
+      /*
+       * IMPORTANT
+       *
+       * This RPC must be called from the
+       * authenticated admin browser session.
+       *
+       * Do NOT test this by manually executing
+       * the RPC in Supabase SQL Editor because
+       * auth.uid() will be NULL there.
+       */
 
-        getAvailableDevelopers(),
-      ]);
-
-      setAssignment(
-        currentAssignment
+      const {
+        data,
+        error: approveError,
+      } = await supabase.rpc(
+        "admin_approve_application",
+        {
+          p_application_id:
+            application.id,
+        }
       );
 
-      setAvailableDevelopers(
-        Array.isArray(available)
-          ? available
-          : []
-      );
-
-      if (!currentAssignment) {
-        throw new Error(
-          "This opportunity has no assigned developer."
-        );
+      if (approveError) {
+        throw approveError;
       }
+
+      console.log(
+        "Application approved:",
+        data
+      );
+
+      setSuccess(
+        `${developerName} has been approved successfully.`
+      );
+
+      /*
+       * Refresh opportunity status
+       */
+      await loadOpportunities();
+
+      /*
+       * Refresh applicants
+       */
+      await loadApplicants(
+        selectedOpportunity
+      );
     } catch (err) {
       console.error(
-        "Load reassignment data error:",
+        "Approve application error:",
         err
       );
 
       setError(
         err?.message ||
-          "Unable to load available developers."
+          "Unable to approve application."
       );
     } finally {
-      setAssignmentLoading(false);
+      setProcessingApplicationId(
+        null
+      );
+    }
+  };
+
+  /* =========================================================
+     REJECT APPLICATION
+  ========================================================= */
+
+  const rejectApplicant = async (
+    application
+  ) => {
+    if (!application?.id) {
+      setError(
+        "Invalid application."
+      );
+      return;
+    }
+
+    if (
+      processingApplicationId
+    ) {
+      return;
+    }
+
+    const developerName =
+      application.developer?.full_name ||
+      "this developer";
+
+    const confirmed =
+      window.confirm(
+        `Reject ${developerName}'s application?\n\nThis action will mark the application as rejected.`
+      );
+
+    if (!confirmed) return;
+
+    setProcessingApplicationId(
+      application.id
+    );
+
+    setError("");
+    setSuccess("");
+
+    try {
+      /*
+       * Use an admin RPC for rejection so
+       * RLS cannot block the admin action.
+       */
+
+      const {
+        data,
+        error: rejectError,
+      } = await supabase.rpc(
+        "admin_reject_application",
+        {
+          p_application_id:
+            application.id,
+        }
+      );
+
+      if (rejectError) {
+        throw rejectError;
+      }
+
+      console.log(
+        "Application rejected:",
+        data
+      );
+
+      setSuccess(
+        `${developerName}'s application was rejected.`
+      );
+
+      await loadApplicants(
+        selectedOpportunity
+      );
+    } catch (err) {
+      console.error(
+        "Reject application error:",
+        err
+      );
+
+      setError(
+        err?.message ||
+          "Unable to reject application."
+      );
+    } finally {
+      setProcessingApplicationId(
+        null
+      );
     }
   };
 
@@ -892,74 +1193,149 @@ export default function AdminOpportunities() {
      CHANGE DEVELOPER
   ========================================================= */
 
-  const handleChangeDeveloper = async (
-    developerId
-  ) => {
-    if (
-      !selectedOpportunity?.id ||
-      !developerId ||
-      reassigning
-    ) {
-      return;
-    }
+  const openChangeDeveloper =
+    async (opportunity) => {
+      if (!opportunity?.id) return;
 
-    const developer =
-      availableDevelopers.find(
-        (item) =>
-          item.id === developerId
+      setSelectedOpportunity(
+        opportunity
       );
 
-    if (!developer) return;
-
-    const confirmed =
-      window.confirm(
-        `Assign "${
-          developer.full_name ||
-          "this developer"
-        }" to "${
-          selectedOpportunity.title
-        }"?\n\nThe current developer will be replaced.`
+      setShowView(false);
+      setShowApplicants(false);
+      setShowChangeDeveloper(
+        true
       );
 
-    if (!confirmed) return;
+      setAssignmentLoading(
+        true
+      );
 
-    setReassigning(true);
-    setError("");
-    setSuccess("");
+      setError("");
 
-    try {
-      const updated =
-        await changeOpportunityDeveloper(
-          selectedOpportunity.id,
-          developerId
+      try {
+        const [
+          currentAssignment,
+          available,
+        ] = await Promise.all([
+          getOpportunityAssignment(
+            opportunity.id
+          ),
+
+          getAvailableDevelopers(
+            opportunity.id
+          ),
+        ]);
+
+        setAssignment(
+          currentAssignment
         );
 
-      setAssignment(updated);
+        setAvailableDevelopers(
+          Array.isArray(
+            available
+          )
+            ? available
+            : []
+        );
 
-      setSuccess(
-        `Developer changed to ${
-          developer.full_name ||
-          "the selected developer"
-        }.`
-      );
+        if (!currentAssignment) {
+          throw new Error(
+            "This opportunity has no assigned developer."
+          );
+        }
+      } catch (err) {
+        console.error(
+          "Load reassignment data error:",
+          err
+        );
 
-      setShowChangeDeveloper(false);
+        setError(
+          err?.message ||
+            "Unable to load available developers."
+        );
+      } finally {
+        setAssignmentLoading(
+          false
+        );
+      }
+    };
 
-      await loadOpportunities();
-    } catch (err) {
-      console.error(
-        "Change developer error:",
-        err
-      );
+  /* =========================================================
+     CHANGE DEVELOPER
+  ========================================================= */
 
-      setError(
-        err?.message ||
-          "Unable to change developer."
-      );
-    } finally {
-      setReassigning(false);
-    }
-  };
+  const handleChangeDeveloper =
+    async (developerId) => {
+      if (
+        !selectedOpportunity?.id ||
+        !developerId ||
+        reassigning
+      ) {
+        return;
+      }
+
+      const developer =
+        availableDevelopers.find(
+          (item) =>
+            item.id ===
+            developerId
+        );
+
+      if (!developer) return;
+
+      const confirmed =
+        window.confirm(
+          `Assign "${
+            developer.full_name ||
+            "this developer"
+          }" to "${
+            selectedOpportunity.title
+          }"?\n\nThe current developer will be replaced.`
+        );
+
+      if (!confirmed) return;
+
+      setReassigning(true);
+
+      setError("");
+      setSuccess("");
+
+      try {
+        const updated =
+          await changeOpportunityDeveloper(
+            selectedOpportunity.id,
+            developerId
+          );
+
+        setAssignment(updated);
+
+        setSuccess(
+          `Developer changed to ${
+            developer.full_name ||
+            "the selected developer"
+          }.`
+        );
+
+        setShowChangeDeveloper(
+          false
+        );
+
+        await loadOpportunities();
+      } catch (err) {
+        console.error(
+          "Change developer error:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Unable to change developer."
+        );
+      } finally {
+        setReassigning(false);
+      }
+    };
 
   /* =========================================================
      CLOSE APPLICANTS
@@ -968,7 +1344,9 @@ export default function AdminOpportunities() {
   const closeApplicants = () => {
     setShowApplicants(false);
 
-    setSelectedOpportunity(null);
+    setSelectedOpportunity(
+      null
+    );
 
     setApplicants([]);
 
@@ -983,13 +1361,15 @@ export default function AdminOpportunities() {
     opportunity
   ) => {
     if (!opportunity?.id) {
-      setError("Invalid opportunity.");
+      setError(
+        "Invalid opportunity."
+      );
       return;
     }
 
     const confirmed =
       window.confirm(
-        `Delete "${opportunity.title}"?\n\nThis action cannot be undone.`
+        `Delete "${opportunity.title}"?\n\nThis will remove the opportunity and its related applications/assignments.\n\nDo you want to continue?`
       );
 
     if (!confirmed) return;
@@ -1012,7 +1392,14 @@ export default function AdminOpportunities() {
       );
 
       setShowView(false);
-      setSelectedOpportunity(null);
+      setShowApplicants(false);
+      setShowChangeDeveloper(
+        false
+      );
+
+      setSelectedOpportunity(
+        null
+      );
 
       setSuccess(
         "Opportunity deleted successfully."
@@ -1152,7 +1539,7 @@ export default function AdminOpportunities() {
         )}
 
       {/* =====================================================
-          OPPORTUNITIES LIST
+          OPPORTUNITIES
       ===================================================== */}
 
       <div className="admin-card">
@@ -1161,15 +1548,51 @@ export default function AdminOpportunities() {
 
           <div>
             <h2>
-              All Opportunities
+              Opportunities
             </h2>
 
             <span>
-              {opportunities.length} total
+              {filteredOpportunities.length}{" "}
+              shown /{" "}
+              {opportunities.length}{" "}
+              total
             </span>
           </div>
 
-          <BriefcaseBusiness size={20} />
+          <div className="admin-opportunity-filter">
+
+            <label htmlFor="opportunity-status-filter">
+              Filter
+            </label>
+
+            <select
+              id="opportunity-status-filter"
+              value={
+                opportunityFilter
+              }
+              onChange={(e) =>
+                setOpportunityFilter(
+                  e.target.value
+                )
+              }
+            >
+              {OPPORTUNITY_FILTERS.map(
+                (filter) => (
+                  <option
+                    key={
+                      filter.value
+                    }
+                    value={
+                      filter.value
+                    }
+                  >
+                    {filter.label}
+                  </option>
+                )
+              )}
+            </select>
+
+          </div>
 
         </div>
 
@@ -1177,17 +1600,21 @@ export default function AdminOpportunities() {
           <div className="admin-loading">
             Loading opportunities...
           </div>
-        ) : opportunities.length === 0 ? (
+        ) : filteredOpportunities.length ===
+          0 ? (
           <div className="admin-empty-state">
 
-            <BriefcaseBusiness size={40} />
+            <BriefcaseBusiness
+              size={40}
+            />
 
             <h3>
-              No opportunities yet
+              No opportunities found
             </h3>
 
             <p>
-              Create your first development opportunity.
+              There are no opportunities
+              matching "{currentFilterLabel}".
             </p>
 
           </div>
@@ -1198,19 +1625,39 @@ export default function AdminOpportunities() {
 
               <thead>
                 <tr>
-                  <th>Project</th>
-                  <th>Category</th>
-                  <th>Developer Payout</th>
-                  <th>Deadline</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Actions</th>
+                  <th>
+                    Project
+                  </th>
+
+                  <th>
+                    Category
+                  </th>
+
+                  <th>
+                    Developer Payout
+                  </th>
+
+                  <th>
+                    Deadline
+                  </th>
+
+                  <th>
+                    Status
+                  </th>
+
+                  <th>
+                    Created
+                  </th>
+
+                  <th>
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
               <tbody>
 
-                {opportunities.map(
+                {filteredOpportunities.map(
                   (opportunity) => (
                     <tr
                       key={
@@ -1301,7 +1748,9 @@ export default function AdminOpportunities() {
                               )
                             }
                           >
-                            <Eye size={16} />
+                            <Eye
+                              size={16}
+                            />
 
                             <span>
                               View
@@ -1319,7 +1768,9 @@ export default function AdminOpportunities() {
                               )
                             }
                           >
-                            <Pencil size={16} />
+                            <Pencil
+                              size={16}
+                            />
 
                             <span>
                               Edit
@@ -1337,7 +1788,9 @@ export default function AdminOpportunities() {
                               )
                             }
                           >
-                            <Users size={16} />
+                            <Users
+                              size={16}
+                            />
 
                             <span>
                               Applicants
@@ -1360,7 +1813,6 @@ export default function AdminOpportunities() {
                                   opportunity
                                 )
                               }
-                              aria-label="Change developer"
                             >
                               <RefreshCw
                                 size={16}
@@ -1508,7 +1960,9 @@ export default function AdminOpportunities() {
                       {CATEGORIES.map(
                         (category) => (
                           <option
-                            key={category}
+                            key={
+                              category
+                            }
                             value={
                               category
                             }
@@ -1568,7 +2022,7 @@ export default function AdminOpportunities() {
 
               </div>
 
-              {/* DEVELOPER REQUIREMENTS */}
+              {/* REQUIREMENTS */}
 
               <div className="admin-form-section">
 
@@ -1584,7 +2038,6 @@ export default function AdminOpportunities() {
 
                   {ROLES.map(
                     (role) => {
-
                       const selected =
                         form.required_roles.includes(
                           role
@@ -1691,7 +2144,7 @@ export default function AdminOpportunities() {
 
               </div>
 
-              {/* FINANCIAL */}
+              {/* PAYMENT */}
 
               <div className="admin-form-section">
 
@@ -1748,7 +2201,7 @@ export default function AdminOpportunities() {
                     />
 
                     <small>
-                      This is the amount shown to developers.
+                      Amount shown to developers.
                     </small>
 
                   </div>
@@ -1783,6 +2236,7 @@ export default function AdminOpportunities() {
                       }
                       disabled={saving}
                     >
+
                       <option value="draft">
                         Draft
                       </option>
@@ -1826,11 +2280,8 @@ export default function AdminOpportunities() {
                       <option value="cancelled">
                         Cancelled
                       </option>
-                    </select>
 
-                    <small>
-                      Use review controls for assignment/review workflow whenever a developer is working.
-                    </small>
+                    </select>
 
                   </div>
 
@@ -1838,7 +2289,7 @@ export default function AdminOpportunities() {
 
               </div>
 
-              {/* DATES */}
+              {/* TIMELINE */}
 
               <div className="admin-form-section">
 
@@ -1947,7 +2398,7 @@ export default function AdminOpportunities() {
       )}
 
       {/* =====================================================
-          VIEW OPPORTUNITY MODAL
+          VIEW OPPORTUNITY
       ===================================================== */}
 
       {showView &&
@@ -2011,8 +2462,6 @@ export default function AdminOpportunities() {
 
                 </div>
 
-                {/* PROJECT INFORMATION */}
-
                 <div className="opportunity-view-section">
 
                   <h3>
@@ -2069,8 +2518,6 @@ export default function AdminOpportunities() {
                   </div>
 
                 </div>
-
-                {/* DEVELOPER REQUIREMENTS */}
 
                 <div className="opportunity-view-section">
 
@@ -2156,8 +2603,6 @@ export default function AdminOpportunities() {
 
                 </div>
 
-                {/* DELIVERABLES */}
-
                 <div className="opportunity-view-section">
 
                   <h3>
@@ -2172,8 +2617,6 @@ export default function AdminOpportunities() {
                   </p>
 
                 </div>
-
-                {/* PAYMENT */}
 
                 <div className="opportunity-view-section">
 
@@ -2253,7 +2696,7 @@ export default function AdminOpportunities() {
 
               </div>
 
-              <div className="admin-modal-footer admin-opportunity-view-footer">
+              <div className="admin-modal-footer">
 
                 <button
                   type="button"
@@ -2293,7 +2736,9 @@ export default function AdminOpportunities() {
                       )
                     }
                   >
-                    <RefreshCw size={15} />
+                    <RefreshCw
+                      size={15}
+                    />
                     Change Developer
                   </button>
                 )}
@@ -2332,7 +2777,7 @@ export default function AdminOpportunities() {
         )}
 
       {/* =====================================================
-          CHANGE DEVELOPER MODAL
+          CHANGE DEVELOPER
       ===================================================== */}
 
       {showChangeDeveloper &&
@@ -2387,7 +2832,8 @@ export default function AdminOpportunities() {
                       className="spin"
                     />
 
-                    Loading available developers...
+                    Loading available
+                    developers...
 
                   </div>
                 ) : !assignment ? (
@@ -2400,7 +2846,8 @@ export default function AdminOpportunities() {
                     </h3>
 
                     <p>
-                      This opportunity currently has no assigned developer.
+                      This opportunity currently
+                      has no assigned developer.
                     </p>
 
                   </div>
@@ -2420,7 +2867,8 @@ export default function AdminOpportunities() {
                       </strong>
 
                       <small>
-                        The current assignment will be replaced.
+                        The current assignment
+                        will be replaced.
                       </small>
 
                     </div>
@@ -2438,11 +2886,14 @@ export default function AdminOpportunities() {
                           <Users size={38} />
 
                           <h3>
-                            No available developers
+                            No available
+                            developers
                           </h3>
 
                           <p>
-                            All approved developers currently have an active project.
+                            All approved developers
+                            currently have an
+                            active project.
                           </p>
 
                         </div>
@@ -2450,7 +2901,9 @@ export default function AdminOpportunities() {
                         <div className="admin-available-developers">
 
                           {availableDevelopers.map(
-                            (developer) => (
+                            (
+                              developer
+                            ) => (
                               <button
                                 key={
                                   developer.id
@@ -2545,7 +2998,7 @@ export default function AdminOpportunities() {
         )}
 
       {/* =====================================================
-          APPLICANTS MODAL
+          APPLICANTS
       ===================================================== */}
 
       {showApplicants &&
@@ -2590,6 +3043,12 @@ export default function AdminOpportunities() {
                   </div>
                 )}
 
+                {success && (
+                  <div className="admin-success-message">
+                    {success}
+                  </div>
+                )}
+
                 {applicantsLoading ? (
                   <div className="admin-loading">
 
@@ -2612,14 +3071,18 @@ export default function AdminOpportunities() {
                     </h3>
 
                     <p>
-                      There are currently no developer submissions for this opportunity.
+                      There are currently no
+                      developer applications for
+                      this opportunity.
                     </p>
 
                   </div>
                 ) : (
                   <div className="admin-applicants-list">
 
-                    {/* SUMMARY */}
+                    {/* =================================================
+                        SUMMARY
+                    ================================================= */}
 
                     <div className="admin-applicants-summary">
 
@@ -2647,31 +3110,13 @@ export default function AdminOpportunities() {
                             applicants.filter(
                               (item) =>
                                 item.status ===
-                                "submitted"
+                                "pending"
                             ).length
                           }
                         </strong>
 
                         <span>
-                          Submitted
-                        </span>
-
-                      </div>
-
-                      <div>
-
-                        <strong>
-                          {
-                            applicants.filter(
-                              (item) =>
-                                item.status ===
-                                "under_review"
-                            ).length
-                          }
-                        </strong>
-
-                        <span>
-                          Under Review
+                          Pending
                         </span>
 
                       </div>
@@ -2694,9 +3139,29 @@ export default function AdminOpportunities() {
 
                       </div>
 
+                      <div>
+
+                        <strong>
+                          {
+                            applicants.filter(
+                              (item) =>
+                                item.status ===
+                                "rejected"
+                            ).length
+                          }
+                        </strong>
+
+                        <span>
+                          Rejected
+                        </span>
+
+                      </div>
+
                     </div>
 
-                    {/* APPLICANTS TABLE */}
+                    {/* =================================================
+                        APPLICANTS TABLE
+                    ================================================= */}
 
                     <div className="admin-applicants-table-wrapper">
 
@@ -2741,8 +3206,9 @@ export default function AdminOpportunities() {
                         <tbody>
 
                           {applicants.map(
-                            (applicant) => {
-
+                            (
+                              applicant
+                            ) => {
                               const developer =
                                 applicant.developer;
 
@@ -2757,8 +3223,11 @@ export default function AdminOpportunities() {
                                   ? developer.primary_roles.join(
                                       " · "
                                     )
-                                  : applicant.developer_id ||
-                                    "Developer";
+                                  : "Developer";
+
+                              const isProcessing =
+                                processingApplicationId ===
+                                applicant.id;
 
                               return (
                                 <tr
@@ -2830,7 +3299,7 @@ export default function AdminOpportunities() {
 
                                   </td>
 
-                                  {/* SUBMITTED */}
+                                  {/* APPLIED */}
 
                                   <td>
 
@@ -2841,7 +3310,7 @@ export default function AdminOpportunities() {
                                       />
 
                                       {formatDateTime(
-                                        applicant.submitted_at
+                                        applicant.applied_at
                                       )}
 
                                     </span>
@@ -2867,10 +3336,6 @@ export default function AdminOpportunities() {
                                         />
 
                                         GitHub
-
-                                        <ExternalLink
-                                          size={12}
-                                        />
 
                                       </a>
                                     ) : (
@@ -2906,19 +3371,19 @@ export default function AdminOpportunities() {
 
                                   </td>
 
-                                  {/* NOTES */}
+                                  {/* COVER MESSAGE */}
 
                                   <td>
 
-                                    {applicant.submission_notes ? (
+                                    {applicant.cover_message ? (
                                       <span
                                         className="applicant-notes"
                                         title={
-                                          applicant.submission_notes
+                                          applicant.cover_message
                                         }
                                       >
                                         {
-                                          applicant.submission_notes
+                                          applicant.cover_message
                                         }
                                       </span>
                                     ) : (
@@ -2929,28 +3394,143 @@ export default function AdminOpportunities() {
 
                                   </td>
 
-                                  {/* DELETE */}
+                                  {/* ACTIONS */}
 
                                   <td>
 
-                                    <button
-                                      type="button"
-                                      className="admin-application-delete-btn"
-                                      onClick={() =>
-                                        deleteApplication(
-                                          applicant
-                                        )
-                                      }
-                                      title="Delete application"
-                                    >
+                                    <div className="admin-application-actions">
 
-                                      <Trash2
-                                        size={15}
-                                      />
+                                      {/* =================================================
+                                          PENDING → APPROVE / REJECT
+                                      ================================================= */}
 
-                                      Delete
+                                      {applicant.status ===
+                                        "pending" && (
+                                        <>
 
-                                    </button>
+                                          <button
+                                            type="button"
+                                            className="admin-application-approve-btn"
+                                            disabled={
+                                              isProcessing
+                                            }
+                                            onClick={() =>
+                                              approveApplicant(
+                                                applicant
+                                              )
+                                            }
+                                            title="Approve application"
+                                          >
+
+                                            {isProcessing ? (
+                                              <RefreshCw
+                                                size={
+                                                  15
+                                                }
+                                                className="spin"
+                                              />
+                                            ) : (
+                                              <CheckCircle2
+                                                size={
+                                                  15
+                                                }
+                                              />
+                                            )}
+
+                                            {isProcessing
+                                              ? "Processing..."
+                                              : "Approve"}
+
+                                          </button>
+
+                                          <button
+                                            type="button"
+                                            className="admin-application-reject-btn"
+                                            disabled={
+                                              isProcessing
+                                            }
+                                            onClick={() =>
+                                              rejectApplicant(
+                                                applicant
+                                              )
+                                            }
+                                            title="Reject application"
+                                          >
+
+                                            <XCircle
+                                              size={
+                                                15
+                                              }
+                                            />
+
+                                            Reject
+
+                                          </button>
+
+                                        </>
+                                      )}
+
+                                      {/* APPROVED */}
+
+                                      {applicant.status ===
+                                        "approved" && (
+                                        <span className="admin-application-approved-label">
+
+                                          <CheckCircle2
+                                            size={
+                                              15
+                                            }
+                                          />
+
+                                          Approved
+
+                                        </span>
+                                      )}
+
+                                      {/* REJECTED */}
+
+                                      {applicant.status ===
+                                        "rejected" && (
+                                        <span className="admin-application-rejected-label">
+
+                                          <XCircle
+                                            size={
+                                              15
+                                            }
+                                          />
+
+                                          Rejected
+
+                                        </span>
+                                      )}
+
+                                      {/* DELETE */}
+
+                                      <button
+                                        type="button"
+                                        className="admin-application-delete-btn"
+                                        disabled={
+                                          isProcessing
+                                        }
+                                        onClick={() =>
+                                          deleteApplication(
+                                            applicant
+                                          )
+                                        }
+                                        title="Delete application"
+                                      >
+
+                                        <Trash2
+                                          size={
+                                            15
+                                          }
+                                        />
+
+                                        Delete
+
+                                      </button>
+
+                                    </div>
 
                                   </td>
 
@@ -2991,7 +3571,9 @@ export default function AdminOpportunities() {
                     )
                   }
                   disabled={
-                    applicantsLoading
+                    applicantsLoading ||
+                    processingApplicationId !==
+                      null
                   }
                 >
 
