@@ -20,6 +20,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEnquiries from "./pages/admin/AdminEnquiries";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
+import AdminDeveloperInfo from "./pages/admin/AdminDeveloperInfo";
 import AdminOpportunities from "./pages/admin/AdminOpportunities";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -59,24 +60,14 @@ export default function App() {
           element={<Home />}
         />
 
-
         {/* ======================================================
             DEVELOPER ACCOUNT ACTIVATION
-            ======================================================
-
-            This is the page opened from the activation
-            link sent after an admin approves a developer.
-
-            URL:
-            https://excwa.vercel.app/activate
-
             ====================================================== */}
 
         <Route
           path="/activate"
           element={<DeveloperActivate />}
         />
-
 
         {/* ======================================================
             DEVELOPER AUTH
@@ -112,7 +103,6 @@ export default function App() {
           element={<DevSuspended />}
         />
 
-
         {/* ======================================================
             DEVELOPER PROTECTED ROUTES
             ====================================================== */}
@@ -120,14 +110,11 @@ export default function App() {
         <Route
           element={<DevProtectedRoute />}
         >
-
           <Route
             path="/developer/dashboard"
             element={<DevDashboard />}
           />
-
         </Route>
-
 
         {/* ======================================================
             ADMIN LOGIN
@@ -138,7 +125,6 @@ export default function App() {
           element={<AdminLogin />}
         />
 
-
         {/* ======================================================
             ADMIN PROTECTED ROUTES
             ====================================================== */}
@@ -146,7 +132,6 @@ export default function App() {
         <Route
           element={<AdminProtectedRoute />}
         >
-
           <Route
             path="/admin"
             element={<AdminLayout />}
@@ -163,7 +148,6 @@ export default function App() {
               element={<AdminDashboard />}
             />
 
-
             {/* ==================================================
                 ENQUIRIES
 
@@ -175,9 +159,8 @@ export default function App() {
               element={<AdminEnquiries />}
             />
 
-
             {/* ==================================================
-                DEVELOPERS
+                DEVELOPER APPLICATIONS
 
                 /admin/developers
                 ================================================== */}
@@ -187,6 +170,29 @@ export default function App() {
               element={<AdminDevelopers />}
             />
 
+            {/* ==================================================
+                DEVELOPER INFO
+
+                /admin/developer-info
+
+                Separate from Developer Applications.
+
+                Used for:
+                - Viewing developer information
+                - Editing developer information
+                - Viewing account information
+                - Viewing application history
+                - Suspending developers
+                - Reactivating developers
+                - Manual deactivation
+
+                There is NO automatic deletion.
+                ================================================== */}
+
+            <Route
+              path="developer-info"
+              element={<AdminDeveloperInfo />}
+            />
 
             {/* ==================================================
                 OPPORTUNITIES
@@ -199,28 +205,16 @@ export default function App() {
               element={<AdminOpportunities />}
             />
 
-
             {/* ==================================================
                 REVIEWS
 
                 /admin/reviews
-
-                Review details are opened as a panel from
-                AdminReviews.jsx.
-
-                There is intentionally NO:
-
-                /admin/reviews/:id
-
-                This prevents a page reload and prevents
-                AdminProtectedRoute from running again.
                 ================================================== */}
 
             <Route
               path="reviews"
               element={<AdminReviews />}
             />
-
 
             {/* ==================================================
                 SETTINGS
@@ -234,7 +228,6 @@ export default function App() {
             />
 
           </Route>
-
         </Route>
 
       </Routes>

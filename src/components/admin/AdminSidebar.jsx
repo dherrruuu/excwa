@@ -6,6 +6,7 @@ import {
   Users,
   ClipboardCheck,
   BriefcaseBusiness,
+  UserRoundSearch,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -24,6 +25,7 @@ export default function AdminSidebar() {
     <aside className="admin-sidebar">
 
       {/* BRAND */}
+
       <div className="admin-sidebar-brand">
         <ExcwaLogo size={32} />
 
@@ -34,14 +36,17 @@ export default function AdminSidebar() {
       </div>
 
       {/* NAVIGATION LABEL */}
+
       <div className="admin-nav-label">
         MANAGEMENT
       </div>
 
       {/* NAVIGATION */}
+
       <nav className="admin-nav">
 
         {/* DASHBOARD */}
+
         <NavLink
           to="/admin"
           end
@@ -56,6 +61,7 @@ export default function AdminSidebar() {
         </NavLink>
 
         {/* ENQUIRIES */}
+
         <NavLink
           to="/admin/enquiries"
           className={({ isActive }) =>
@@ -69,6 +75,7 @@ export default function AdminSidebar() {
         </NavLink>
 
         {/* DEVELOPER APPLICATIONS */}
+
         <NavLink
           to="/admin/developers"
           className={({ isActive }) =>
@@ -81,7 +88,22 @@ export default function AdminSidebar() {
           Developer Applications
         </NavLink>
 
+        {/* DEVELOPER INFO */}
+
+        <NavLink
+          to="/admin/developer-info"
+          className={({ isActive }) =>
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
+          }
+        >
+          <UserRoundSearch size={18} />
+          Developer Info
+        </NavLink>
+
         {/* OPPORTUNITIES */}
+
         <NavLink
           to="/admin/opportunities"
           className={({ isActive }) =>
@@ -95,6 +117,7 @@ export default function AdminSidebar() {
         </NavLink>
 
         {/* WORK REVIEWS */}
+
         <NavLink
           to="/admin/reviews"
           className={({ isActive }) =>
@@ -108,6 +131,7 @@ export default function AdminSidebar() {
         </NavLink>
 
         {/* SETTINGS */}
+
         <NavLink
           to="/admin/settings"
           className={({ isActive }) =>
@@ -123,9 +147,11 @@ export default function AdminSidebar() {
       </nav>
 
       {/* BOTTOM */}
+
       <div className="admin-sidebar-bottom">
 
         {/* VIEW WEBSITE */}
+
         <a
           href="/"
           target="_blank"
@@ -137,7 +163,9 @@ export default function AdminSidebar() {
         </a>
 
         {/* SIGN OUT */}
+
         <button
+          type="button"
           onClick={logout}
           className="admin-logout"
         >
