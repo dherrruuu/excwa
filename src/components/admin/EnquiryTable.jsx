@@ -5,7 +5,7 @@ export default function EnquiryTable({
   onSelect,
 }) {
   return (
-    <div className="admin-table-wrapper">
+    <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
@@ -23,7 +23,7 @@ export default function EnquiryTable({
             <EnquiryRow
               key={enquiry.id}
               enquiry={enquiry}
-              onSelect={onSelect}
+              onClick={onSelect}
             />
           ))}
         </tbody>

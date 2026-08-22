@@ -43,6 +43,15 @@ import DevDashboard from "./pages/developer/DevDashboard";
 import DevProtectedRoute from "./components/developer/DevProtectedRoute";
 
 // ============================================================
+// CLIENT PORTAL
+// ============================================================
+
+import ClientLogin from "./pages/client-portal/ClientLogin";
+import ClientDashboard from "./pages/client-portal/ClientDashboard";
+
+import ClientProtectedRoute from "./components/client-portal/ClientProtectedRoute";
+
+// ============================================================
 // APP
 // ============================================================
 
@@ -107,12 +116,30 @@ export default function App() {
             DEVELOPER PROTECTED ROUTES
             ====================================================== */}
 
-        <Route
-          element={<DevProtectedRoute />}
-        >
+        <Route element={<DevProtectedRoute />}>
           <Route
             path="/developer/dashboard"
             element={<DevDashboard />}
+          />
+        </Route>
+
+        {/* ======================================================
+            CLIENT PORTAL LOGIN
+            ====================================================== */}
+
+        <Route
+          path="/client/login"
+          element={<ClientLogin />}
+        />
+
+        {/* ======================================================
+            CLIENT PORTAL PROTECTED ROUTES
+            ====================================================== */}
+
+        <Route element={<ClientProtectedRoute />}>
+          <Route
+            path="/client/dashboard"
+            element={<ClientDashboard />}
           />
         </Route>
 
@@ -129,9 +156,7 @@ export default function App() {
             ADMIN PROTECTED ROUTES
             ====================================================== */}
 
-        <Route
-          element={<AdminProtectedRoute />}
-        >
+        <Route element={<AdminProtectedRoute />}>
           <Route
             path="/admin"
             element={<AdminLayout />}
@@ -139,7 +164,6 @@ export default function App() {
 
             {/* ==================================================
                 ADMIN DASHBOARD
-
                 /admin
                 ================================================== */}
 
@@ -150,7 +174,6 @@ export default function App() {
 
             {/* ==================================================
                 ENQUIRIES
-
                 /admin/enquiries
                 ================================================== */}
 
@@ -161,7 +184,6 @@ export default function App() {
 
             {/* ==================================================
                 DEVELOPER APPLICATIONS
-
                 /admin/developers
                 ================================================== */}
 
@@ -172,21 +194,7 @@ export default function App() {
 
             {/* ==================================================
                 DEVELOPER INFO
-
                 /admin/developer-info
-
-                Separate from Developer Applications.
-
-                Used for:
-                - Viewing developer information
-                - Editing developer information
-                - Viewing account information
-                - Viewing application history
-                - Suspending developers
-                - Reactivating developers
-                - Manual deactivation
-
-                There is NO automatic deletion.
                 ================================================== */}
 
             <Route
@@ -196,7 +204,6 @@ export default function App() {
 
             {/* ==================================================
                 OPPORTUNITIES
-
                 /admin/opportunities
                 ================================================== */}
 
@@ -207,7 +214,6 @@ export default function App() {
 
             {/* ==================================================
                 REVIEWS
-
                 /admin/reviews
                 ================================================== */}
 
@@ -218,7 +224,6 @@ export default function App() {
 
             {/* ==================================================
                 SETTINGS
-
                 /admin/settings
                 ================================================== */}
 

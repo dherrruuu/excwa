@@ -22,7 +22,7 @@ import "../../styles/developer.css";
 import {
   getOpenOpportunities,
   applyToOpportunity,
-} from "../../services/developer/developerOpportunityService";
+} from "../../services/developerService";
 
 
 /* =========================================================
