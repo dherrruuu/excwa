@@ -1,0 +1,853 @@
+/* ============================================================
+   EXCWA TECH — DEVELOPER PROFILE
+   Clean / Premium / Compact
+   ============================================================ */
+
+/* ============================================================
+   PROFILE CARD
+   ============================================================ */
+
+.dev-profile-card {
+  width: 100%;
+  min-width: 0;
+  padding: 22px;
+  box-sizing: border-box;
+
+  border: 1px solid var(--dev-border);
+  border-radius: var(--dev-radius-xl);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  box-shadow: var(--dev-shadow);
+}
+
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+
+.dev-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--dev-border-soft);
+}
+
+.dev-section-heading > div {
+  min-width: 0;
+}
+
+.dev-section-heading > svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  color: var(--dev-cyan);
+  opacity: 0.8;
+}
+
+.dev-section-heading .eyebrow {
+  display: inline-flex;
+
+  color: var(--dev-cyan);
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.dev-section-heading h2 {
+  margin: 6px 0 0;
+
+  color: #f2f6fa;
+  font-size: 19px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.dev-section-heading p {
+  max-width: 620px;
+  margin: 6px 0 0;
+
+  color: var(--dev-text-dim);
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+
+/* ============================================================
+   PROFILE OVERVIEW
+   ============================================================ */
+
+.dev-profile-overview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-top: 16px;
+  padding: 13px;
+
+  border: 1px solid rgba(130, 151, 185, 0.09);
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.008)
+    );
+}
+
+.dev-profile-photo-wrapper {
+  position: relative;
+
+  flex: 0 0 auto;
+
+  width: 58px;
+  height: 58px;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+  border: 1px solid rgba(98, 226, 255, 0.28);
+
+  background:
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(98, 226, 255, 0.12),
+      transparent 65%
+    ),
+    rgba(255, 255, 255, 0.025);
+
+  box-shadow:
+    0 0 0 3px rgba(98, 226, 255, 0.035),
+    0 8px 22px rgba(0, 0, 0, 0.22);
+}
+
+.dev-profile-photo {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.dev-profile-photo-placeholder {
+  width: 100%;
+  height: 100%;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #657286;
+}
+
+.dev-profile-photo-placeholder svg {
+  opacity: 0.7;
+}
+
+.dev-profile-overview-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 5px;
+}
+
+.dev-profile-overview-info h3 {
+  margin: 0;
+
+  color: #f2f6fa;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.25;
+
+  overflow-wrap: anywhere;
+}
+
+.dev-profile-overview-info > span {
+  color: #7d899a;
+  font-size: 9px;
+  line-height: 1.3;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   PROFILE DETAILS
+   ============================================================ */
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.admin-detail-item {
+  min-width: 0;
+
+  min-height: 48px;
+  padding: 11px 12px;
+
+  box-sizing: border-box;
+
+  border: 1px solid rgba(130, 151, 185, 0.08);
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.026),
+      rgba(255, 255, 255, 0.008)
+    );
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.admin-detail-item:hover {
+  border-color: rgba(98, 226, 255, 0.14);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98, 226, 255, 0.035),
+      rgba(255, 255, 255, 0.01)
+    );
+
+  transform: translateY(-1px);
+}
+
+.admin-detail-item > span:first-child {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #68768a;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-detail-item strong,
+.admin-detail-item > a {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  min-width: 0;
+
+  margin: 0;
+
+  color: #d0d8e1;
+  font-size: 9px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.admin-detail-item > a {
+  color: var(--dev-cyan);
+  text-decoration: none;
+
+  transition: color 0.18s ease;
+}
+
+.admin-detail-item > a:hover {
+  color: #c4f6ff;
+}
+
+.admin-detail-item > a span {
+  min-width: 0;
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-detail-item .dev-status-badge {
+  margin-top: 1px;
+}
+
+
+/* ============================================================
+   PROFILE SECTION
+   ============================================================ */
+
+.dev-profile-section {
+  margin-top: 16px;
+  padding-top: 16px;
+
+  border-top: 1px solid var(--dev-border-soft);
+}
+
+.dev-profile-section .dev-profile-document-header {
+  margin-bottom: 9px;
+}
+
+
+/* ============================================================
+   PROFESSIONAL DOCUMENT HEADER
+   ============================================================ */
+
+.dev-profile-document-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-bottom: 10px;
+}
+
+.dev-profile-document-header > div {
+  min-width: 0;
+}
+
+.dev-profile-document-header .eyebrow {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: var(--dev-cyan);
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dev-profile-document-header h3 {
+  margin: 0;
+
+  color: #eef4f8;
+  font-size: 13px;
+  font-weight: 620;
+  line-height: 1.25;
+}
+
+.dev-profile-document-header > svg {
+  flex: 0 0 auto;
+
+  color: var(--dev-cyan);
+  opacity: 0.75;
+}
+
+
+/* ============================================================
+   ROLE TAGS
+   ============================================================ */
+
+.dev-profile-section .dev-opp-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dev-profile-section .dev-tag {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 25px;
+  padding: 0 9px;
+
+  border: 1px solid rgba(98, 226, 255, 0.12);
+  border-radius: 7px;
+
+  color: #aebdca;
+  background: rgba(98, 226, 255, 0.035);
+
+  font-size: 8px;
+  font-weight: 500;
+  line-height: 1;
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+.dev-profile-section .dev-tag:hover {
+  color: #d8f8ff;
+
+  border-color: rgba(98, 226, 255, 0.23);
+  background: rgba(98, 226, 255, 0.06);
+}
+
+
+/* ============================================================
+   PROFILE DOCUMENT SECTIONS
+   ============================================================ */
+
+.dev-profile-documents {
+  margin-top: 16px;
+  padding-top: 16px;
+
+  border-top: 1px solid var(--dev-border-soft);
+}
+
+
+/* ============================================================
+   PROFILE PHOTO PREVIEW
+   IMPORTANT:
+   Never allow the uploaded image to use its natural size.
+   ============================================================ */
+
+.dev-profile-photo-preview-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 280px) minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 16px;
+
+  padding: 12px;
+
+  border: 1px solid rgba(98, 226, 255, 0.10);
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98, 226, 255, 0.028),
+      rgba(255, 255, 255, 0.008)
+    );
+
+  overflow: hidden;
+}
+
+
+/* ============================================================
+   LARGE PROFILE IMAGE
+   ============================================================ */
+
+.dev-profile-large-photo {
+  display: block;
+
+  width: 100%;
+  max-width: 280px;
+  height: 250px;
+
+  margin: 0 auto;
+
+  object-fit: cover;
+  object-position: center top;
+
+  border-radius: 8px;
+
+  border: 1px solid rgba(130, 151, 185, 0.10);
+
+  background: #15181d;
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+
+/* ============================================================
+   PROFILE PHOTO INFORMATION
+   ============================================================ */
+
+.dev-profile-photo-preview-info {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 5px;
+
+  padding: 4px 4px 4px 0;
+}
+
+.dev-profile-photo-preview-info strong {
+  color: #dce5ed;
+
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.dev-profile-photo-preview-info span {
+  max-width: 360px;
+
+  color: #6f7d90;
+
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.dev-profile-photo-preview-info .secondary-btn {
+  margin-top: 6px;
+}
+
+
+/* ============================================================
+   SECONDARY BUTTON INSIDE PROFILE
+   ============================================================ */
+
+.dev-profile-card .secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  min-height: 28px;
+  padding: 0 10px;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   NO DOCUMENT STATE
+   ============================================================ */
+
+.dev-profile-document-empty {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  min-height: 42px;
+  padding: 10px 12px;
+
+  box-sizing: border-box;
+
+  border: 1px dashed rgba(130, 151, 185, 0.14);
+  border-radius: 9px;
+
+  color: #69778a;
+  background: rgba(255, 255, 255, 0.012);
+
+  font-size: 8px;
+}
+
+.dev-profile-document-empty svg {
+  flex: 0 0 auto;
+
+  color: #657286;
+}
+
+
+/* ============================================================
+   RESUME CARD
+   ============================================================ */
+
+.dev-profile-resume-card {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  min-width: 0;
+
+  padding: 11px;
+
+  border: 1px solid rgba(98, 226, 255, 0.10);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98, 226, 255, 0.035),
+      rgba(255, 255, 255, 0.008)
+    );
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dev-profile-resume-card:hover {
+  border-color: rgba(98, 226, 255, 0.20);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98, 226, 255, 0.055),
+      rgba(255, 255, 255, 0.014)
+    );
+
+  transform: translateY(-1px);
+}
+
+
+/* ============================================================
+   RESUME ICON
+   ============================================================ */
+
+.dev-profile-resume-icon {
+  flex: 0 0 auto;
+
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9px;
+
+  color: var(--dev-cyan);
+
+  border: 1px solid rgba(98, 226, 255, 0.13);
+
+  background: rgba(98, 226, 255, 0.05);
+}
+
+
+/* ============================================================
+   RESUME INFO
+   ============================================================ */
+
+.dev-profile-resume-info {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.dev-profile-resume-info strong {
+  color: #dce5ed;
+
+  font-size: 9px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.dev-profile-resume-info span {
+  color: #6f7d90;
+
+  font-size: 7px;
+  line-height: 1.3;
+}
+
+
+/* ============================================================
+   RESUME ACTIONS
+   ============================================================ */
+
+.dev-profile-resume-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  flex: 0 0 auto;
+}
+
+.dev-profile-resume-btn {
+  flex: 0 0 auto;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  min-height: 27px;
+  padding: 0 9px;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   STATUS BADGE
+   Keep profile badge compact
+   ============================================================ */
+
+.dev-profile-card .dev-status-badge {
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   TABLET
+   ============================================================ */
+
+@media (max-width: 760px) {
+
+  .dev-profile-card {
+    padding: 18px;
+  }
+
+  .dev-profile-photo-preview-card {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .dev-profile-large-photo {
+    width: 220px;
+    height: 220px;
+  }
+
+  .dev-profile-resume-card {
+    flex-wrap: wrap;
+  }
+
+  .dev-profile-resume-actions {
+    width: 100%;
+    padding-left: 49px;
+  }
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+  .dev-profile-card {
+    padding: 15px;
+  }
+
+  .dev-section-heading h2 {
+    font-size: 18px;
+  }
+
+  .dev-section-heading p {
+    font-size: 8px;
+  }
+
+  .admin-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dev-profile-photo-preview-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .dev-profile-large-photo {
+    width: 100%;
+    max-width: 240px;
+    height: 240px;
+  }
+
+  .dev-profile-photo-preview-info {
+    padding: 0;
+  }
+
+  .dev-profile-photo-preview-info .secondary-btn {
+    margin-top: 5px;
+  }
+
+  .dev-profile-resume-actions {
+    padding-left: 0;
+  }
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 450px) {
+
+  .dev-profile-card {
+    padding: 13px;
+  }
+
+  .dev-profile-overview {
+    align-items: flex-start;
+    padding: 11px;
+  }
+
+  .dev-profile-photo-wrapper {
+    width: 52px;
+    height: 52px;
+  }
+
+  .dev-profile-overview-info h3 {
+    font-size: 14px;
+  }
+
+  .dev-profile-photo-preview-card {
+    padding: 9px;
+  }
+
+  .dev-profile-large-photo {
+    max-width: 200px;
+    height: 200px;
+  }
+
+  .dev-profile-resume-card {
+    align-items: flex-start;
+  }
+
+  .dev-profile-resume-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 6px;
+  }
+
+  .dev-profile-resume-btn {
+    width: 100%;
+  }
+}
+
+
+/* ============================================================
+   VERY SMALL SCREENS
+   ============================================================ */
+
+@media (max-width: 360px) {
+
+  .dev-profile-card {
+    padding: 11px;
+  }
+
+  .dev-profile-overview {
+    gap: 10px;
+  }
+
+  .dev-profile-photo-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  .dev-profile-overview-info h3 {
+    font-size: 13px;
+  }
+
+  .dev-profile-large-photo {
+    max-width: 180px;
+    height: 180px;
+  }
+
+  .dev-profile-resume-actions {
+    grid-template-columns: 1fr;
+  }
+}

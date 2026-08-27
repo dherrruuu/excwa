@@ -20,13 +20,16 @@ function jsonResponse(
   body: Record<string, unknown>,
   status = 200
 ) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "application/json",
-    },
-  });
+  return new Response(
+    JSON.stringify(body),
+    {
+      status,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 }
 
 /* =========================================================
@@ -76,14 +79,17 @@ Deno.serve(async (req) => {
       "https://excwa.vercel.app"
     ).replace(/\/+$/, "");
 
-    if (!supabaseUrl || !serviceRoleKey) {
+    if (
+      !supabaseUrl ||
+      !serviceRoleKey
+    ) {
       throw new Error(
         "Supabase environment variables are missing."
       );
     }
 
     /* =====================================================
-       AUTHORIZATION
+       AUTHORIZATION HEADER
     ===================================================== */
 
     const authHeader =
@@ -136,7 +142,7 @@ Deno.serve(async (req) => {
       );
 
     /* =====================================================
-       VERIFY ADMIN
+       VERIFY CURRENT USER
     ===================================================== */
 
     const {
@@ -164,27 +170,27 @@ Deno.serve(async (req) => {
     const currentUser =
       authData.user;
 
+    /* =====================================================
+       VERIFY ADMIN
+    ===================================================== */
+
     const {
-      data: currentProfile,
-      error:
-        currentProfileError,
+      data: adminProfile,
+      error: adminProfileError,
     } =
       await supabaseAdmin
         .from("profiles")
         .select("id, role")
-        .eq(
-          "id",
-          currentUser.id
-        )
+        .eq("id", currentUser.id)
         .maybeSingle();
 
-    if (currentProfileError) {
-      throw currentProfileError;
+    if (adminProfileError) {
+      throw adminProfileError;
     }
 
     if (
-      !currentProfile ||
-      currentProfile.role !== "admin"
+      !adminProfile ||
+      adminProfile.role !== "admin"
     ) {
       return jsonResponse(
         {
@@ -200,7 +206,7 @@ Deno.serve(async (req) => {
        REQUEST BODY
     ===================================================== */
 
-    let body;
+    let body: Record<string, any>;
 
     try {
       body = await req.json();
@@ -235,16 +241,12 @@ Deno.serve(async (req) => {
 
     const {
       data: application,
-      error:
-        applicationError,
+      error: applicationError,
     } =
       await supabaseAdmin
         .from("developer_applications")
         .select("*")
-        .eq(
-          "id",
-          applicationId
-        )
+        .eq("id", applicationId)
         .maybeSingle();
 
     if (applicationError) {
@@ -263,7 +265,7 @@ Deno.serve(async (req) => {
     }
 
     /* =====================================================
-       STATUS CHECK
+       APPLICATION STATUS
     ===================================================== */
 
     if (
@@ -309,7 +311,7 @@ Deno.serve(async (req) => {
     }
 
     /* =====================================================
-       REQUIRED DATA
+       REQUIRED APPLICATION DATA
     ===================================================== */
 
     const email =
@@ -347,9 +349,8 @@ Deno.serve(async (req) => {
       application.developer_user_id
     ) {
       const {
-        data: existingAuthUser,
-        error:
-          existingAuthUserError,
+        data: existingUserData,
+        error: existingUserError,
       } =
         await supabaseAdmin.auth.admin
           .getUserById(
@@ -357,60 +358,16 @@ Deno.serve(async (req) => {
           );
 
       if (
-        !existingAuthUserError &&
-        existingAuthUser?.user
+        !existingUserError &&
+        existingUserData?.user
       ) {
         authUser =
-          existingAuthUser.user;
+          existingUserData.user;
       }
     }
 
     /* -----------------------------------------------------
-       SECOND: PROFILE EMAIL
-    ----------------------------------------------------- */
-
-    if (!authUser) {
-      const {
-        data: profileByEmail,
-        error:
-          profileByEmailError,
-      } =
-        await supabaseAdmin
-          .from("profiles")
-          .select("id, email")
-          .ilike(
-            "email",
-            email
-          )
-          .maybeSingle();
-
-      if (profileByEmailError) {
-        throw profileByEmailError;
-      }
-
-      if (profileByEmail?.id) {
-        const {
-          data: profileAuthUser,
-          error:
-            profileAuthUserError,
-        } =
-          await supabaseAdmin.auth.admin
-            .getUserById(
-              profileByEmail.id
-            );
-
-        if (
-          !profileAuthUserError &&
-          profileAuthUser?.user
-        ) {
-          authUser =
-            profileAuthUser.user;
-        }
-      }
-    }
-
-    /* -----------------------------------------------------
-       THIRD: SEARCH AUTH USERS
+       SECOND: SEARCH AUTH USERS BY EMAIL
     ----------------------------------------------------- */
 
     if (!authUser) {
@@ -456,33 +413,20 @@ Deno.serve(async (req) => {
     }
 
     /* =====================================================
-       CREATE AUTH USER
+       CREATE AUTH USER IF NECESSARY
     ===================================================== */
 
     if (!authUser) {
       const {
-        data: createdUser,
-        error:
-          createUserError,
+        data: createdUserData,
+        error: createUserError,
       } =
         await supabaseAdmin.auth.admin
           .createUser({
             email,
-
-            /*
-             * Admin approved the developer,
-             * therefore email confirmation is
-             * not required.
-             *
-             * The developer will establish
-             * their password through the
-             * recovery email.
-             */
             email_confirm: true,
-
             user_metadata: {
-              full_name:
-                fullName,
+              full_name: fullName,
             },
           });
 
@@ -491,7 +435,7 @@ Deno.serve(async (req) => {
       }
 
       authUser =
-        createdUser?.user ||
+        createdUserData?.user ||
         null;
     }
 
@@ -501,34 +445,40 @@ Deno.serve(async (req) => {
       );
     }
 
+    const developerUserId =
+      authUser.id;
+
     /* =====================================================
-       MAIN PROFILE
+       UPDATE AUTH METADATA
     ===================================================== */
 
     const {
-      data: existingProfile,
-      error:
-        existingProfileError,
+      error: metadataError,
     } =
-      await supabaseAdmin
-        .from("profiles")
-        .select("id")
-        .eq(
-          "id",
-          authUser.id
-        )
-        .maybeSingle();
+      await supabaseAdmin.auth.admin
+        .updateUserById(
+          developerUserId,
+          {
+            user_metadata: {
+              full_name: fullName,
+              role: "developer",
+            },
+          }
+        );
 
-    if (existingProfileError) {
-      throw existingProfileError;
+    if (metadataError) {
+      throw metadataError;
     }
+
+    /* =====================================================
+       MAIN PROFILE
+    ===================================================== */
 
     const now =
       new Date().toISOString();
 
     const profileData = {
-      id:
-        authUser.id,
+      id: developerUserId,
 
       full_name:
         fullName,
@@ -546,17 +496,27 @@ Deno.serve(async (req) => {
         application.profile_photo_path ||
         null,
 
-      resume_url:
-        null,
-
       updated_at:
         now,
     };
 
+    const {
+      data: existingProfile,
+      error: existingProfileError,
+    } =
+      await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("id", developerUserId)
+        .maybeSingle();
+
+    if (existingProfileError) {
+      throw existingProfileError;
+    }
+
     if (!existingProfile) {
       const {
-        error:
-          profileInsertError,
+        error: profileInsertError,
       } =
         await supabaseAdmin
           .from("profiles")
@@ -569,8 +529,7 @@ Deno.serve(async (req) => {
       }
     } else {
       const {
-        error:
-          profileUpdateError,
+        error: profileUpdateError,
       } =
         await supabaseAdmin
           .from("profiles")
@@ -579,7 +538,7 @@ Deno.serve(async (req) => {
           )
           .eq(
             "id",
-            authUser.id
+            developerUserId
           );
 
       if (profileUpdateError) {
@@ -591,30 +550,16 @@ Deno.serve(async (req) => {
        DEVELOPER PROFILE
     ===================================================== */
 
-    const {
-      data:
-        existingDeveloperProfile,
-      error:
-        developerProfileLookupError,
-    } =
-      await supabaseAdmin
-        .from("developer_profiles")
-        .select("id")
-        .eq(
-          "user_id",
-          authUser.id
-        )
-        .maybeSingle();
-
-    if (
-      developerProfileLookupError
-    ) {
-      throw developerProfileLookupError;
-    }
+    const primaryRoles =
+      Array.isArray(
+        application.primary_roles
+      )
+        ? application.primary_roles
+        : [];
 
     const developerProfileData = {
       user_id:
-        authUser.id,
+        developerUserId,
 
       full_name:
         fullName,
@@ -623,16 +568,18 @@ Deno.serve(async (req) => {
         application.phone ||
         null,
 
+      email,
+
       city:
         application.city ||
         null,
 
+      education:
+        application.education ||
+        null,
+
       primary_roles:
-        Array.isArray(
-          application.primary_roles
-        )
-          ? application.primary_roles
-          : [],
+        primaryRoles,
 
       linkedin_url:
         application.linkedin_url ||
@@ -646,14 +593,18 @@ Deno.serve(async (req) => {
         application.portfolio_url ||
         null,
 
+      profile_photo_path:
+        application.profile_photo_path ||
+        null,
+
+      profile_photo_url:
+        null,
+
       resume_path:
         application.resume_path ||
         null,
 
       resume_url:
-        null,
-
-      profile_photo_url:
         null,
 
       status:
@@ -666,28 +617,29 @@ Deno.serve(async (req) => {
         now,
     };
 
+    const {
+      data: existingDeveloperProfile,
+      error:
+        developerProfileLookupError,
+    } =
+      await supabaseAdmin
+        .from("developer_profiles")
+        .select("id")
+        .eq(
+          "user_id",
+          developerUserId
+        )
+        .maybeSingle();
+
     if (
-      !existingDeveloperProfile
+      developerProfileLookupError
     ) {
-      const {
-        error:
-          developerProfileInsertError,
-      } =
-        await supabaseAdmin
-          .from("developer_profiles")
-          .insert({
-            ...developerProfileData,
+      throw developerProfileLookupError;
+    }
 
-            created_at:
-              now,
-          });
-
-      if (
-        developerProfileInsertError
-      ) {
-        throw developerProfileInsertError;
-      }
-    } else {
+    if (
+      existingDeveloperProfile
+    ) {
       const {
         error:
           developerProfileUpdateError,
@@ -699,7 +651,7 @@ Deno.serve(async (req) => {
           )
           .eq(
             "user_id",
-            authUser.id
+            developerUserId
           );
 
       if (
@@ -707,34 +659,36 @@ Deno.serve(async (req) => {
       ) {
         throw developerProfileUpdateError;
       }
+    } else {
+      const {
+        error:
+          developerProfileInsertError,
+      } =
+        await supabaseAdmin
+          .from("developer_profiles")
+          .insert(
+            {
+              ...developerProfileData,
+              created_at: now,
+            }
+          );
+
+      if (
+        developerProfileInsertError
+      ) {
+        throw developerProfileInsertError;
+      }
     }
 
     /* =====================================================
-       SEND ACTIVATION / PASSWORD SETUP EMAIL
-    =====================================================
-
-       Supabase Auth sends this email using the
-       Custom SMTP configured in:
-
-       Supabase
-       → Authentication
-       → SMTP Settings
-
-       Your email template should contain:
-
-       {{ .ConfirmationURL }}
-
-       The link will redirect to:
-
-       https://excwa.vercel.app/activate
+       SEND ACTIVATION EMAIL
     ===================================================== */
 
     const activationRedirectUrl =
       `${siteUrl}/activate`;
 
     const {
-      error:
-        recoveryEmailError,
+      error: recoveryEmailError,
     } =
       await supabaseAdmin.auth
         .resetPasswordForEmail(
@@ -756,21 +710,17 @@ Deno.serve(async (req) => {
     ===================================================== */
 
     const {
-      data:
-        updatedApplication,
-      error:
-        applicationUpdateError,
+      data: updatedApplication,
+      error: applicationUpdateError,
     } =
       await supabaseAdmin
-        .from(
-          "developer_applications"
-        )
+        .from("developer_applications")
         .update({
           status:
             "accepted",
 
           developer_user_id:
-            authUser.id,
+            developerUserId,
 
           reviewed_by:
             currentUser.id,
@@ -793,12 +743,16 @@ Deno.serve(async (req) => {
           "pending"
         )
         .select("*")
-        .single();
+        .maybeSingle();
 
-    if (
-      applicationUpdateError
-    ) {
+    if (applicationUpdateError) {
       throw applicationUpdateError;
+    }
+
+    if (!updatedApplication) {
+      throw new Error(
+        "Application could not be marked as accepted."
+      );
     }
 
     /* =====================================================
@@ -815,7 +769,7 @@ Deno.serve(async (req) => {
         updatedApplication,
 
       user_id:
-        authUser.id,
+        developerUserId,
 
       activation_email_sent:
         true,
@@ -823,6 +777,7 @@ Deno.serve(async (req) => {
       activation_redirect:
         activationRedirectUrl,
     });
+
   } catch (error) {
     console.error(
       "approve-developer error:",

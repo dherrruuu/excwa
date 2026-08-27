@@ -30,11 +30,8 @@ export const DEVELOPER_PROFILE_STATUSES = {
    STORAGE CONSTANTS
 ========================================================= */
 
-const PROFILE_PHOTO_BUCKET =
-  "profile-photos";
-
-const DEVELOPER_RESUME_BUCKET =
-  "developer-resumes";
+const PROFILE_PHOTO_BUCKET = "profile-photos";
+const DEVELOPER_RESUME_BUCKET = "developer-resumes";
 
 /* =========================================================
    GET CURRENT ADMIN
@@ -189,8 +186,6 @@ export async function approveDeveloperApplication(
     );
   }
 
-  await getCurrentAdmin();
-
   const application =
     await getDeveloperApplication(
       applicationId
@@ -262,10 +257,15 @@ export async function approveDeveloperApplication(
 
   return {
     success: true,
+
     application: data.application,
-    user_id: data.user_id || null,
+
+    user_id:
+      data.user_id || null,
+
     activation_link:
       data.activation_link || null,
+
     message:
       data.message ||
       "Developer application accepted successfully.",
@@ -285,8 +285,6 @@ export async function rejectDeveloperApplication(
       "Developer application ID is required."
     );
   }
-
-  await getCurrentAdmin();
 
   const application =
     await getDeveloperApplication(
@@ -371,7 +369,9 @@ export async function rejectDeveloperApplication(
 
   return {
     success: true,
+
     application: data.application,
+
     message:
       data.message ||
       "Developer application rejected successfully.",
@@ -424,6 +424,10 @@ export async function deleteDeveloperApplication(
 
   const storageErrors = [];
 
+  /* =======================================================
+     DELETE PROFILE PHOTO
+  ======================================================= */
+
   if (application.profile_photo_path) {
     const {
       error,
@@ -445,6 +449,10 @@ export async function deleteDeveloperApplication(
     }
   }
 
+  /* =======================================================
+     DELETE RESUME
+  ======================================================= */
+
   if (application.resume_path) {
     const {
       error,
@@ -463,6 +471,10 @@ export async function deleteDeveloperApplication(
       storageErrors.push("resume");
     }
   }
+
+  /* =======================================================
+     DELETE APPLICATION RECORD
+  ======================================================= */
 
   const {
     error: deleteError,
@@ -485,7 +497,9 @@ export async function deleteDeveloperApplication(
 
   return {
     success: true,
+
     applicationId,
+
     storageErrors,
   };
 }
@@ -756,20 +770,17 @@ export async function deleteDeveloper(
     success: true,
 
     developer_id:
-      data.developer_id ||
-      null,
+      data.developer_id || null,
 
     user_id:
       data.user_id ||
       developerUserId,
 
     email:
-      data.email ||
-      null,
+      data.email || null,
 
     storage_errors:
-      data.storage_errors ||
-      [],
+      data.storage_errors || [],
 
     message:
       data.message ||

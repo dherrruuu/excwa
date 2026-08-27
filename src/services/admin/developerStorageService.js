@@ -1,97 +1,118 @@
 import { supabase } from "../../lib/supabase";
 
-/**
- * =========================================================
- * DEVELOPER STORAGE SERVICE
- * =========================================================
- *
- * profile-photos      -> PUBLIC bucket
- * developer-resumes   -> PRIVATE bucket
- *
- * Photos:
- *   Public URL
- *
- * Resumes:
- *   Signed URL
- * =========================================================
- */
+/* =========================================================
+   EXCWA TECH
+   DEVELOPER STORAGE SERVICE
+
+   STORAGE
+
+   profile-photos
+   → PUBLIC
+   → profile_photo_path
+   → Public URL
+
+   developer-resumes
+   → PRIVATE
+   → resume_path
+   → Signed URL
+========================================================= */
 
 const PROFILE_PHOTO_BUCKET = "profile-photos";
 const RESUME_BUCKET = "developer-resumes";
 
-/**
- * Get public profile photo URL.
- */
+/* =========================================================
+   PROFILE PHOTO
+========================================================= */
+
 export function getProfilePhotoUrl(path) {
   if (!path) return null;
 
-  // Already a complete URL
+  const value = String(path).trim();
+
+  if (!value) return null;
+
   if (
-    path.startsWith("http://") ||
-    path.startsWith("https://")
+    value.startsWith("http://") ||
+    value.startsWith("https://")
   ) {
-    return path;
+    return value;
   }
 
-  const { data } = supabase.storage
+  const { data, error } = supabase.storage
     .from(PROFILE_PHOTO_BUCKET)
-    .getPublicUrl(path);
+    .getPublicUrl(value);
+
+  if (error) {
+    console.error(
+      "EXCWA: Failed to generate profile photo URL:",
+      error
+    );
+
+    return null;
+  }
 
   return data?.publicUrl || null;
 }
 
-/**
- * Get a temporary signed resume URL.
- *
- * 1 hour validity.
- */
+/* =========================================================
+   RESUME
+========================================================= */
+
 export async function getResumeUrl(path) {
   if (!path) return null;
 
-  // Already a complete URL
+  const value = String(path).trim();
+
+  if (!value) return null;
+
   if (
-    path.startsWith("http://") ||
-    path.startsWith("https://")
+    value.startsWith("http://") ||
+    value.startsWith("https://")
   ) {
-    return path;
+    return value;
   }
 
   const { data, error } = await supabase.storage
     .from(RESUME_BUCKET)
-    .createSignedUrl(path, 60 * 60);
+    .createSignedUrl(value, 60 * 60);
 
   if (error) {
-    console.error("getResumeUrl:", error);
+    console.error(
+      "EXCWA: Failed to generate resume signed URL:",
+      error
+    );
+
     return null;
   }
 
   return data?.signedUrl || null;
 }
 
-/**
- * Resolve all developer storage URLs.
- */
-export async function resolveDeveloperStorage(developer) {
-  if (!developer) return developer;
+/* =========================================================
+   RESOLVE DEVELOPER STORAGE
+========================================================= */
 
-  const photoPath =
-    developer.profile_photo_path ||
-    developer.profile_photo_url;
+export async function resolveDeveloperStorage(
+  developer
+) {
+  if (!developer) {
+    return developer;
+  }
 
-  const resumePath =
-    developer.resume_path ||
-    developer.resume_url;
+  const profilePhotoUrl = getProfilePhotoUrl(
+    developer.profile_photo_path
+  );
 
-  const profilePhotoUrl =
-    getProfilePhotoUrl(photoPath);
-
-  const resumeUrl =
-    await getResumeUrl(resumePath);
+  const resumeUrl = await getResumeUrl(
+    developer.resume_path
+  );
 
   return {
     ...developer,
+
     resolved_profile_photo_url:
       profilePhotoUrl,
+
     resolved_resume_url:
       resumeUrl,
   };

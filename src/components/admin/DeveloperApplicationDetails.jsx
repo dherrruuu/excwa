@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import {
   X,
@@ -20,7 +24,9 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { supabase } from "../../lib/supabase";
+import {
+  resolveDeveloperStorage,
+} from "../../services/admin/developerStorageService";
 
 import "./DeveloperApplicationDetails.css";
 
@@ -81,8 +87,7 @@ function normalizeUrl(url) {
     return null;
   }
 
-  const trimmed =
-    String(url).trim();
+  const trimmed = String(url).trim();
 
   if (!trimmed) {
     return null;
@@ -141,8 +146,7 @@ function LinkItem({
   label,
   url,
 }) {
-  const normalizedUrl =
-    normalizeUrl(url);
+  const normalizedUrl = normalizeUrl(url);
 
   if (!normalizedUrl) {
     return (
@@ -207,6 +211,7 @@ export default function DeveloperApplicationDetails({
   onStatusChange,
   onDelete,
 }) {
+
   const [isAccepting, setIsAccepting] =
     useState(false);
 
@@ -232,10 +237,18 @@ export default function DeveloperApplicationDetails({
     useState(null);
 
 
+  /* =========================================================
+     BUSY STATE
+  ========================================================= */
+
   const isBusy =
     isAccepting ||
     isRejecting;
 
+
+  /* =========================================================
+     STATUS
+  ========================================================= */
 
   const status =
     application?.status ||
@@ -247,6 +260,7 @@ export default function DeveloperApplicationDetails({
   ========================================================= */
 
   const roles = useMemo(() => {
+
     if (!application?.primary_roles) {
       return [];
     }
@@ -262,88 +276,70 @@ export default function DeveloperApplicationDetails({
     return [
       application.primary_roles,
     ];
+
   }, [application]);
 
 
   /* =========================================================
-     RESOLVE FILE URLS
+     RESOLVE STORAGE FILES
   ========================================================= */
 
   useEffect(() => {
+
     let cancelled = false;
 
     async function resolveFiles() {
-      setProfilePhotoUrl(
-        application?.profile_photo_url ||
-          null
-      );
-
-      setResumeUrl(
-        application?.resume_url ||
-          null
-      );
 
       if (!application) {
+        setProfilePhotoUrl(null);
+        setResumeUrl(null);
         return;
       }
 
+      try {
 
-      /* -----------------------------------------------------
-         PROFILE PHOTO
-      ----------------------------------------------------- */
-
-      if (
-        !application.profile_photo_url &&
-        application.profile_photo_path
-      ) {
-        const {
-          data,
-          error: photoError,
-        } = await supabase.storage
-          .from("profile-photos")
-          .createSignedUrl(
-            application.profile_photo_path,
-            60 * 60
+        const resolved =
+          await resolveDeveloperStorage(
+            application
           );
 
-        if (
-          !cancelled &&
-          !photoError &&
-          data?.signedUrl
-        ) {
-          setProfilePhotoUrl(
-            data.signedUrl
-          );
+        if (cancelled) {
+          return;
         }
-      }
 
+        setProfilePhotoUrl(
+          resolved?.resolved_profile_photo_url ||
+          null
+        );
 
-      /* -----------------------------------------------------
-         RESUME
-      ----------------------------------------------------- */
+        setResumeUrl(
+          resolved?.resolved_resume_url ||
+          null
+        );
 
-      if (
-        !application.resume_url &&
-        application.resume_path
-      ) {
-        const {
-          data,
-          error: resumeError,
-        } = await supabase.storage
-          .from("developer-resumes")
-          .createSignedUrl(
-            application.resume_path,
-            60 * 60
+      } catch (err) {
+
+        console.error(
+          "DeveloperApplicationDetails storage resolution error:",
+          err
+        );
+
+        if (!cancelled) {
+
+          /*
+           * Profile photo may already contain
+           * a usable public URL.
+           */
+          setProfilePhotoUrl(
+            application.profile_photo_url ||
+            null
           );
 
-        if (
-          !cancelled &&
-          !resumeError &&
-          data?.signedUrl
-        ) {
-          setResumeUrl(
-            data.signedUrl
-          );
+          /*
+           * Resume is private, so do not
+           * attempt to use resume_url.
+           */
+          setResumeUrl(null);
         }
       }
     }
@@ -353,20 +349,24 @@ export default function DeveloperApplicationDetails({
     return () => {
       cancelled = true;
     };
+
   }, [application]);
 
 
   /* =========================================================
-     RESET LOCAL ACTION STATE WHEN APPLICATION CHANGES
+     RESET LOCAL ACTION STATE
+     WHEN APPLICATION CHANGES
   ========================================================= */
 
   useEffect(() => {
+
     setError("");
     setSuccessMessage("");
     setShowRejectForm(false);
     setRejectionReason("");
     setIsAccepting(false);
     setIsRejecting(false);
+
   }, [application?.id]);
 
 
@@ -375,6 +375,7 @@ export default function DeveloperApplicationDetails({
   ========================================================= */
 
   if (!application) {
+
     return (
       <div className="admin-review-details-overlay">
 
@@ -406,28 +407,17 @@ export default function DeveloperApplicationDetails({
 
 
   /* =========================================================
-     ACCEPT
-     
-     IMPORTANT:
-     
-     The modal does NOT call Supabase.
-     
-     It calls:
-     
-       onStatusChange("accepted")
-     
-     The table then calls:
-     
-       adminDeveloperService.approveDeveloperApplication()
-     
-     ========================================================= */
+     ACCEPT APPLICATION
+  ========================================================= */
 
   async function handleAccept() {
+
     if (isBusy) {
       return;
     }
 
     if (status !== "pending") {
+
       setError(
         `This application is already ${status}.`
       );
@@ -449,6 +439,7 @@ export default function DeveloperApplicationDetails({
     setIsAccepting(true);
 
     try {
+
       if (!onStatusChange) {
         throw new Error(
           "Application status handler is unavailable."
@@ -466,7 +457,9 @@ export default function DeveloperApplicationDetails({
       setTimeout(() => {
         onClose?.();
       }, 700);
+
     } catch (err) {
+
       console.error(
         "handleAccept error:",
         err
@@ -474,10 +467,13 @@ export default function DeveloperApplicationDetails({
 
       setError(
         err?.message ||
-          "Unable to approve developer application."
+        "Unable to approve developer application."
       );
+
     } finally {
+
       setIsAccepting(false);
+
     }
   }
 
@@ -487,11 +483,13 @@ export default function DeveloperApplicationDetails({
   ========================================================= */
 
   function handleOpenReject() {
+
     if (isBusy) {
       return;
     }
 
     if (status !== "pending") {
+
       setError(
         `This application is already ${status}.`
       );
@@ -510,6 +508,7 @@ export default function DeveloperApplicationDetails({
   ========================================================= */
 
   function handleCancelReject() {
+
     if (isRejecting) {
       return;
     }
@@ -521,19 +520,11 @@ export default function DeveloperApplicationDetails({
 
 
   /* =========================================================
-     REJECT
-     
-     IMPORTANT:
-     
-     The modal does NOT call Supabase.
-     
-     It calls:
-     
-       onStatusChange("rejected", reason)
-     
-     ========================================================= */
+     REJECT APPLICATION
+  ========================================================= */
 
   async function handleReject() {
+
     if (isBusy) {
       return;
     }
@@ -542,6 +533,7 @@ export default function DeveloperApplicationDetails({
       rejectionReason.trim();
 
     if (!reason) {
+
       setError(
         "Please enter a rejection reason."
       );
@@ -550,6 +542,7 @@ export default function DeveloperApplicationDetails({
     }
 
     if (reason.length < 5) {
+
       setError(
         "Please provide a meaningful rejection reason."
       );
@@ -571,6 +564,7 @@ export default function DeveloperApplicationDetails({
     setIsRejecting(true);
 
     try {
+
       if (!onStatusChange) {
         throw new Error(
           "Application status handler is unavailable."
@@ -592,7 +586,9 @@ export default function DeveloperApplicationDetails({
       setTimeout(() => {
         onClose?.();
       }, 700);
+
     } catch (err) {
+
       console.error(
         "handleReject error:",
         err
@@ -600,10 +596,13 @@ export default function DeveloperApplicationDetails({
 
       setError(
         err?.message ||
-          "Unable to reject developer application."
+        "Unable to reject developer application."
       );
+
     } finally {
+
       setIsRejecting(false);
+
     }
   }
 
@@ -616,18 +615,23 @@ export default function DeveloperApplicationDetails({
     <div
       className="admin-review-details-overlay"
       onMouseDown={(event) => {
+
         if (
           event.target ===
           event.currentTarget
         ) {
+
           if (!isBusy) {
             onClose?.();
           }
+
         }
+
       }}
     >
 
       <aside className="admin-review-details-panel">
+
 
         {/* =================================================
             HEADER
@@ -642,6 +646,7 @@ export default function DeveloperApplicationDetails({
             </div>
 
             <div>
+
               <h2>
                 Developer Application
               </h2>
@@ -649,9 +654,11 @@ export default function DeveloperApplicationDetails({
               <p>
                 Review applicant details
               </p>
+
             </div>
 
           </div>
+
 
           <button
             type="button"
@@ -671,6 +678,7 @@ export default function DeveloperApplicationDetails({
         ================================================= */}
 
         <div className="admin-review-details-body">
+
 
           {/* ===============================================
               ALERTS
@@ -721,6 +729,7 @@ export default function DeveloperApplicationDetails({
             <div className="admin-application-avatar">
 
               {profilePhotoUrl ? (
+
                 <img
                   src={profilePhotoUrl}
                   alt={
@@ -728,11 +737,15 @@ export default function DeveloperApplicationDetails({
                     "Applicant"
                   }
                 />
+
               ) : (
+
                 <User size={32} />
+
               )}
 
             </div>
+
 
             <div className="admin-application-profile-info">
 
@@ -745,6 +758,7 @@ export default function DeveloperApplicationDetails({
                 {application.email ||
                   "No email"}
               </p>
+
 
               <div className="admin-application-status-row">
 
@@ -770,10 +784,13 @@ export default function DeveloperApplicationDetails({
           <section className="admin-application-section">
 
             <div className="admin-application-section-heading">
+
               <h3>
                 Personal Information
               </h3>
+
             </div>
+
 
             <div className="admin-application-details-grid">
 
@@ -821,10 +838,13 @@ export default function DeveloperApplicationDetails({
           <section className="admin-application-section">
 
             <div className="admin-application-section-heading">
+
               <h3>
                 Professional Information
               </h3>
+
             </div>
+
 
             <div className="admin-application-roles">
 
@@ -832,25 +852,32 @@ export default function DeveloperApplicationDetails({
                 Primary Roles
               </span>
 
+
               {roles.length > 0 ? (
+
                 <div className="admin-application-role-list">
 
                   {roles.map(
                     (role, index) => (
+
                       <span
                         key={`${role}-${index}`}
                         className="admin-application-role"
                       >
                         {role}
                       </span>
+
                     )
                   )}
 
                 </div>
+
               ) : (
+
                 <span className="admin-application-empty">
                   No roles provided
                 </span>
+
               )}
 
             </div>
@@ -859,16 +886,19 @@ export default function DeveloperApplicationDetails({
 
 
           {/* ===============================================
-              LINKS
+              PROFESSIONAL LINKS
           =============================================== */}
 
           <section className="admin-application-section">
 
             <div className="admin-application-section-heading">
+
               <h3>
                 Professional Links
               </h3>
+
             </div>
+
 
             <div className="admin-application-links">
 
@@ -908,12 +938,16 @@ export default function DeveloperApplicationDetails({
           <section className="admin-application-section">
 
             <div className="admin-application-section-heading">
+
               <h3>
                 Resume
               </h3>
+
             </div>
 
+
             {resumeUrl ? (
+
               <a
                 href={resumeUrl}
                 target="_blank"
@@ -924,6 +958,7 @@ export default function DeveloperApplicationDetails({
                 <div className="admin-application-resume-icon">
                   <FileText size={22} />
                 </div>
+
 
                 <div className="admin-application-resume-info">
 
@@ -937,10 +972,13 @@ export default function DeveloperApplicationDetails({
 
                 </div>
 
+
                 <ExternalLink size={18} />
 
               </a>
+
             ) : (
+
               <div className="admin-application-resume unavailable">
 
                 <FileText size={22} />
@@ -950,6 +988,7 @@ export default function DeveloperApplicationDetails({
                 </span>
 
               </div>
+
             )}
 
           </section>
@@ -962,10 +1001,13 @@ export default function DeveloperApplicationDetails({
           <section className="admin-application-section">
 
             <div className="admin-application-section-heading">
+
               <h3>
                 Application Information
               </h3>
+
             </div>
+
 
             <div className="admin-application-details-grid">
 
@@ -1006,6 +1048,7 @@ export default function DeveloperApplicationDetails({
 
 
             {application.rejection_reason && (
+
               <div className="admin-application-rejection-history">
 
                 <span className="admin-application-detail-label">
@@ -1017,6 +1060,7 @@ export default function DeveloperApplicationDetails({
                 </p>
 
               </div>
+
             )}
 
           </section>
@@ -1028,6 +1072,7 @@ export default function DeveloperApplicationDetails({
 
           {showRejectForm &&
             status === "pending" && (
+
               <section className="admin-application-reject-form">
 
                 <div className="admin-application-section-heading">
@@ -1053,6 +1098,7 @@ export default function DeveloperApplicationDetails({
                     rejectionReason
                   }
                   onChange={(event) => {
+
                     setRejectionReason(
                       event.target.value
                     );
@@ -1060,6 +1106,7 @@ export default function DeveloperApplicationDetails({
                     if (error) {
                       setError("");
                     }
+
                   }}
                   placeholder="Enter rejection reason..."
                   rows={5}
@@ -1096,6 +1143,7 @@ export default function DeveloperApplicationDetails({
                   >
 
                     {isRejecting ? (
+
                       <>
                         <Loader2
                           size={17}
@@ -1104,7 +1152,9 @@ export default function DeveloperApplicationDetails({
 
                         Rejecting...
                       </>
+
                     ) : (
+
                       <>
                         <XCircle
                           size={17}
@@ -1112,6 +1162,7 @@ export default function DeveloperApplicationDetails({
 
                         Confirm Rejection
                       </>
+
                     )}
 
                   </button>
@@ -1119,6 +1170,7 @@ export default function DeveloperApplicationDetails({
                 </div>
 
               </section>
+
             )}
 
         </div>
@@ -1131,7 +1183,9 @@ export default function DeveloperApplicationDetails({
         <div className="admin-review-details-footer">
 
           {status === "pending" ? (
+
             <>
+
               <button
                 type="button"
                 className="admin-application-reject-button"
@@ -1140,9 +1194,11 @@ export default function DeveloperApplicationDetails({
                 }
                 disabled={isBusy}
               >
+
                 <XCircle size={18} />
 
                 Reject
+
               </button>
 
 
@@ -1156,6 +1212,7 @@ export default function DeveloperApplicationDetails({
               >
 
                 {isAccepting ? (
+
                   <>
                     <Loader2
                       size={18}
@@ -1164,7 +1221,9 @@ export default function DeveloperApplicationDetails({
 
                     Accepting...
                   </>
+
                 ) : (
+
                   <>
                     <CheckCircle2
                       size={18}
@@ -1172,14 +1231,19 @@ export default function DeveloperApplicationDetails({
 
                     Accept Developer
                   </>
+
                 )}
 
               </button>
+
             </>
+
           ) : (
+
             <div className="admin-application-final-status">
 
               {status === "accepted" ? (
+
                 <>
                   <CheckCircle2
                     size={18}
@@ -1189,7 +1253,9 @@ export default function DeveloperApplicationDetails({
                     Developer application accepted
                   </span>
                 </>
+
               ) : status === "rejected" ? (
+
                 <>
                   <XCircle
                     size={18}
@@ -1199,7 +1265,9 @@ export default function DeveloperApplicationDetails({
                     Developer application rejected
                   </span>
                 </>
+
               ) : (
+
                 <>
                   <AlertCircle
                     size={18}
@@ -1212,15 +1280,20 @@ export default function DeveloperApplicationDetails({
                     )}
                   </span>
                 </>
+
               )}
 
             </div>
+
           )}
 
 
-          {/* DELETE */}
+          {/* =================================================
+              DELETE
+          ================================================= */}
 
           {onDelete && (
+
             <button
               type="button"
               className="admin-application-delete-button"
@@ -1233,6 +1306,7 @@ export default function DeveloperApplicationDetails({
             >
               Delete
             </button>
+
           )}
 
         </div>

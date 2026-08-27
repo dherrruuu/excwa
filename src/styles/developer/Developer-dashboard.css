@@ -1,0 +1,648 @@
+/* ============================================================
+   EXCWA TECH — DEVELOPER DASHBOARD
+   ============================================================ */
+
+.dev-dashboard-shell {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(98, 226, 255, 0.035),
+      transparent 27%
+    ),
+    linear-gradient(
+      180deg,
+      #080c12 0%,
+      #070a0f 100%
+    );
+
+  color: var(--dev-text);
+
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   CONTAINER
+   ============================================================ */
+
+.dev-dashboard-content,
+.dev-dashboard-topbar-inner {
+  width: min(
+    var(--dev-max-width, 1380px),
+    calc(100% - 48px)
+  );
+
+  margin-inline: auto;
+}
+
+.dev-dashboard-content {
+  min-width: 0;
+
+  padding-top: 38px;
+  padding-bottom: 64px;
+}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+
+.dev-dashboard-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  width: 100%;
+  height: 64px;
+
+  border-bottom: 1px solid var(--dev-border-soft);
+
+  background: rgba(7, 10, 15, 0.84);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.dev-dashboard-topbar-inner {
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+}
+
+.dev-dashboard-brand {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.dev-dashboard-brand > span {
+  color: #f2f6fa;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.dev-dashboard-brand b {
+  color: #758293;
+  font-weight: 500;
+}
+
+.dev-dashboard-userbar {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+.dev-user-avatar {
+  width: 31px;
+  height: 31px;
+
+  flex: 0 0 31px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(98, 226, 255, 0.16);
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98, 226, 255, 0.12),
+      rgba(98, 226, 255, 0.035)
+    );
+
+  color: var(--dev-cyan);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dev-dashboard-user-name {
+  max-width: 180px;
+
+  color: #b9c3cf;
+
+  font-size: 10px;
+  font-weight: 500;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dev-signout-btn {
+  min-height: 31px;
+
+  padding-inline: 10px;
+
+  font-size: 9px;
+}
+
+/* ============================================================
+   LOADING SCREEN
+   ============================================================ */
+
+.dev-dashboard-loading {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  text-align: center;
+}
+
+.dev-dashboard-loading-logo {
+  width: 68px;
+  height: 68px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 18px;
+
+  border: 1px solid rgba(98, 226, 255, 0.14);
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98, 226, 255, 0.08),
+      rgba(98, 226, 255, 0.025)
+    );
+
+  box-shadow:
+    0 0 40px rgba(98, 226, 255, 0.06);
+}
+
+.dev-dashboard-loading h2 {
+  margin: 0;
+
+  color: #eef3f8;
+
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.dev-dashboard-loading p {
+  margin: 6px 0 0;
+
+  color: var(--dev-text-dim);
+
+  font-size: 11px;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.dev-dashboard-hero {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  align-items: end;
+
+  gap: 28px;
+
+  padding-bottom: 28px;
+
+  border-bottom: 1px solid var(--dev-border-soft);
+}
+
+.dev-dashboard-hero-copy {
+  min-width: 0;
+}
+
+.dev-dashboard-hero .eyebrow {
+  display: inline-flex;
+
+  margin-bottom: 8px;
+
+  color: var(--dev-cyan);
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.dev-dashboard-hero h1 {
+  margin: 0;
+
+  color: #f7f9fb;
+
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.1;
+
+  font-weight: 680;
+  letter-spacing: -1.1px;
+}
+
+.dev-dashboard-hero h1 span {
+  color: var(--dev-cyan);
+}
+
+.dev-dashboard-hero-copy > p:last-child {
+  max-width: 650px;
+
+  margin: 10px 0 0;
+
+  color: var(--dev-text-muted);
+
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+/* ============================================================
+   HERO METRICS
+   ============================================================ */
+
+.dev-dashboard-hero-metrics {
+  min-width: 300px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(135px, 1fr));
+
+  gap: 9px;
+}
+
+.dev-metric-card {
+  min-width: 0;
+
+  padding: 14px;
+
+  border: 1px solid var(--dev-border);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.dev-metric-label {
+  display: block;
+
+  color: var(--dev-text-dim);
+
+  font-size: 8px;
+  font-weight: 650;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dev-metric-card > strong {
+  display: block;
+
+  margin-top: 7px;
+
+  color: #edf2f7;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ============================================================
+   ACTIVE PROJECT BANNER
+   ============================================================ */
+
+.dev-active-project-banner {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-top: 20px;
+  padding: 12px 14px;
+
+  border: 1px solid rgba(105, 229, 183, 0.14);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      100deg,
+      rgba(105, 229, 183, 0.055),
+      rgba(98, 226, 255, 0.025)
+    );
+}
+
+.dev-active-project-icon {
+  width: 35px;
+  height: 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(105, 229, 183, 0.16);
+  border-radius: 8px;
+
+  background: rgba(105, 229, 183, 0.055);
+
+  color: var(--dev-green);
+}
+
+.dev-active-project-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.dev-active-project-content span {
+  color: var(--dev-text-dim);
+
+  font-size: 8px;
+  font-weight: 650;
+
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dev-active-project-content strong {
+  color: #dce5ed;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+
+.dev-tabs {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  margin-top: 24px;
+  margin-bottom: 20px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scrollbar-width: none;
+}
+
+.dev-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.dev-tab {
+  flex: 0 0 auto;
+
+  min-height: 35px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #707c8c;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    color var(--dev-transition),
+    background var(--dev-transition),
+    border-color var(--dev-transition),
+    transform var(--dev-transition);
+}
+
+.dev-tab:hover {
+  color: #dce3eb;
+
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.dev-tab.active {
+  color: var(--dev-cyan);
+
+  background: rgba(98, 226, 255, 0.065);
+
+  border-color: rgba(98, 226, 255, 0.13);
+}
+
+.dev-tab:active {
+  transform: translateY(1px);
+}
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+
+.dev-dashboard-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+.dev-dashboard-panel > * {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .dev-dashboard-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .dev-dashboard-hero-metrics {
+    width: 100%;
+    max-width: 520px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 750px) {
+  .dev-dashboard-topbar {
+    height: 60px;
+  }
+
+  .dev-dashboard-content,
+  .dev-dashboard-topbar-inner {
+    width: calc(100% - 32px);
+  }
+
+  .dev-dashboard-content {
+    padding-top: 28px;
+    padding-bottom: 48px;
+  }
+
+  .dev-dashboard-user-name {
+    display: none;
+  }
+
+  .dev-dashboard-hero h1 {
+    font-size: 30px;
+  }
+
+  .dev-active-project-banner {
+    grid-template-columns:
+      auto
+      minmax(0, 1fr);
+  }
+
+  .dev-active-project-banner > .secondary-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .dev-dashboard-content,
+  .dev-dashboard-topbar-inner {
+    width: calc(100% - 26px);
+  }
+
+  .dev-dashboard-content {
+    padding-top: 24px;
+  }
+
+  .dev-dashboard-hero {
+    padding-bottom: 22px;
+  }
+
+  .dev-dashboard-hero h1 {
+    font-size: 27px;
+  }
+
+  .dev-dashboard-hero-copy > p:last-child {
+    font-size: 10px;
+  }
+
+  .dev-dashboard-hero-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .dev-tabs {
+    justify-content: flex-start;
+
+    margin-top: 20px;
+    margin-bottom: 17px;
+  }
+
+  .dev-tab {
+    min-height: 33px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 450px) {
+  .dev-dashboard-content,
+  .dev-dashboard-topbar-inner {
+    width: calc(100% - 20px);
+  }
+
+  .dev-dashboard-topbar {
+    height: 57px;
+  }
+
+  .dev-dashboard-brand > span {
+    font-size: 11px;
+  }
+
+  .dev-dashboard-brand svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .dev-user-avatar {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+  }
+
+  .dev-dashboard-hero h1 {
+    font-size: 24px;
+  }
+
+  .dev-dashboard-hero-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .dev-dashboard-content,
+  .dev-dashboard-topbar-inner {
+    width: calc(100% - 16px);
+  }
+
+  .dev-dashboard-brand > span {
+    font-size: 10px;
+  }
+
+  .dev-signout-btn {
+    padding-inline: 8px;
+  }
+}

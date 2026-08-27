@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabase";
 import { useDeveloper } from "../../hooks/useDeveloper";
 import { ArrowRight, LockKeyhole, Mail } from "lucide-react";
 import ExcwaLogo from "../../components/common/ExcwaLogo";
-import "../../styles/DeveloperLogin.css"
+import "../../styles/developer/DeveloperLogin.css"
 export default function DevLogin() {
   const navigate = useNavigate();
   const location = useLocation();

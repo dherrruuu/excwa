@@ -1,15 +1,19 @@
 /* =========================================================
    EXCWA ADMIN — DEVELOPER INFORMATION
-   Clean / Premium / Fully Responsive
+   Premium / Clean / Responsive / Consistent
+   ========================================================= */
+
+/* =========================================================
+   BASE
    ========================================================= */
 
 .admin-developer-info,
 .developer-info-details {
   width: 100%;
   min-width: 0;
-  box-sizing: border-box;
   padding: 8px 0 40px;
   color: #e7edf7;
+  box-sizing: border-box;
 }
 
 .admin-developer-info *,
@@ -22,7 +26,7 @@
 }
 
 /* =========================================================
-   PAGE / DETAILS HEADER
+   PAGE HEADER
    ========================================================= */
 
 .developer-info-page-header,
@@ -35,19 +39,17 @@
   margin-bottom: 24px;
 }
 
-.developer-details-header > div:first-child,
-.developer-info-page-header > div:first-child {
+.developer-info-page-header > div:first-child,
+.developer-details-header > div:first-child {
   min-width: 0;
 }
 
-.developer-details-section-label,
-.developer-info-eyebrow {
+.developer-info-eyebrow,
+.developer-details-section-label {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-
   margin-bottom: 8px;
-
   color: #7f91aa;
   font-size: 10px;
   font-weight: 800;
@@ -65,7 +67,6 @@
 .developer-info-page-header h1,
 .developer-details-header h1 {
   margin: 0;
-
   color: #f7faff;
   font-size: clamp(25px, 2.5vw, 34px);
   font-weight: 750;
@@ -77,7 +78,6 @@
 .developer-details-header p {
   max-width: 700px;
   margin: 9px 0 0;
-
   color: #8290a5;
   font-size: 13px;
   line-height: 1.6;
@@ -90,10 +90,10 @@
 .developer-details-back {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
-
   min-height: 36px;
-  padding: 0 11px;
+  padding: 0 12px;
 
   border: 1px solid rgba(255, 255, 255, 0.075);
   border-radius: 9px;
@@ -115,14 +115,14 @@
 }
 
 .developer-details-back:hover {
-  color: #ffffff;
+  color: #fff;
   border-color: rgba(99, 102, 241, 0.32);
   background: rgba(99, 102, 241, 0.07);
-  transform: translateX(-1px);
+  transform: translateX(-2px);
 }
 
 /* =========================================================
-   DETAILS ACTIONS
+   ACTIONS
    ========================================================= */
 
 .developer-details-actions {
@@ -131,22 +131,18 @@
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 8px;
-
   flex: 0 0 auto;
 }
 
 .developer-details-actions button {
   min-height: 37px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-
   padding: 0 12px;
 
   border-radius: 9px;
-
   font-family: inherit;
   font-size: 11px;
   font-weight: 700;
@@ -169,6 +165,8 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Action variants */
 
 .developer-details-edit {
   border: 1px solid rgba(255, 255, 255, 0.09);
@@ -211,13 +209,12 @@
 }
 
 /* =========================================================
-   TABLE DIRECTORY CARD
+   COMMON CARD
    ========================================================= */
 
 .developer-details-card {
   width: 100%;
   min-width: 0;
-
   margin-bottom: 20px;
   padding: 21px;
 
@@ -243,11 +240,9 @@
 
 .developer-details-card-header {
   width: 100%;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 18px;
 
   margin-bottom: 19px;
@@ -262,9 +257,7 @@
 
 .developer-details-card-header h2 {
   margin: 0;
-
   color: #edf2f7;
-
   font-size: 16px;
   font-weight: 700;
   line-height: 1.3;
@@ -304,7 +297,7 @@
 }
 
 .developer-info-table-wrapper::-webkit-scrollbar {
-  height: 6px;
+  height: 5px;
 }
 
 .developer-info-table-wrapper::-webkit-scrollbar-track {
@@ -336,13 +329,11 @@
 
 .developer-info-table thead th {
   height: 45px;
-
   padding: 0 14px;
 
   border-bottom: 1px solid rgba(120, 150, 190, 0.11);
 
   background: rgba(255, 255, 255, 0.018);
-
   color: #718198;
 
   font-size: 9px;
@@ -351,7 +342,6 @@
 
   text-align: left;
   text-transform: uppercase;
-
   white-space: nowrap;
 }
 
@@ -372,7 +362,6 @@
 
   color: #bdc9d9;
   font-size: 12px;
-
   vertical-align: middle;
 }
 
@@ -386,8 +375,7 @@
 }
 
 .developer-info-table tbody tr {
-  transition:
-    background 0.18s ease;
+  transition: background 0.18s ease;
 }
 
 .developer-info-table tbody tr:hover {
@@ -473,8 +461,6 @@
   align-items: center;
   justify-content: center;
 
-  overflow: hidden;
-
   border: 1px solid rgba(119, 160, 255, 0.2);
   border-radius: 12px;
 
@@ -509,6 +495,7 @@
   width: 100%;
   height: 100%;
 
+  display: flex;
   align-items: center;
   justify-content: center;
 }
@@ -518,22 +505,20 @@
    ========================================================= */
 
 .developer-info-simple-cell {
+  max-width: 180px;
+
   display: inline-flex;
   align-items: center;
   gap: 7px;
 
-  max-width: 180px;
-
   color: #b8c5d6;
-
   white-space: nowrap;
 }
 
 .developer-info-simple-cell svg {
-  flex: 0 0 auto;
-
   width: 14px;
   height: 14px;
+  flex: 0 0 auto;
 
   color: #687fa2;
 }
@@ -585,6 +570,8 @@
   box-shadow:
     0 0 7px currentColor;
 }
+
+/* Status variants */
 
 .developer-info-status.status-approved,
 .status-approved {
@@ -667,6 +654,8 @@
 }
 
 .developer-info-view-button:hover {
+  border-color: rgba(91, 143, 255, 0.38);
+
   background:
     linear-gradient(
       145deg,
@@ -674,7 +663,6 @@
       rgba(91, 143, 255, 0.07)
     );
 
-  border-color: rgba(91, 143, 255, 0.38);
   color: #b5d0ff;
 
   box-shadow:
@@ -693,7 +681,7 @@
 }
 
 /* =========================================================
-   TABLE EMPTY STATE
+   EMPTY STATE
    ========================================================= */
 
 .developer-details-empty {
@@ -701,16 +689,15 @@
 
   padding: 30px 20px;
 
-  text-align: center;
-
-  color: #69778b;
-
-  font-size: 12px;
-
   border: 1px dashed rgba(255, 255, 255, 0.08);
   border-radius: 10px;
 
   background: rgba(0, 0, 0, 0.08);
+
+  color: #69778b;
+
+  font-size: 12px;
+  text-align: center;
 }
 
 /* =========================================================
@@ -754,6 +741,7 @@
 
   display: flex;
   align-items: center;
+
   gap: 17px;
 }
 
@@ -774,10 +762,6 @@
   align-items: center;
   justify-content: center;
 
-  overflow: hidden;
-
-  object-fit: cover;
-
   border: 1px solid rgba(121, 160, 255, 0.24);
   border-radius: 18px;
 
@@ -788,7 +772,7 @@
       rgba(34, 211, 238, 0.35)
     );
 
-  color: #ffffff;
+  color: #fff;
 
   font-size: 23px;
   font-weight: 800;
@@ -796,14 +780,25 @@
   box-shadow:
     0 12px 28px rgba(0, 0, 0, 0.24),
     inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+  overflow: hidden;
+}
+
+.developer-details-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .developer-details-avatar-fallback {
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* =========================================================
-   HERO NAME
+   NAME
    ========================================================= */
 
 .developer-details-name-row {
@@ -817,15 +812,15 @@
 }
 
 .developer-details-name-row h1 {
-  margin: 0;
-
   max-width: 100%;
+
+  margin: 0;
 
   color: #f8fafc;
 
   font-size: clamp(22px, 3vw, 30px);
-  line-height: 1.15;
   font-weight: 750;
+  line-height: 1.15;
 
   letter-spacing: -0.03em;
 
@@ -863,6 +858,7 @@
 
   display: flex;
   align-items: center;
+
   gap: 10px;
 
   padding: 11px 13px;
@@ -921,6 +917,15 @@
   border-radius: 10px;
 
   background: rgba(0, 0, 0, 0.11);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.developer-details-info-item:hover {
+  border-color: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.025);
 }
 
 .developer-details-info-icon {
@@ -993,12 +998,12 @@
 
   display: flex;
   flex-direction: column;
+
   gap: 7px;
 }
 
 .developer-details-form-field > span {
   color: #8d9aae;
-
   font-size: 11px;
   font-weight: 650;
 }
@@ -1011,6 +1016,7 @@
 
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 9px;
+
   outline: none;
 
   background: rgba(0, 0, 0, 0.16);
@@ -1038,6 +1044,11 @@
     0 0 0 3px rgba(99, 102, 241, 0.08);
 }
 
+.developer-details-form-field input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .developer-details-form-full {
   grid-column: 1 / -1;
 }
@@ -1049,7 +1060,6 @@
 .developer-details-save-row {
   display: flex;
   justify-content: flex-end;
-
   gap: 9px;
 
   margin-top: 19px;
@@ -1064,6 +1074,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   gap: 7px;
 
   padding: 0 14px;
@@ -1075,6 +1086,15 @@
   font-weight: 700;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.developer-details-save-row button:hover {
+  transform: translateY(-1px);
 }
 
 .developer-details-cancel {
@@ -1083,10 +1103,18 @@
   color: #aab6c8;
 }
 
+.developer-details-cancel:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
 .developer-details-save {
   border: 1px solid rgba(99, 102, 241, 0.25);
   background: rgba(99, 102, 241, 0.16);
   color: #c7d2fe;
+}
+
+.developer-details-save:hover {
+  background: rgba(99, 102, 241, 0.24);
 }
 
 /* =========================================================
@@ -1163,6 +1191,15 @@
   border-radius: 10px;
 
   background: rgba(0, 0, 0, 0.11);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.developer-details-link-item:hover {
+  border-color: rgba(99, 102, 241, 0.1);
+  background: rgba(99, 102, 241, 0.025);
 }
 
 .developer-details-link-icon {
@@ -1190,18 +1227,18 @@
 
 .developer-details-link-content > span {
   color: #6f7d91;
-
   font-size: 10px;
   font-weight: 600;
 }
 
 .developer-details-link-content a {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-
   width: fit-content;
   max-width: 100%;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 5px;
 
   color: #a5b4fc;
 
@@ -1213,6 +1250,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  transition: color 0.2s ease;
+}
+
+.developer-details-link-content a:hover {
+  color: #c7d2fe;
 }
 
 .developer-details-link-content small {
@@ -1264,14 +1307,13 @@
 
   display: flex;
   flex-direction: column;
+
   gap: 4px;
 }
 
 .developer-details-history-row strong {
   color: #dce4ef;
-
   font-size: 11px;
-
   overflow-wrap: anywhere;
 }
 
@@ -1312,6 +1354,7 @@
 
   display: flex;
   flex-direction: column;
+
   gap: 5px;
 }
 
@@ -1382,6 +1425,7 @@
   margin: 0;
 
   color: #65758a;
+
   font-size: 12px;
 }
 
@@ -1431,7 +1475,6 @@
 
   display: flex;
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
 
@@ -1457,6 +1500,8 @@
 .developer-details-error button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+
   gap: 8px;
 
   padding: 10px 15px;
@@ -1465,9 +1510,19 @@
   border-radius: 9px;
 
   background: rgba(255, 255, 255, 0.04);
+
   color: #e7edf7;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.developer-details-error button:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* =========================================================
@@ -1521,7 +1576,7 @@
 }
 
 /* =========================================================
-   700px
+   MOBILE — 700px
    ========================================================= */
 
 @media (max-width: 700px) {
@@ -1569,7 +1624,7 @@
 }
 
 /* =========================================================
-   560px
+   MOBILE — 560px
    ========================================================= */
 
 @media (max-width: 560px) {
@@ -1612,7 +1667,7 @@
 }
 
 /* =========================================================
-   480px
+   MOBILE — 480px
    ========================================================= */
 
 @media (max-width: 480px) {
@@ -1670,7 +1725,7 @@
 }
 
 /* =========================================================
-   400px
+   SMALL MOBILE — 400px
    ========================================================= */
 
 @media (max-width: 400px) {

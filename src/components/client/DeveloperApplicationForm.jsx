@@ -11,6 +11,11 @@ import {
   createDeveloperApplication,
 } from "../../services/client/developerApplicationService";
 
+
+/* =========================================================
+   DEVELOPER ROLES
+========================================================= */
+
 const ROLES = [
   "Frontend Developer",
   "Backend Developer",
@@ -27,7 +32,15 @@ const ROLES = [
   "Other",
 ];
 
-export default function DeveloperApplicationForm({ onClose }) {
+
+export default function DeveloperApplicationForm({
+  onClose,
+}) {
+
+  /* =======================================================
+     FORM STATE
+  ======================================================= */
+
   const [form, setForm] = useState({
     full_name: "",
     phone: "",
@@ -40,22 +53,45 @@ export default function DeveloperApplicationForm({ onClose }) {
     primary_roles: [],
   });
 
-  const [profilePhoto, setProfilePhoto] = useState(null);
-  const [resume, setResume] = useState(null);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  /* =======================================================
+     FILE STATE
+  ======================================================= */
 
-  /* =========================================================
+  const [profilePhoto, setProfilePhoto] =
+    useState(null);
+
+  const [resume, setResume] =
+    useState(null);
+
+
+  /* =======================================================
+     UI STATE
+  ======================================================= */
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState(false);
+
+
+  /* =======================================================
      FORM CHANGE
-  ========================================================= */
+  ======================================================= */
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
 
-    setForm((prev) => ({
-      ...prev,
+    const {
+      name,
+      value,
+    } = e.target;
+
+    setForm((previous) => ({
+      ...previous,
       [name]: value,
     }));
 
@@ -64,45 +100,69 @@ export default function DeveloperApplicationForm({ onClose }) {
     }
   };
 
-  /* =========================================================
-     ROLE SELECTION
-  ========================================================= */
+
+  /* =======================================================
+     ROLE CHANGE
+  ======================================================= */
 
   const handleRoleChange = (role) => {
-    setForm((prev) => {
-      const exists = prev.primary_roles.includes(role);
+
+    setForm((previous) => {
+
+      const alreadySelected =
+        previous.primary_roles.includes(role);
 
       return {
-        ...prev,
-        primary_roles: exists
-          ? prev.primary_roles.filter((item) => item !== role)
-          : [...prev.primary_roles, role],
+        ...previous,
+
+        primary_roles:
+          alreadySelected
+            ? previous.primary_roles.filter(
+                (item) => item !== role
+              )
+            : [
+                ...previous.primary_roles,
+                role,
+              ],
       };
     });
 
     setError("");
   };
 
-  /* =========================================================
+
+  /* =======================================================
      PROFILE PHOTO
-  ========================================================= */
+  ======================================================= */
 
   const handlePhotoChange = (e) => {
-    const file = e.target.files?.[0];
+
+    const file =
+      e.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
+    if (!file.type?.startsWith("image/")) {
+
       setProfilePhoto(null);
-      setError("Please upload a valid profile photo.");
+
+      setError(
+        "Please upload a valid profile photo."
+      );
+
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
+
       setProfilePhoto(null);
-      setError("Profile photo must be less than 5MB.");
+
+      setError(
+        "Profile photo must be less than 5MB."
+      );
+
       return;
     }
 
@@ -110,12 +170,15 @@ export default function DeveloperApplicationForm({ onClose }) {
     setError("");
   };
 
-  /* =========================================================
+
+  /* =======================================================
      RESUME
-  ========================================================= */
+  ======================================================= */
 
   const handleResumeChange = (e) => {
-    const file = e.target.files?.[0];
+
+    const file =
+      e.target.files?.[0];
 
     if (!file) {
       return;
@@ -127,25 +190,43 @@ export default function DeveloperApplicationForm({ onClose }) {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
 
-    const allowedExtensions = [".pdf", ".doc", ".docx"];
+    const allowedExtensions = [
+      ".pdf",
+      ".doc",
+      ".docx",
+    ];
 
-    const fileName = file.name.toLowerCase();
+    const fileName =
+      file.name?.toLowerCase() || "";
 
     const validType =
-      allowedTypes.includes(file.type) ||
-      allowedExtensions.some((extension) =>
-        fileName.endsWith(extension)
+      allowedTypes.includes(file.type);
+
+    const validExtension =
+      allowedExtensions.some(
+        (extension) =>
+          fileName.endsWith(extension)
       );
 
-    if (!validType) {
+    if (!validType && !validExtension) {
+
       setResume(null);
-      setError("Resume must be PDF, DOC, or DOCX.");
+
+      setError(
+        "Resume must be PDF, DOC, or DOCX."
+      );
+
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
+
       setResume(null);
-      setError("Resume must be less than 10MB.");
+
+      setError(
+        "Resume must be less than 10MB."
+      );
+
       return;
     }
 
@@ -153,59 +234,13 @@ export default function DeveloperApplicationForm({ onClose }) {
     setError("");
   };
 
-  /* =========================================================
-     VALIDATION
-  ========================================================= */
 
-  const validate = () => {
-    if (!form.full_name.trim()) {
-      return "Please enter your full name.";
-    }
-
-    if (!form.phone.trim()) {
-      return "Please enter your phone number.";
-    }
-
-    if (!form.email.trim()) {
-      return "Please enter your email address.";
-    }
-
-    if (!form.city.trim()) {
-      return "Please enter your city.";
-    }
-
-    if (!form.education.trim()) {
-      return "Please enter your education.";
-    }
-
-    if (!form.github_url.trim()) {
-      return "Please enter your GitHub profile.";
-    }
-
-    if (!form.linkedin_url.trim()) {
-      return "Please enter your LinkedIn profile.";
-    }
-
-    if (form.primary_roles.length === 0) {
-      return "Please select at least one developer role.";
-    }
-
-    if (!profilePhoto) {
-      return "Please upload your profile photo.";
-    }
-
-    if (!resume) {
-      return "Please upload your resume.";
-    }
-
-    return "";
-  };
-
-  /* =========================================================
-     SUBMIT APPLICATION
-  ========================================================= */
+  /* =======================================================
+     SUBMIT
+  ======================================================= */
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (loading) {
@@ -213,32 +248,42 @@ export default function DeveloperApplicationForm({ onClose }) {
     }
 
     setError("");
-
-    const validationError = validate();
-
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
     setLoading(true);
 
     try {
+
       await createDeveloperApplication({
+
         ...form,
 
-        email: form.email.trim().toLowerCase(),
+        email:
+          form.email
+            .trim()
+            .toLowerCase(),
 
-        github_url: form.github_url.trim(),
-        linkedin_url: form.linkedin_url.trim(),
-        portfolio_url: form.portfolio_url.trim(),
+        github_url:
+          form.github_url.trim(),
+
+        linkedin_url:
+          form.linkedin_url.trim(),
+
+        portfolio_url:
+          form.portfolio_url.trim(),
 
         profilePhoto,
+
         resume,
       });
 
+
+      /* -----------------------------------------------
+         APPLICATION SUBMITTED
+      ----------------------------------------------- */
+
       setSuccess(true);
+
     } catch (err) {
+
       console.error(
         "Developer application submission error:",
         err
@@ -248,18 +293,23 @@ export default function DeveloperApplicationForm({ onClose }) {
         err?.message ||
           "Unable to submit your application. Please try again."
       );
+
     } finally {
+
       setLoading(false);
     }
   };
 
-  /* =========================================================
+
+  /* =======================================================
      SUCCESS SCREEN
-  ========================================================= */
+  ======================================================= */
 
   if (success) {
+
     return (
       <div className="developer-application-overlay">
+
         <div className="developer-application-card success-card">
 
           <button
@@ -270,17 +320,21 @@ export default function DeveloperApplicationForm({ onClose }) {
             <X size={20} />
           </button>
 
+
           <div className="success-icon">
             <CheckCircle size={50} />
           </div>
+
 
           <h2>
             Application Submitted
           </h2>
 
+
           <p>
             Thank you for applying to join EXCWA Tech.
           </p>
+
 
           <p>
             Your application has been submitted
@@ -288,16 +342,20 @@ export default function DeveloperApplicationForm({ onClose }) {
             by our team.
           </p>
 
+
           <p>
             If your application is approved, your
             developer account and profile will be
             created automatically.
           </p>
 
+
           <p>
-            You will then be able to sign in and
+            You will then receive an activation email
+            that allows you to set your password and
             access the developer dashboard.
           </p>
+
 
           <button
             type="button"
@@ -309,20 +367,25 @@ export default function DeveloperApplicationForm({ onClose }) {
           </button>
 
         </div>
+
       </div>
     );
   }
 
-  /* =========================================================
-     APPLICATION FORM
-  ========================================================= */
+
+  /* =======================================================
+     FORM
+  ======================================================= */
 
   return (
     <div className="developer-application-overlay">
 
       <div className="developer-application-card">
 
-        {/* CLOSE */}
+
+        {/* =================================================
+            CLOSE
+        ================================================= */}
 
         <button
           type="button"
@@ -333,7 +396,10 @@ export default function DeveloperApplicationForm({ onClose }) {
           <X size={20} />
         </button>
 
-        {/* HEADER */}
+
+        {/* =================================================
+            HEADER
+        ================================================= */}
 
         <div className="developer-form-header">
 
@@ -360,7 +426,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
         </div>
 
+
         <form onSubmit={handleSubmit}>
+
 
           {/* =================================================
               BASIC INFORMATION
@@ -372,7 +440,11 @@ export default function DeveloperApplicationForm({ onClose }) {
               Basic Information
             </h3>
 
+
             <div className="developer-form-grid">
+
+
+              {/* FULL NAME */}
 
               <div className="developer-form-field">
 
@@ -393,6 +465,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
               </div>
 
+
+              {/* PHONE */}
+
               <div className="developer-form-field">
 
                 <label>
@@ -411,6 +486,9 @@ export default function DeveloperApplicationForm({ onClose }) {
                 />
 
               </div>
+
+
+              {/* EMAIL */}
 
               <div className="developer-form-field">
 
@@ -431,6 +509,9 @@ export default function DeveloperApplicationForm({ onClose }) {
 
               </div>
 
+
+              {/* CITY */}
+
               <div className="developer-form-field">
 
                 <label>
@@ -449,6 +530,9 @@ export default function DeveloperApplicationForm({ onClose }) {
                 />
 
               </div>
+
+
+              {/* EDUCATION */}
 
               <div className="developer-form-field full-width">
 
@@ -472,6 +556,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
+
           {/* =================================================
               PROFILE PHOTO
           ================================================= */}
@@ -481,6 +566,7 @@ export default function DeveloperApplicationForm({ onClose }) {
             <h3>
               Profile Photo *
             </h3>
+
 
             <label className="developer-upload-box">
 
@@ -496,6 +582,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                 PNG, JPG or WEBP · Max 5MB
               </small>
 
+
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
@@ -508,6 +595,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
+
           {/* =================================================
               PROFESSIONAL PROFILES
           ================================================= */}
@@ -518,18 +606,28 @@ export default function DeveloperApplicationForm({ onClose }) {
               Professional Profiles
             </h3>
 
+
             <div className="developer-form-grid">
+
 
               {/* GITHUB */}
 
               <div className="developer-form-field">
 
                 <label>
-                  <span style={{ fontWeight: 700 }}>
+
+                  <span
+                    style={{
+                      fontWeight: 700,
+                    }}
+                  >
                     GH
                   </span>
+
                   GitHub *
+
                 </label>
+
 
                 <input
                   type="url"
@@ -543,16 +641,25 @@ export default function DeveloperApplicationForm({ onClose }) {
 
               </div>
 
+
               {/* LINKEDIN */}
 
               <div className="developer-form-field">
 
                 <label>
-                  <span style={{ fontWeight: 700 }}>
+
+                  <span
+                    style={{
+                      fontWeight: 700,
+                    }}
+                  >
                     in
                   </span>
+
                   LinkedIn *
+
                 </label>
+
 
                 <input
                   type="url"
@@ -566,14 +673,19 @@ export default function DeveloperApplicationForm({ onClose }) {
 
               </div>
 
+
               {/* PORTFOLIO */}
 
               <div className="developer-form-field full-width">
 
                 <label>
+
                   <Globe size={15} />
+
                   Portfolio
+
                 </label>
+
 
                 <input
                   type="url"
@@ -590,6 +702,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
+
           {/* =================================================
               ROLES
           ================================================= */}
@@ -600,24 +713,31 @@ export default function DeveloperApplicationForm({ onClose }) {
               Developer Roles *
             </h3>
 
+
             <p className="developer-form-help">
               Select all roles that match your
               skills and experience.
             </p>
+
 
             <div className="developer-role-grid">
 
               {ROLES.map((role) => {
 
                 const selected =
-                  form.primary_roles.includes(role);
+                  form.primary_roles.includes(
+                    role
+                  );
+
 
                 return (
                   <button
                     type="button"
                     key={role}
                     className={`developer-role ${
-                      selected ? "selected" : ""
+                      selected
+                        ? "selected"
+                        : ""
                     }`}
                     onClick={() =>
                       handleRoleChange(role)
@@ -634,6 +754,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
+
           {/* =================================================
               RESUME
           ================================================= */}
@@ -643,6 +764,7 @@ export default function DeveloperApplicationForm({ onClose }) {
             <h3>
               Resume *
             </h3>
+
 
             <label className="developer-upload-box">
 
@@ -658,6 +780,7 @@ export default function DeveloperApplicationForm({ onClose }) {
                 PDF, DOC or DOCX · Max 10MB
               </small>
 
+
               <input
                 type="file"
                 accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -670,6 +793,7 @@ export default function DeveloperApplicationForm({ onClose }) {
 
           </div>
 
+
           {/* =================================================
               ERROR
           ================================================= */}
@@ -679,6 +803,7 @@ export default function DeveloperApplicationForm({ onClose }) {
               {error}
             </div>
           )}
+
 
           {/* =================================================
               SUBMIT
@@ -703,6 +828,11 @@ export default function DeveloperApplicationForm({ onClose }) {
             )}
 
           </button>
+
+
+          {/* =================================================
+              NOTE
+          ================================================= */}
 
           <p className="developer-form-note">
             By submitting this application, you

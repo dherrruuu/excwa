@@ -5,7 +5,10 @@ import {
   MapPin,
 } from "lucide-react";
 
-import { supabase } from "../../lib/supabase";
+import {
+  getProfilePhotoUrl,
+} from "../../services/admin/developerStorageService";
+
 
 export default function DeveloperApplicationRow({
   application,
@@ -27,19 +30,16 @@ export default function DeveloperApplicationRow({
     created_at,
   } = application;
 
+
   // =========================================================
   // PROFILE PHOTO
   // =========================================================
 
-  let photoUrl = null;
+  const photoUrl =
+    getProfilePhotoUrl(
+      profile_photo_path
+    );
 
-  if (profile_photo_path) {
-    const { data } = supabase.storage
-      .from("profile-photos")
-      .getPublicUrl(profile_photo_path);
-
-    photoUrl = data?.publicUrl || null;
-  }
 
   // =========================================================
   // DATE
@@ -56,6 +56,7 @@ export default function DeveloperApplicationRow({
       )
     : "—";
 
+
   // =========================================================
   // STATUS
   // =========================================================
@@ -68,6 +69,7 @@ export default function DeveloperApplicationRow({
         )
     : "Pending";
 
+
   // =========================================================
   // ROLES
   // =========================================================
@@ -76,12 +78,17 @@ export default function DeveloperApplicationRow({
     ? primary_roles
     : [];
 
+
+  // =========================================================
+  // RENDER
+  // =========================================================
+
   return (
     <tr className="developer-application-row">
 
       {/* =====================================================
           APPLICANT
-          ===================================================== */}
+      ===================================================== */}
 
       <td>
         <div className="developer-applicant-cell">
@@ -89,7 +96,10 @@ export default function DeveloperApplicationRow({
           {photoUrl ? (
             <img
               src={photoUrl}
-              alt={full_name || "Applicant"}
+              alt={
+                full_name ||
+                "Applicant"
+              }
               className="developer-applicant-avatar"
             />
           ) : (
@@ -103,11 +113,13 @@ export default function DeveloperApplicationRow({
           <div className="developer-applicant-info">
 
             <strong>
-              {full_name || "Unnamed Applicant"}
+              {full_name ||
+                "Unnamed Applicant"}
             </strong>
 
             <span>
-              {education || "Education not provided"}
+              {education ||
+                "Education not provided"}
             </span>
 
           </div>
@@ -115,9 +127,10 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
+
       {/* =====================================================
           CONTACT
-          ===================================================== */}
+      ===================================================== */}
 
       <td>
         <div className="developer-contact-cell">
@@ -141,9 +154,10 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
+
       {/* =====================================================
           LOCATION
-          ===================================================== */}
+      ===================================================== */}
 
       <td>
         <div className="developer-city-cell">
@@ -157,23 +171,26 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
+
       {/* =====================================================
           ROLES
-          ===================================================== */}
+      ===================================================== */}
 
       <td>
         <div className="developer-row-roles">
 
           {roles.length > 0 ? (
             <>
-              {roles.slice(0, 2).map((role) => (
-                <span
-                  key={role}
-                  className="developer-role-tag"
-                >
-                  {role}
-                </span>
-              ))}
+              {roles
+                .slice(0, 2)
+                .map((role) => (
+                  <span
+                    key={role}
+                    className="developer-role-tag"
+                  >
+                    {role}
+                  </span>
+                ))}
 
               {roles.length > 2 && (
                 <span className="developer-role-more">
@@ -190,9 +207,10 @@ export default function DeveloperApplicationRow({
         </div>
       </td>
 
+
       {/* =====================================================
           APPLIED
-          ===================================================== */}
+      ===================================================== */}
 
       <td>
         <span className="developer-application-date">
@@ -200,9 +218,10 @@ export default function DeveloperApplicationRow({
         </span>
       </td>
 
+
       {/* =====================================================
           STATUS
-          ===================================================== */}
+      ===================================================== */}
 
       <td>
         <span
@@ -216,15 +235,18 @@ export default function DeveloperApplicationRow({
         </span>
       </td>
 
+
       {/* =====================================================
           ACTION
-          ===================================================== */}
+      ===================================================== */}
 
       <td>
         <button
           type="button"
           className="developer-view-btn"
-          onClick={() => onView?.(application)}
+          onClick={() =>
+            onView?.(application)
+          }
         >
           <Eye size={15} />
 

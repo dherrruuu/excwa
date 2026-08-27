@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import "../../styles/admin/admin-developers.css";
 
@@ -20,6 +24,8 @@ import {
   Globe,
   Trash2,
   UserX,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 
 import {
@@ -30,15 +36,27 @@ import {
   deleteDeveloper,
 } from "../../services/admin/adminDeveloperService";
 
+import {
+  resolveDeveloperStorage,
+} from "../../services/admin/developerStorageService";
+
+
 export default function AdminDevelopers() {
-  const [applications, setApplications] = useState([]);
+  const [applications, setApplications] =
+    useState([]);
+
   const [selectedApplication, setSelectedApplication] =
     useState(null);
 
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [search, setSearch] = useState("");
+  const [actionLoading, setActionLoading] =
+    useState(false);
+
+  const [search, setSearch] =
+    useState("");
+
   const [statusFilter, setStatusFilter] =
     useState("pending");
 
@@ -48,15 +66,21 @@ export default function AdminDevelopers() {
   const [rejectionReason, setRejectionReason] =
     useState("");
 
+  const [error, setError] =
+    useState("");
+
+
   /* =========================================================
      LOAD APPLICATIONS
   ========================================================= */
 
   async function loadApplications() {
     setLoading(true);
+    setError("");
 
     try {
-      const data = await getDeveloperApplications();
+      const data =
+        await getDeveloperApplications();
 
       setApplications(data || []);
 
@@ -65,26 +89,29 @@ export default function AdminDevelopers() {
           return null;
         }
 
-        const updated = (data || []).find(
-          (item) => item.id === current.id
-        );
+        const updated =
+          (data || []).find(
+            (item) =>
+              item.id === current.id
+          );
 
         return updated || null;
       });
-    } catch (error) {
+    } catch (err) {
       console.error(
         "Failed to load developer applications:",
-        error
+        err
       );
 
-      alert(
-        error?.message ||
+      setError(
+        err?.message ||
           "Unable to load developer applications."
       );
     } finally {
       setLoading(false);
     }
   }
+
 
   /* =========================================================
      INITIAL LOAD
@@ -94,61 +121,79 @@ export default function AdminDevelopers() {
     loadApplications();
   }, []);
 
+
   /* =========================================================
      SEARCH + FILTER
   ========================================================= */
 
-  const filteredApplications = applications.filter(
-    (application) => {
-      const value = search.trim().toLowerCase();
+  const filteredApplications =
+    useMemo(() => {
+      const value =
+        search.trim().toLowerCase();
 
-      const matchesStatus =
-        statusFilter === "all" ||
-        application.status === statusFilter;
+      return applications.filter(
+        (application) => {
+          const matchesStatus =
+            statusFilter === "all" ||
+            application.status ===
+              statusFilter;
 
-      if (!matchesStatus) {
-        return false;
-      }
+          if (!matchesStatus) {
+            return false;
+          }
 
-      if (!value) {
-        return true;
-      }
+          if (!value) {
+            return true;
+          }
 
-      const name =
-        application.full_name?.toLowerCase() || "";
+          const name =
+            application.full_name
+              ?.toLowerCase() || "";
 
-      const email =
-        application.email?.toLowerCase() || "";
+          const email =
+            application.email
+              ?.toLowerCase() || "";
 
-      const phone =
-        application.phone?.toLowerCase() || "";
+          const phone =
+            application.phone
+              ?.toLowerCase() || "";
 
-      const city =
-        application.city?.toLowerCase() || "";
+          const city =
+            application.city
+              ?.toLowerCase() || "";
 
-      const education =
-        application.education?.toLowerCase() || "";
+          const education =
+            application.education
+              ?.toLowerCase() || "";
 
-      const roles = Array.isArray(
-        application.primary_roles
-      )
-        ? application.primary_roles
-            .join(" ")
-            .toLowerCase()
-        : String(
-            application.primary_roles || ""
-          ).toLowerCase();
+          const roles =
+            Array.isArray(
+              application.primary_roles
+            )
+              ? application.primary_roles
+                  .join(" ")
+                  .toLowerCase()
+              : String(
+                  application.primary_roles ||
+                    ""
+                ).toLowerCase();
 
-      return (
-        name.includes(value) ||
-        email.includes(value) ||
-        phone.includes(value) ||
-        city.includes(value) ||
-        education.includes(value) ||
-        roles.includes(value)
+          return (
+            name.includes(value) ||
+            email.includes(value) ||
+            phone.includes(value) ||
+            city.includes(value) ||
+            education.includes(value) ||
+            roles.includes(value)
+          );
+        }
       );
-    }
-  );
+    }, [
+      applications,
+      search,
+      statusFilter,
+    ]);
+
 
   /* =========================================================
      ACCEPT APPLICATION
@@ -159,7 +204,20 @@ export default function AdminDevelopers() {
       return;
     }
 
+    const confirmed =
+      window.confirm(
+        `Accept ${
+          selectedApplication.full_name ||
+          "this applicant"
+        }'s developer application?`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
     setActionLoading(true);
+    setError("");
 
     try {
       const result =
@@ -172,7 +230,8 @@ export default function AdminDevelopers() {
 
       setApplications((previous) =>
         previous.map((item) =>
-          item.id === updatedApplication.id
+          item.id ===
+          updatedApplication.id
             ? updatedApplication
             : item
         )
@@ -186,20 +245,21 @@ export default function AdminDevelopers() {
         result.message ||
           "Developer application accepted successfully."
       );
-    } catch (error) {
+    } catch (err) {
       console.error(
         "Failed to accept developer application:",
-        error
+        err
       );
 
-      alert(
-        error?.message ||
+      setError(
+        err?.message ||
           "Unable to accept developer application."
       );
     } finally {
       setActionLoading(false);
     }
   }
+
 
   /* =========================================================
      REJECT APPLICATION
@@ -214,8 +274,16 @@ export default function AdminDevelopers() {
       rejectionReason.trim();
 
     if (!reason) {
-      alert(
+      setError(
         "Please enter a rejection reason."
+      );
+
+      return;
+    }
+
+    if (reason.length < 5) {
+      setError(
+        "Please provide a meaningful rejection reason."
       );
 
       return;
@@ -234,6 +302,7 @@ export default function AdminDevelopers() {
     }
 
     setActionLoading(true);
+    setError("");
 
     try {
       const result =
@@ -247,7 +316,8 @@ export default function AdminDevelopers() {
 
       setApplications((previous) =>
         previous.map((item) =>
-          item.id === updatedApplication.id
+          item.id ===
+          updatedApplication.id
             ? updatedApplication
             : item
         )
@@ -264,20 +334,21 @@ export default function AdminDevelopers() {
         result.message ||
           "Developer application rejected successfully."
       );
-    } catch (error) {
+    } catch (err) {
       console.error(
         "Failed to reject developer application:",
-        error
+        err
       );
 
-      alert(
-        error?.message ||
+      setError(
+        err?.message ||
           "Unable to reject developer application."
       );
     } finally {
       setActionLoading(false);
     }
   }
+
 
   /* =========================================================
      DELETE APPLICATION
@@ -293,7 +364,10 @@ export default function AdminDevelopers() {
         `Delete the application from ${
           selectedApplication.full_name ||
           "this applicant"
-        }?\n\nThis will permanently remove the application and uploaded documents.\n\nThis does NOT delete an existing developer account.`
+        }?\n\n` +
+        `This will permanently remove the application ` +
+        `and uploaded documents.\n\n` +
+        `This does NOT delete an existing developer account.`
       );
 
     if (!confirmed) {
@@ -301,6 +375,7 @@ export default function AdminDevelopers() {
     }
 
     setActionLoading(true);
+    setError("");
 
     try {
       const applicationId =
@@ -326,29 +401,30 @@ export default function AdminDevelopers() {
         result.storageErrors?.length
       ) {
         alert(
-          `Application deleted successfully.\n\nHowever, these files could not be removed:\n${result.storageErrors.join(
-            ", "
-          )}`
+          `Application deleted successfully.\n\n` +
+          `However, these files could not be removed:\n` +
+          result.storageErrors.join(", ")
         );
       } else {
         alert(
           "Application deleted successfully."
         );
       }
-    } catch (error) {
+    } catch (err) {
       console.error(
         "Failed to delete developer application:",
-        error
+        err
       );
 
-      alert(
-        error?.message ||
+      setError(
+        err?.message ||
           "Unable to delete developer application."
       );
     } finally {
       setActionLoading(false);
     }
   }
+
 
   /* =========================================================
      REMOVE DEVELOPER ACCOUNT
@@ -363,7 +439,7 @@ export default function AdminDevelopers() {
       selectedApplication.status !==
       "accepted"
     ) {
-      alert(
+      setError(
         "Only an accepted developer can be removed from EXCWA."
       );
 
@@ -374,7 +450,7 @@ export default function AdminDevelopers() {
       selectedApplication.developer_user_id;
 
     if (!developerUserId) {
-      alert(
+      setError(
         "This developer does not have a linked authentication user ID."
       );
 
@@ -392,18 +468,18 @@ export default function AdminDevelopers() {
     const firstConfirmation =
       window.confirm(
         `PERMANENTLY REMOVE DEVELOPER\n\n` +
-          `${developerName}\n` +
-          `${developerEmail}\n\n` +
-          `This will permanently delete the developer's EXCWA account, including:\n\n` +
-          `• Authentication account\n` +
-          `• Profile\n` +
-          `• Developer profile\n` +
-          `• Developer skills\n` +
-          `• Opportunity applications\n` +
-          `• Project assignments\n` +
-          `• Project submissions\n\n` +
-          `This action cannot be undone.\n\n` +
-          `Continue?`
+        `${developerName}\n` +
+        `${developerEmail}\n\n` +
+        `This will permanently delete the developer's EXCWA account, including:\n\n` +
+        `• Authentication account\n` +
+        `• Profile\n` +
+        `• Developer profile\n` +
+        `• Developer skills\n` +
+        `• Opportunity applications\n` +
+        `• Project assignments\n` +
+        `• Project submissions\n\n` +
+        `This action cannot be undone.\n\n` +
+        `Continue?`
       );
 
     if (!firstConfirmation) {
@@ -413,10 +489,10 @@ export default function AdminDevelopers() {
     const secondConfirmation =
       window.confirm(
         `FINAL CONFIRMATION\n\n` +
-          `You are about to permanently delete:\n\n` +
-          `${developerName}\n` +
-          `${developerEmail}\n\n` +
-          `Delete this developer account permanently?`
+        `You are about to permanently delete:\n\n` +
+        `${developerName}\n` +
+        `${developerEmail}\n\n` +
+        `Delete this developer account permanently?`
       );
 
     if (!secondConfirmation) {
@@ -424,6 +500,7 @@ export default function AdminDevelopers() {
     }
 
     setActionLoading(true);
+    setError("");
 
     try {
       const result =
@@ -448,10 +525,8 @@ export default function AdminDevelopers() {
       ) {
         alert(
           `Developer account deleted successfully.\n\n` +
-            `However, these storage items could not be removed:\n` +
-            result.storage_errors.join(
-              ", "
-            )
+          `However, these storage items could not be removed:\n` +
+          result.storage_errors.join(", ")
         );
       } else {
         alert(
@@ -459,14 +534,14 @@ export default function AdminDevelopers() {
             "Developer account deleted successfully."
         );
       }
-    } catch (error) {
+    } catch (err) {
       console.error(
         "Failed to remove developer account:",
-        error
+        err
       );
 
-      alert(
-        error?.message ||
+      setError(
+        err?.message ||
           "Unable to remove developer account."
       );
     } finally {
@@ -474,20 +549,66 @@ export default function AdminDevelopers() {
     }
   }
 
+
   /* =========================================================
      OPEN APPLICATION
+     
+     IMPORTANT:
+     
+     Resolve:
+       profile_photo_path -> public URL
+       resume_path        -> signed URL
   ========================================================= */
 
-  function openApplication(
+  async function openApplication(
     application
   ) {
+    if (!application) {
+      return;
+    }
+
+    setError("");
+    setShowRejectBox(false);
+    setRejectionReason("");
+
+    /*
+     * Show the application immediately.
+     */
     setSelectedApplication(
       application
     );
 
-    setShowRejectBox(false);
-    setRejectionReason("");
+    try {
+      const resolved =
+        await resolveDeveloperStorage(
+          application
+        );
+
+      setSelectedApplication(
+        (current) => {
+          if (
+            !current ||
+            current.id !== application.id
+          ) {
+            return current;
+          }
+
+          return resolved;
+        }
+      );
+    } catch (err) {
+      console.error(
+        "Failed to resolve developer storage files:",
+        err
+      );
+
+      /*
+       * Keep the application open even if
+       * storage URL resolution fails.
+       */
+    }
   }
+
 
   /* =========================================================
      CLOSE APPLICATION
@@ -501,15 +622,40 @@ export default function AdminDevelopers() {
     setSelectedApplication(null);
     setShowRejectBox(false);
     setRejectionReason("");
+    setError("");
   }
+
 
   /* =========================================================
      STATUS CLASS
   ========================================================= */
 
   function getStatusClass(status) {
-    return `developer-status developer-status-${status}`;
+    return (
+      `developer-status ` +
+      `developer-status-${status || "pending"}`
+    );
   }
+
+
+  /* =========================================================
+     STATUS LABEL
+  ========================================================= */
+
+  function getStatusLabel(status) {
+    if (!status) {
+      return "Pending";
+    }
+
+    return status
+      .replaceAll("_", " ")
+      .replace(
+        /\b\w/g,
+        (char) =>
+          char.toUpperCase()
+      );
+  }
+
 
   /* =========================================================
      FORMAT DATE
@@ -540,12 +686,43 @@ export default function AdminDevelopers() {
     );
   }
 
+
+  /* =========================================================
+     LOADING
+  ========================================================= */
+
+  if (loading) {
+    return (
+      <div className="admin-developers-page">
+
+        <div className="developer-empty">
+
+          <Loader2
+            size={24}
+            className="spin"
+          />
+
+          <span>
+            Loading developer applications...
+          </span>
+
+        </div>
+
+      </div>
+    );
+  }
+
+
   /* =========================================================
      UI
   ========================================================= */
 
   return (
     <div className="admin-developers-page">
+
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
 
       <div className="admin-page-header">
 
@@ -555,7 +732,7 @@ export default function AdminDevelopers() {
           </h1>
 
           <p>
-            Review and manage freelancers
+            Review and manage developers
             who want to join EXCWA Tech.
           </p>
         </div>
@@ -582,6 +759,37 @@ export default function AdminDevelopers() {
 
       </div>
 
+
+      {/* =====================================================
+          ERROR
+      ===================================================== */}
+
+      {error && (
+        <div className="developer-admin-error">
+
+          <AlertCircle size={17} />
+
+          <span>
+            {error}
+          </span>
+
+          <button
+            type="button"
+            onClick={() =>
+              setError("")
+            }
+          >
+            ×
+          </button>
+
+        </div>
+      )}
+
+
+      {/* =====================================================
+          CONTROLS
+      ===================================================== */}
+
       <div className="developer-controls">
 
         <div className="developer-search">
@@ -600,6 +808,7 @@ export default function AdminDevelopers() {
           />
 
         </div>
+
 
         <select
           value={statusFilter}
@@ -629,15 +838,14 @@ export default function AdminDevelopers() {
 
       </div>
 
+
+      {/* =====================================================
+          TABLE
+      ===================================================== */}
+
       <div className="developer-table-card">
 
-        {loading ? (
-
-          <div className="developer-empty">
-            Loading applications...
-          </div>
-
-        ) : filteredApplications.length === 0 ? (
+        {filteredApplications.length === 0 ? (
 
           <div className="developer-empty">
 
@@ -702,141 +910,189 @@ export default function AdminDevelopers() {
               <tbody>
 
                 {filteredApplications.map(
-                  (application) => (
+                  (application) => {
 
-                    <tr
-                      key={
-                        application.id
-                      }
-                    >
+                    const roles =
+                      Array.isArray(
+                        application.primary_roles
+                      )
+                        ? application.primary_roles
+                        : [];
 
-                      <td>
-
-                        <div className="developer-name">
-                          {
-                            application.full_name ||
-                            "—"
-                          }
-                        </div>
-
-                        <div className="developer-email">
-                          {
-                            application.email ||
-                            "—"
-                          }
-                        </div>
-
-                      </td>
-
-                      <td>
-                        {
-                          application.phone ||
-                          "—"
+                    return (
+                      <tr
+                        key={
+                          application.id
                         }
-                      </td>
+                      >
 
-                      <td>
-                        {
-                          application.city ||
-                          "—"
-                        }
-                      </td>
+                        {/* APPLICANT */}
 
-                      <td>
+                        <td>
 
-                        <div className="developer-role-list">
+                          <div className="developer-name">
+                            {
+                              application.full_name ||
+                              "—"
+                            }
+                          </div>
 
-                          {(
-                            Array.isArray(
-                              application.primary_roles
-                            )
-                              ? application.primary_roles
-                              : []
-                          )
-                            .slice(0, 2)
-                            .map(
-                              (role) => (
+                          <div className="developer-email">
+                            {
+                              application.email ||
+                              "—"
+                            }
+                          </div>
 
-                                <span
-                                  key={role}
-                                  className="developer-role"
-                                >
-                                  {role}
-                                </span>
+                        </td>
 
-                              )
-                            )}
 
-                          {(
-                            Array.isArray(
-                              application.primary_roles
-                            )
-                              ? application.primary_roles
-                              : []
-                          ).length > 2 && (
+                        {/* CONTACT */}
 
-                            <span className="developer-role">
+                        <td>
 
-                              +
-                              {(
-                                application.primary_roles
-                                  .length -
-                                2
-                              )}
+                          <div className="developer-contact-cell">
 
+                            <span>
+                              <Mail size={13} />
+
+                              {
+                                application.email ||
+                                "—"
+                              }
                             </span>
 
+                            <span>
+                              <Phone size={13} />
+
+                              {
+                                application.phone ||
+                                "—"
+                              }
+                            </span>
+
+                          </div>
+
+                        </td>
+
+
+                        {/* LOCATION */}
+
+                        <td>
+
+                          <span className="developer-location-cell">
+
+                            <MapPin size={14} />
+
+                            {
+                              application.city ||
+                              "—"
+                            }
+
+                          </span>
+
+                        </td>
+
+
+                        {/* ROLES */}
+
+                        <td>
+
+                          <div className="developer-role-list">
+
+                            {roles
+                              .slice(0, 2)
+                              .map(
+                                (role) => (
+                                  <span
+                                    key={role}
+                                    className="developer-role"
+                                  >
+                                    {role}
+                                  </span>
+                                )
+                              )}
+
+                            {roles.length >
+                              2 && (
+                              <span className="developer-role">
+
+                                +
+                                {roles.length -
+                                  2}
+
+                              </span>
+                            )}
+
+                            {roles.length ===
+                              0 && (
+                              <span>
+                                —
+                              </span>
+                            )}
+
+                          </div>
+
+                        </td>
+
+
+                        {/* STATUS */}
+
+                        <td>
+
+                          <span
+                            className={getStatusClass(
+                              application.status
+                            )}
+                          >
+                            {
+                              getStatusLabel(
+                                application.status
+                              )
+                            }
+                          </span>
+
+                        </td>
+
+
+                        {/* SUBMITTED */}
+
+                        <td>
+
+                          {formatDate(
+                            application.created_at
                           )}
 
-                        </div>
+                        </td>
 
-                      </td>
 
-                      <td>
+                        {/* ACTION */}
 
-                        <span
-                          className={getStatusClass(
-                            application.status
-                          )}
-                        >
-                          {
-                            application.status
-                          }
-                        </span>
+                        <td>
 
-                      </td>
+                          <button
+                            type="button"
+                            className="developer-view-button"
+                            onClick={() =>
+                              openApplication(
+                                application
+                              )
+                            }
+                          >
 
-                      <td>
-                        {formatDate(
-                          application.created_at
-                        )}
-                      </td>
+                            <Eye
+                              size={16}
+                            />
 
-                      <td>
+                            View
 
-                        <button
-                          type="button"
-                          className="developer-view-button"
-                          onClick={() =>
-                            openApplication(
-                              application
-                            )
-                          }
-                        >
+                          </button>
 
-                          <Eye
-                            size={16}
-                          />
+                        </td>
 
-                          View
-
-                        </button>
-
-                      </td>
-
-                    </tr>
-
-                  )
+                      </tr>
+                    );
+                  }
                 )}
 
               </tbody>
@@ -848,6 +1104,7 @@ export default function AdminDevelopers() {
         )}
 
       </div>
+
 
       {/* =====================================================
           APPLICATION DETAILS MODAL
@@ -868,6 +1125,8 @@ export default function AdminDevelopers() {
               event.stopPropagation()
             }
           >
+
+            {/* HEADER */}
 
             <div className="developer-modal-header">
 
@@ -901,33 +1160,16 @@ export default function AdminDevelopers() {
 
             </div>
 
+
+            {/* PROFILE */}
+
             <div className="developer-profile-section">
 
-              {selectedApplication.profile_photo_url ? (
-
-                <img
-                  src={
-                    selectedApplication.profile_photo_url
-                  }
-                  alt={
-                    selectedApplication.full_name ||
-                    "Developer"
-                  }
-                  className="developer-profile-photo"
-                />
-
-              ) : (
-
-                <div className="developer-profile-placeholder">
-
-                  {selectedApplication
-                    .full_name
-                    ?.charAt(0)
-                    .toUpperCase() || "D"}
-
-                </div>
-
-              )}
+              <DeveloperProfilePhoto
+                application={
+                  selectedApplication
+                }
+              />
 
               <div className="developer-profile-main">
 
@@ -975,13 +1217,18 @@ export default function AdminDevelopers() {
                   )}
                 >
                   {
-                    selectedApplication.status
+                    getStatusLabel(
+                      selectedApplication.status
+                    )
                   }
                 </span>
 
               </div>
 
             </div>
+
+
+            {/* PERSONAL INFORMATION */}
 
             <ApplicationSection
               icon={
@@ -1020,6 +1267,9 @@ export default function AdminDevelopers() {
 
             </ApplicationSection>
 
+
+            {/* PROFESSIONAL INFORMATION */}
+
             <ApplicationSection
               icon={
                 <Briefcase size={18} />
@@ -1042,27 +1292,24 @@ export default function AdminDevelopers() {
               <div className="developer-detail-full">
 
                 <span>
-                  Freelancer Roles
+                  Developer Roles
                 </span>
 
                 <div className="developer-role-list developer-role-list-large">
 
-                  {(
-                    Array.isArray(
-                      selectedApplication.primary_roles
-                    )
-                      ? selectedApplication.primary_roles
-                      : []
+                  {(Array.isArray(
+                    selectedApplication.primary_roles
+                  )
+                    ? selectedApplication.primary_roles
+                    : []
                   ).map(
                     (role) => (
-
                       <span
                         key={role}
                         className="developer-role"
                       >
                         {role}
                       </span>
-
                     )
                   )}
 
@@ -1071,6 +1318,9 @@ export default function AdminDevelopers() {
               </div>
 
             </ApplicationSection>
+
+
+            {/* ONLINE PROFILES */}
 
             <ApplicationSection
               icon={
@@ -1098,6 +1348,7 @@ export default function AdminDevelopers() {
 
                 )}
 
+
                 {selectedApplication.linkedin_url ? (
 
                   <ProfileLink
@@ -1114,6 +1365,7 @@ export default function AdminDevelopers() {
                   />
 
                 )}
+
 
                 {selectedApplication.portfolio_url ? (
 
@@ -1136,6 +1388,17 @@ export default function AdminDevelopers() {
 
             </ApplicationSection>
 
+
+            {/* =================================================
+                SUBMITTED DOCUMENTS
+
+                IMPORTANT:
+                Uses resolved URLs.
+
+                resolved_profile_photo_url
+                resolved_resume_url
+            ================================================= */}
+
             <ApplicationSection
               icon={
                 <FileText size={18} />
@@ -1145,18 +1408,22 @@ export default function AdminDevelopers() {
 
               <div className="developer-files">
 
-                {selectedApplication.profile_photo_url && (
+                {selectedApplication
+                  .resolved_profile_photo_url && (
 
                   <a
                     href={
-                      selectedApplication.profile_photo_url
+                      selectedApplication
+                        .resolved_profile_photo_url
                     }
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="developer-file-button"
                   >
 
-                    <User size={15} />
+                    <User
+                      size={15}
+                    />
 
                     View Profile Photo
 
@@ -1168,14 +1435,17 @@ export default function AdminDevelopers() {
 
                 )}
 
-                {selectedApplication.resume_url && (
+
+                {selectedApplication
+                  .resolved_resume_url && (
 
                   <a
                     href={
-                      selectedApplication.resume_url
+                      selectedApplication
+                        .resolved_resume_url
                     }
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="developer-file-button"
                   >
 
@@ -1193,19 +1463,25 @@ export default function AdminDevelopers() {
 
                 )}
 
-                {!selectedApplication.profile_photo_url &&
-                  !selectedApplication.resume_url && (
 
-                    <p>
-                      No documents
-                      available.
-                    </p>
+                {!selectedApplication
+                  .resolved_profile_photo_url &&
+                  !selectedApplication
+                    .resolved_resume_url && (
 
-                  )}
+                  <p>
+                    No documents
+                    available.
+                  </p>
+
+                )}
 
               </div>
 
             </ApplicationSection>
+
+
+            {/* APPLICATION INFORMATION */}
 
             <ApplicationSection
               icon={
@@ -1230,9 +1506,9 @@ export default function AdminDevelopers() {
 
               <Detail
                 label="Status"
-                value={
+                value={getStatusLabel(
                   selectedApplication.status
-                }
+                )}
               />
 
               <Detail
@@ -1280,6 +1556,7 @@ export default function AdminDevelopers() {
 
             </ApplicationSection>
 
+
             {/* =================================================
                 PENDING ACTIONS
             ================================================= */}
@@ -1296,11 +1573,12 @@ export default function AdminDevelopers() {
                     <button
                       type="button"
                       className="developer-reject-button"
-                      onClick={() =>
+                      onClick={() => {
+                        setError("");
                         setShowRejectBox(
                           true
-                        )
-                      }
+                        );
+                      }}
                       disabled={
                         actionLoading
                       }
@@ -1314,6 +1592,7 @@ export default function AdminDevelopers() {
 
                     </button>
 
+
                     <button
                       type="button"
                       className="developer-accept-button"
@@ -1325,9 +1604,20 @@ export default function AdminDevelopers() {
                       }
                     >
 
-                      <CheckCircle
-                        size={17}
-                      />
+                      {actionLoading ? (
+
+                        <Loader2
+                          size={17}
+                          className="spin"
+                        />
+
+                      ) : (
+
+                        <CheckCircle
+                          size={17}
+                        />
+
+                      )}
 
                       {actionLoading
                         ? "Processing..."
@@ -1349,11 +1639,15 @@ export default function AdminDevelopers() {
                       value={
                         rejectionReason
                       }
-                      onChange={(event) =>
+                      onChange={(event) => {
                         setRejectionReason(
                           event.target.value
-                        )
-                      }
+                        );
+
+                        if (error) {
+                          setError("");
+                        }
+                      }}
                       placeholder="Enter reason for rejection..."
                       rows={4}
                       disabled={
@@ -1380,6 +1674,8 @@ export default function AdminDevelopers() {
                           setRejectionReason(
                             ""
                           );
+
+                          setError("");
                         }}
                         disabled={
                           actionLoading
@@ -1395,7 +1691,8 @@ export default function AdminDevelopers() {
                           rejectApplication
                         }
                         disabled={
-                          actionLoading
+                          actionLoading ||
+                          !rejectionReason.trim()
                         }
                       >
 
@@ -1415,8 +1712,9 @@ export default function AdminDevelopers() {
 
             )}
 
+
             {/* =================================================
-                ACCEPTED DEVELOPER ACCOUNT ACTION
+                ACCEPTED DEVELOPER ACCOUNT
             ================================================= */}
 
             {selectedApplication.status ===
@@ -1448,6 +1746,7 @@ export default function AdminDevelopers() {
 
                 </div>
 
+
                 <button
                   type="button"
                   className="developer-remove-account-button"
@@ -1460,9 +1759,20 @@ export default function AdminDevelopers() {
                   }
                 >
 
-                  <UserX
-                    size={17}
-                  />
+                  {actionLoading ? (
+
+                    <Loader2
+                      size={17}
+                      className="spin"
+                    />
+
+                  ) : (
+
+                    <UserX
+                      size={17}
+                    />
+
+                  )}
 
                   {actionLoading
                     ? "Removing Developer..."
@@ -1470,13 +1780,17 @@ export default function AdminDevelopers() {
 
                 </button>
 
-                {!selectedApplication.developer_user_id && (
+
+                {!selectedApplication
+                  .developer_user_id && (
 
                   <p className="developer-account-error">
+
                     Developer user ID is missing.
                     This account cannot be removed
                     until the application is linked
                     to its authentication user.
+
                   </p>
 
                 )}
@@ -1484,6 +1798,7 @@ export default function AdminDevelopers() {
               </div>
 
             )}
+
 
             {/* =================================================
                 DELETE APPLICATION
@@ -1522,6 +1837,45 @@ export default function AdminDevelopers() {
   );
 }
 
+
+/* =============================================================
+   PROFILE PHOTO
+============================================================= */
+
+function DeveloperProfilePhoto({
+  application,
+}) {
+  const photoUrl =
+    application
+      ?.resolved_profile_photo_url ||
+    null;
+
+  if (photoUrl) {
+    return (
+      <img
+        src={photoUrl}
+        alt={
+          application.full_name ||
+          "Developer"
+        }
+        className="developer-profile-photo"
+      />
+    );
+  }
+
+  return (
+    <div className="developer-profile-placeholder">
+
+      {application
+        ?.full_name
+        ?.charAt(0)
+        ?.toUpperCase() || "D"}
+
+    </div>
+  );
+}
+
+
 /* =============================================================
    APPLICATION SECTION
 ============================================================= */
@@ -1554,6 +1908,7 @@ function ApplicationSection({
   );
 }
 
+
 /* =============================================================
    DETAIL
 ============================================================= */
@@ -1582,6 +1937,7 @@ function Detail({
   );
 }
 
+
 /* =============================================================
    PROFILE LINK
 ============================================================= */
@@ -1594,7 +1950,7 @@ function ProfileLink({
     <a
       href={url}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       className="developer-profile-link"
     >
 
@@ -1609,6 +1965,7 @@ function ProfileLink({
     </a>
   );
 }
+
 
 /* =============================================================
    UNAVAILABLE LINK

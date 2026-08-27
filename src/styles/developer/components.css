@@ -1,0 +1,651 @@
+/* ============================================================
+   EXCWA TECH — DEVELOPER SHARED COMPONENTS
+   Sparse / Premium Dark Dashboard
+   ============================================================ */
+
+:root {
+  /* ----------------------------------------------------------
+     CORE COLORS
+     ---------------------------------------------------------- */
+
+  --dev-bg: #050608;
+  --dev-bg-soft: #080b0f;
+
+  --dev-surface: #0a0d11;
+  --dev-surface-2: #0d1116;
+  --dev-surface-hover: #10161c;
+
+  --dev-text: #edf2f7;
+  --dev-text-soft: #c7d0dc;
+  --dev-text-muted: #8490a1;
+  --dev-text-dim: #647184;
+  --dev-text-faint: #4d5969;
+
+  /* ----------------------------------------------------------
+     BORDERS
+     ---------------------------------------------------------- */
+
+  --dev-border: rgba(255, 255, 255, 0.065);
+  --dev-border-soft: rgba(255, 255, 255, 0.045);
+  --dev-border-strong: rgba(255, 255, 255, 0.105);
+
+  /* ----------------------------------------------------------
+     ACCENTS
+     ---------------------------------------------------------- */
+
+  --dev-cyan: #55dcff;
+  --dev-green: #63dfaa;
+  --dev-yellow: #e7b866;
+  --dev-red: #e97878;
+  --dev-purple: #a38cf4;
+  --dev-blue: #8ba7f5;
+
+  /* ----------------------------------------------------------
+     RADIUS
+     ---------------------------------------------------------- */
+
+  --dev-radius-sm: 6px;
+  --dev-radius: 8px;
+  --dev-radius-lg: 11px;
+  --dev-radius-xl: 15px;
+
+  /* ----------------------------------------------------------
+     SHADOW
+     ---------------------------------------------------------- */
+
+  --dev-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.32);
+
+  /* ----------------------------------------------------------
+     MOTION
+     ---------------------------------------------------------- */
+
+  --dev-transition: 170ms ease;
+
+  /* ----------------------------------------------------------
+     TYPOGRAPHY
+     ---------------------------------------------------------- */
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+
+/* ============================================================
+   RESET
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+
+  margin: 0;
+  padding: 0;
+
+  background: var(--dev-bg);
+  color: var(--dev-text);
+
+  overflow-x: hidden;
+}
+
+body {
+  font-family: inherit;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+}
+
+
+/* ============================================================
+   FOCUS
+   ============================================================ */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 1px solid rgba(85, 220, 255, 0.55);
+  outline-offset: 2px;
+}
+
+
+/* ============================================================
+   COMMON BUTTONS
+   ============================================================ */
+
+.primary-btn,
+.secondary-btn {
+  min-height: 35px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  padding: 0 12px;
+
+  border-radius: 8px;
+
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    transform var(--dev-transition),
+    background var(--dev-transition),
+    border-color var(--dev-transition),
+    color var(--dev-transition),
+    opacity var(--dev-transition);
+}
+
+
+/* ------------------------------------------------------------
+   PRIMARY
+   ------------------------------------------------------------ */
+
+.primary-btn {
+  border: 1px solid rgba(85, 220, 255, 0.2);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(85, 220, 255, 0.09),
+      rgba(85, 220, 255, 0.025)
+    );
+
+  color: var(--dev-cyan);
+}
+
+.primary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: rgba(85, 220, 255, 0.34);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(85, 220, 255, 0.14),
+      rgba(85, 220, 255, 0.045)
+    );
+}
+
+
+/* ------------------------------------------------------------
+   SECONDARY
+   ------------------------------------------------------------ */
+
+.secondary-btn {
+  border: 1px solid var(--dev-border);
+
+  background: rgba(255, 255, 255, 0.018);
+
+  color: #a6b1bf;
+}
+
+.secondary-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: var(--dev-border-strong);
+
+  background: rgba(255, 255, 255, 0.045);
+
+  color: #e8edf3;
+}
+
+
+/* ------------------------------------------------------------
+   DISABLED
+   ------------------------------------------------------------ */
+
+.primary-btn:disabled,
+.secondary-btn:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+
+/* ============================================================
+   ICON BUTTON
+   ============================================================ */
+
+.dev-icon-button {
+  width: 32px;
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--dev-border);
+  border-radius: 7px;
+
+  background: rgba(255, 255, 255, 0.018);
+
+  color: var(--dev-text-muted);
+
+  cursor: pointer;
+
+  transition:
+    color var(--dev-transition),
+    border-color var(--dev-transition),
+    background var(--dev-transition),
+    transform var(--dev-transition);
+}
+
+.dev-icon-button:hover:not(:disabled) {
+  color: var(--dev-cyan);
+
+  border-color: rgba(85, 220, 255, 0.22);
+
+  background: rgba(85, 220, 255, 0.035);
+
+  transform: translateY(-1px);
+}
+
+.dev-icon-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   STATUS BADGE
+   ============================================================ */
+
+.dev-status-badge {
+  width: fit-content;
+  max-width: 100%;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 6px 10px;
+
+  border: 1px solid;
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+
+  letter-spacing: 0.045em;
+
+  text-transform: none;
+
+  white-space: nowrap;
+}
+
+
+/* ------------------------------------------------------------
+   STATUS DOT
+   ------------------------------------------------------------ */
+
+.dev-status-dot {
+  width: 5px;
+  height: 5px;
+
+  flex: 0 0 5px;
+
+  border-radius: 50%;
+}
+
+
+/* ------------------------------------------------------------
+   COMPLETED / SUCCESS
+   ------------------------------------------------------------ */
+
+.dev-status-badge.success,
+.dev-status-badge.completed {
+  border-color: rgba(99, 223, 170, 0.2);
+
+  background: rgba(99, 223, 170, 0.035);
+
+  color: var(--dev-green);
+}
+
+.dev-status-badge.success .dev-status-dot,
+.dev-status-badge.completed .dev-status-dot {
+  background: var(--dev-green);
+
+  box-shadow:
+    0 0 7px rgba(99, 223, 170, 0.5);
+}
+
+
+/* ------------------------------------------------------------
+   PENDING
+   ------------------------------------------------------------ */
+
+.dev-status-badge.pending {
+  border-color: rgba(231, 184, 102, 0.2);
+
+  background: rgba(231, 184, 102, 0.035);
+
+  color: var(--dev-yellow);
+}
+
+.dev-status-badge.pending .dev-status-dot {
+  background: var(--dev-yellow);
+
+  box-shadow:
+    0 0 7px rgba(231, 184, 102, 0.45);
+}
+
+
+/* ------------------------------------------------------------
+   ERROR / REJECTED
+   ------------------------------------------------------------ */
+
+.dev-status-badge.error,
+.dev-status-badge.rejected {
+  border-color: rgba(233, 120, 120, 0.2);
+
+  background: rgba(233, 120, 120, 0.035);
+
+  color: var(--dev-red);
+}
+
+.dev-status-badge.error .dev-status-dot,
+.dev-status-badge.rejected .dev-status-dot {
+  background: var(--dev-red);
+
+  box-shadow:
+    0 0 7px rgba(233, 120, 120, 0.4);
+}
+
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.dev-tab-empty {
+  width: 100%;
+  min-height: 260px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  border: 1px dashed rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(85, 220, 255, 0.035),
+      transparent 45%
+    ),
+    rgba(255, 255, 255, 0.008);
+
+  text-align: center;
+}
+
+
+/* ------------------------------------------------------------
+   EMPTY ICON
+   ------------------------------------------------------------ */
+
+.dev-empty-icon {
+  width: 44px;
+  height: 44px;
+
+  margin-bottom: 12px;
+  padding: 10px;
+
+  border: 1px solid rgba(85, 220, 255, 0.13);
+  border-radius: 10px;
+
+  background: rgba(85, 220, 255, 0.03);
+
+  color: var(--dev-cyan);
+}
+
+
+/* ------------------------------------------------------------
+   EMPTY TITLE
+   ------------------------------------------------------------ */
+
+.dev-tab-empty h3 {
+  margin: 0;
+
+  color: #e3e9f0;
+
+  font-size: 14px;
+  font-weight: 650;
+}
+
+
+/* ------------------------------------------------------------
+   EMPTY DESCRIPTION
+   ------------------------------------------------------------ */
+
+.dev-tab-empty p {
+  max-width: 420px;
+
+  margin: 7px 0 0;
+
+  color: var(--dev-text-dim);
+
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+
+/* ------------------------------------------------------------
+   EMPTY ACTION
+   ------------------------------------------------------------ */
+
+.dev-tab-empty .primary-btn {
+  margin-top: 15px;
+}
+
+
+/* ============================================================
+   SHARED CATEGORY BADGE
+   ============================================================ */
+
+.dev-opp-category,
+.dev-opportunity-category {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+  max-width: 100%;
+
+  min-height: 25px;
+
+  padding: 0 9px;
+
+  border: 1px solid rgba(85, 220, 255, 0.16);
+  border-radius: 6px;
+
+  background: rgba(85, 220, 255, 0.035);
+
+  color: var(--dev-cyan);
+
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.09em;
+
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   SHARED TAGS
+   ============================================================ */
+
+.dev-opp-tags {
+  width: 100%;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 5px;
+}
+
+
+/* ------------------------------------------------------------
+   TAG
+   ------------------------------------------------------------ */
+
+.dev-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  max-width: 100%;
+  min-height: 27px;
+
+  padding: 4px 8px;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 6px;
+
+  background: rgba(255, 255, 255, 0.018);
+
+  color: #9caabd;
+
+  font-size: 8.5px;
+  line-height: 1.3;
+  font-weight: 600;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+
+  transition:
+    color var(--dev-transition),
+    border-color var(--dev-transition),
+    background var(--dev-transition),
+    transform var(--dev-transition);
+}
+
+
+/* ------------------------------------------------------------
+   TAG HOVER
+   ------------------------------------------------------------ */
+
+.dev-tag:hover {
+  transform: translateY(-1px);
+
+  color: #e8faff;
+
+  border-color: rgba(85, 220, 255, 0.24);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(85, 220, 255, 0.06),
+      rgba(163, 140, 244, 0.025)
+    );
+}
+
+
+/* ============================================================
+   GLOBAL LOADING ICON
+   ============================================================ */
+
+.dev-loading-icon {
+  color: var(--dev-cyan);
+
+  animation:
+    dev-spin 0.9s linear infinite;
+}
+
+@keyframes dev-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .primary-btn,
+  .secondary-btn {
+    min-height: 34px;
+    padding: 0 11px;
+  }
+
+  .dev-tab-empty {
+    min-height: 230px;
+    padding: 24px 18px;
+  }
+}
