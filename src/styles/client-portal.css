@@ -1383,3 +1383,44 @@
     transform: rotate(360deg);
   }
 }
+/* =========================================================
+   PASSWORD VISIBILITY TOGGLE
+========================================================= */
+
+.client-password-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+  margin-left: 4px;
+
+  border: 0;
+  background: transparent;
+
+  color: #7f8da3;
+
+  cursor: pointer;
+
+  flex-shrink: 0;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.client-password-toggle:hover {
+  color: #ffffff;
+}
+
+.client-password-toggle:active {
+  transform: scale(0.92);
+}
+
+.client-password-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

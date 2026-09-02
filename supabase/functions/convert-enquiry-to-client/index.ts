@@ -13,6 +13,10 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
+const APP_URL =
+  Deno.env.get("APP_URL") ||
+  "https://excwa.vercel.app";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", {
@@ -38,28 +42,21 @@ Deno.serve(async (req) => {
       );
     }
 
+    /* =====================================================
+       PARSE REQUEST
+    ===================================================== */
+
     const body = await req.json();
+
     const enquiry_id = body?.enquiry_id;
 
     if (!enquiry_id) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "enquiry_id is required",
-        }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      throw new Error("enquiry_id is required.");
     }
 
     /* =====================================================
        GET ENQUIRY
-       ===================================================== */
+    ===================================================== */
 
     const {
       data: enquiry,
@@ -82,31 +79,15 @@ Deno.serve(async (req) => {
 
     /* =====================================================
        VALIDATE CUSTOMER DATA
-       ===================================================== */
+    ===================================================== */
 
-    const cleanName = String(
-      enquiry.customer_name || ""
-    )
-      .replace(/[^a-zA-Z0-9]/g, "")
-      .trim();
-
-    const cleanPhone = String(
-      enquiry.phone || ""
-    ).replace(/\D/g, "");
-
-    const lastFour = cleanPhone.slice(-4);
-
-    const email = String(
-      enquiry.email || ""
-    )
+    const email = String(enquiry.email || "")
       .trim()
       .toLowerCase();
 
-    if (!cleanName) {
-      throw new Error(
-        "Customer name is required."
-      );
-    }
+    const fullName = String(
+      enquiry.customer_name || ""
+    ).trim();
 
     if (!email) {
       throw new Error(
@@ -114,55 +95,71 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (lastFour.length < 4) {
+    if (!fullName) {
       throw new Error(
-        "A valid phone number with at least 4 digits is required."
+        "Customer name is required."
       );
     }
 
-    /*
-     * Default password:
-     *
-     * CustomerName + last 4 phone digits
-     *
-     * Example:
-     * Dheeraj Suthar + 9876
-     *
-     * => DheerajSuthar9876
-     */
+    /* =====================================================
+       REDIRECT URL
 
-    const password =
-      `${cleanName}${lastFour}`;
+       Supabase invitation email will send the client here
+       after accepting the invitation.
+    ===================================================== */
+
+    const redirectTo =
+      `${APP_URL}/client/activate`;
 
     /* =====================================================
-       CREATE AUTH USER
+       INVITE USER THROUGH SUPABASE AUTH
+
+       IMPORTANT:
+       inviteUserByEmail() creates the Auth user AND
+       sends the Supabase "Invite user" email.
+
+       No temporary password is required.
        ===================================================== */
 
     const {
-      data: authData,
-      error: authError,
+      data: inviteData,
+      error: inviteError,
     } =
-      await supabase.auth.admin.createUser({
+      await supabase.auth.admin.inviteUserByEmail(
         email,
-        password,
-        email_confirm: true,
-      });
+        {
+          data: {
+            full_name: fullName,
+            account_type: "client",
+          },
+          redirectTo,
+        }
+      );
 
-    if (authError) {
-      throw authError;
-    }
+    if (inviteError) {
+      console.error(
+        "Supabase client invitation failed:",
+        inviteError
+      );
 
-    if (!authData?.user?.id) {
       throw new Error(
-        "Failed to create authentication account."
+        inviteError.message ||
+          "Failed to send client invitation email."
       );
     }
 
-    const userId = authData.user.id;
+    if (!inviteData?.user?.id) {
+      throw new Error(
+        "Supabase created the invitation but no user ID was returned."
+      );
+    }
+
+    const userId =
+      inviteData.user.id;
 
     /* =====================================================
        CREATE PROFILE
-       ===================================================== */
+    ===================================================== */
 
     const {
       error: profileError,
@@ -171,11 +168,17 @@ Deno.serve(async (req) => {
       .insert({
         id: userId,
         email,
-        full_name:
-          enquiry.customer_name.trim(),
+        full_name: fullName,
+        role: "client",
       });
 
     if (profileError) {
+      console.error(
+        "Profile creation failed:",
+        profileError
+      );
+
+      // Roll back Auth user
       await supabase.auth.admin.deleteUser(
         userId
       );
@@ -185,7 +188,7 @@ Deno.serve(async (req) => {
 
     /* =====================================================
        CREATE CLIENT
-       ===================================================== */
+    ===================================================== */
 
     const {
       data: client,
@@ -194,17 +197,20 @@ Deno.serve(async (req) => {
       .from("clients")
       .insert({
         company_name: null,
-        contact_name:
-          enquiry.customer_name.trim(),
+        contact_name: fullName,
         email,
-        phone:
-          enquiry.phone || null,
+        phone: enquiry.phone || null,
         status: "active",
       })
       .select()
       .single();
 
-    if (clientError) {
+    if (clientError || !client) {
+      console.error(
+        "Client creation failed:",
+        clientError
+      );
+
       await supabase
         .from("profiles")
         .delete()
@@ -214,12 +220,17 @@ Deno.serve(async (req) => {
         userId
       );
 
-      throw clientError;
+      throw (
+        clientError ||
+        new Error(
+          "Failed to create client record."
+        )
+      );
     }
 
     /* =====================================================
-       CONNECT USER TO CLIENT
-       ===================================================== */
+       CONNECT AUTH USER TO CLIENT
+    ===================================================== */
 
     const {
       error: clientUserError,
@@ -232,6 +243,11 @@ Deno.serve(async (req) => {
       });
 
     if (clientUserError) {
+      console.error(
+        "Client user creation failed:",
+        clientUserError
+      );
+
       await supabase
         .from("clients")
         .delete()
@@ -251,7 +267,7 @@ Deno.serve(async (req) => {
 
     /* =====================================================
        UPDATE ENQUIRY
-       ===================================================== */
+    ===================================================== */
 
     const {
       error: enquiryUpdateError,
@@ -266,6 +282,11 @@ Deno.serve(async (req) => {
       .eq("id", enquiry.id);
 
     if (enquiryUpdateError) {
+      console.error(
+        "Enquiry update failed:",
+        enquiryUpdateError
+      );
+
       await supabase
         .from("client_users")
         .delete()
@@ -290,15 +311,27 @@ Deno.serve(async (req) => {
 
     /* =====================================================
        SUCCESS
-       ===================================================== */
+
+       Supabase has already sent the invitation email.
+    ===================================================== */
 
     return new Response(
       JSON.stringify({
         success: true,
-        client_id: client.id,
-        user_id: userId,
+
+        client_id:
+          client.id,
+
+        user_id:
+          userId,
+
         email,
-        temporary_password: password,
+
+        client_name:
+          fullName,
+
+        message:
+          "Client account created successfully and invitation email sent.",
       }),
       {
         status: 200,
@@ -309,6 +342,7 @@ Deno.serve(async (req) => {
         },
       }
     );
+
   } catch (error) {
     console.error(
       "Convert enquiry to client error:",

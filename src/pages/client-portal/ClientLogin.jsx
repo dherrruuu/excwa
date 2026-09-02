@@ -1,8 +1,17 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 
-import { supabase } from "../../lib/supabase";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
+
+import { loginClient } from "../../services/client/clientAuthService";
 import "../../styles/client-portal.css";
 
 export default function ClientLogin() {
@@ -11,121 +20,124 @@ export default function ClientLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  /* =========================================================
+     LOGIN
+  ========================================================= */
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    console.log(
+      "🔥 CLIENT LOGIN FORM SUBMITTED"
+    );
+
     setError("");
 
     if (!email.trim() || !password) {
-      setError("Please enter your email and password.");
+      console.log(
+        "❌ CLIENT LOGIN VALIDATION FAILED"
+      );
+
+      setError(
+        "Please enter your email and password."
+      );
+
       return;
     }
 
     try {
       setLoading(true);
 
-      const { data, error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+      console.log(
+        "================================="
+      );
 
-      if (loginError) {
-        throw loginError;
-      }
+      console.log(
+        "CLIENT LOGIN UI → CALLING loginClient()"
+      );
 
-      if (!data?.user) {
-        throw new Error("Unable to authenticate account.");
-      }
+      console.log(
+        "EMAIL:",
+        email.trim()
+      );
 
-      /*
-       * Verify that the authenticated user
-       * is actually connected to a client account.
-       */
-      const { data: clientUser, error: clientUserError } =
-        await supabase
-          .from("client_users")
-          .select(`
-            id,
-            client_id,
-            user_id,
-            role
-          `)
-          .eq("user_id", data.user.id)
-          .maybeSingle();
+      console.log(
+        "================================="
+      );
 
-      if (clientUserError) {
-        throw clientUserError;
-      }
+      const result = await loginClient(
+        email,
+        password
+      );
 
-      if (!clientUser) {
-        await supabase.auth.signOut();
+      console.log(
+        "================================="
+      );
 
-        setError(
-          "This account is not registered as a client."
-        );
+      console.log(
+        "✅ CLIENT LOGIN UI → loginClient SUCCESS"
+      );
 
-        return;
-      }
+      console.log(
+        "LOGIN RESULT:",
+        result
+      );
 
-      /*
-       * Verify that the client account still exists.
-       */
-      const { data: client, error: clientError } =
-        await supabase
-          .from("clients")
-          .select(`
-            id,
-            company_name,
-            contact_name,
-            email,
-            phone,
-            status
-          `)
-          .eq("id", clientUser.client_id)
-          .maybeSingle();
+      console.log(
+        "CLIENT USER:",
+        result?.clientUser
+      );
 
-      if (clientError) {
-        throw clientError;
-      }
+      console.log(
+        "CLIENT:",
+        result?.client
+      );
 
-      if (!client) {
-        await supabase.auth.signOut();
+      console.log(
+        "================================="
+      );
 
-        setError(
-          "Your client account could not be found."
-        );
+      /* -------------------------------------------------------
+         NAVIGATE TO CLIENT DASHBOARD
+      ------------------------------------------------------- */
 
-        return;
-      }
+      console.log(
+        "CLIENT LOGIN UI → navigating to dashboard..."
+      );
 
-      /*
-       * Optional account status check.
-       */
-      if (
-        client.status &&
-        !["active", "approved"].includes(
-          client.status
-        )
-      ) {
-        await supabase.auth.signOut();
-
-        setError(
-          `Your client account is currently ${client.status}.`
-        );
-
-        return;
-      }
-
-      navigate("/client/dashboard", {
-        replace: true,
-      });
-
+      navigate(
+        "/client/dashboard",
+        {
+          replace: true,
+        }
+      );
     } catch (err) {
-      console.error("Client login error:", err);
+      console.error(
+        "================================="
+      );
+
+      console.error(
+        "❌ CLIENT LOGIN UI ERROR"
+      );
+
+      console.error(
+        "ERROR OBJECT:",
+        err
+      );
+
+      console.error(
+        "ERROR MESSAGE:",
+        err?.message
+      );
+
+      console.error(
+        "================================="
+      );
 
       setError(
         err?.message ||
@@ -136,10 +148,18 @@ export default function ClientLogin() {
     }
   };
 
+  /* =========================================================
+     UI
+  ========================================================= */
+
   return (
     <div className="client-portal-page">
 
       <div className="client-login-card">
+
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
 
         <div className="client-login-header">
 
@@ -158,16 +178,28 @@ export default function ClientLogin() {
 
         </div>
 
+        {/* =====================================================
+            FORM
+        ===================================================== */}
+
         <form
           className="client-login-form"
           onSubmit={handleLogin}
         >
+
+          {/* ---------------------------------------------------
+              ERROR
+          --------------------------------------------------- */}
 
           {error && (
             <div className="client-login-error">
               {error}
             </div>
           )}
+
+          {/* ---------------------------------------------------
+              EMAIL
+          --------------------------------------------------- */}
 
           <div className="client-field">
 
@@ -195,6 +227,10 @@ export default function ClientLogin() {
 
           </div>
 
+          {/* ---------------------------------------------------
+              PASSWORD
+          --------------------------------------------------- */}
+
           <div className="client-field">
 
             <label htmlFor="client-password">
@@ -207,7 +243,11 @@ export default function ClientLogin() {
 
               <input
                 id="client-password"
-                type="password"
+                type={
+                  showPassword
+                    ? "text"
+                    : "password"
+                }
                 value={password}
                 onChange={(e) =>
                   setPassword(e.target.value)
@@ -217,9 +257,36 @@ export default function ClientLogin() {
                 disabled={loading}
               />
 
+              <button
+                type="button"
+                className="client-password-toggle"
+                onClick={() =>
+                  setShowPassword(
+                    (previous) =>
+                      !previous
+                  )
+                }
+                disabled={loading}
+                aria-label={
+                  showPassword
+                    ? "Hide password"
+                    : "Show password"
+                }
+              >
+                {showPassword ? (
+                  <EyeOff size={17} />
+                ) : (
+                  <Eye size={17} />
+                )}
+              </button>
+
             </div>
 
           </div>
+
+          {/* ---------------------------------------------------
+              LOGIN BUTTON
+          --------------------------------------------------- */}
 
           <button
             type="submit"
@@ -240,7 +307,9 @@ export default function ClientLogin() {
               <>
                 Sign in
 
-                <ArrowRight size={16} />
+                <ArrowRight
+                  size={16}
+                />
               </>
             )}
 

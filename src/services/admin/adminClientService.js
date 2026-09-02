@@ -1,5 +1,9 @@
 import { supabase } from "../../lib/supabase";
 
+/* =========================================================
+   CREATE CLIENT FROM ENQUIRY
+========================================================= */
+
 export async function createClientFromEnquiry(enquiry) {
   const enquiryId =
     typeof enquiry === "string"
@@ -10,56 +14,83 @@ export async function createClientFromEnquiry(enquiry) {
     throw new Error("Enquiry ID is required.");
   }
 
-  const { data, error } =
-    await supabase.functions.invoke(
-      "convert-enquiry-to-client",
-      {
-        body: {
-          enquiry_id: enquiryId,
-        },
-      }
+  console.log("=================================");
+  console.log("CONVERT ENQUIRY TO CLIENT");
+  console.log("ENQUIRY ID:", enquiryId);
+  console.log("=================================");
+
+  try {
+    const { data, error } =
+      await supabase.functions.invoke(
+        "convert-enquiry-to-client",
+        {
+          body: {
+            enquiry_id: enquiryId,
+          },
+        }
+      );
+
+    console.log(
+      "CONVERT CLIENT FUNCTION RESPONSE:",
+      data
     );
 
-  if (error) {
-    console.error(
-      "Client creation function error:",
+    console.log(
+      "CONVERT CLIENT FUNCTION ERROR:",
       error
     );
 
-    let details = "";
+    if (error) {
+      let message =
+        error.message ||
+        "Failed to create client account.";
 
-    try {
-      if (error.context) {
-        const response = error.context;
+      try {
+        if (error.context) {
+          const errorBody =
+            await error.context.json();
 
-        if (typeof response.json === "function") {
-          const body = await response.json();
-          details =
-            body?.error ||
-            body?.message ||
-            "";
+          console.error(
+            "EDGE FUNCTION ERROR BODY:",
+            errorBody
+          );
+
+          message =
+            errorBody?.error ||
+            errorBody?.message ||
+            message;
         }
+      } catch (parseError) {
+        console.error(
+          "Could not parse Edge Function error:",
+          parseError
+        );
       }
-    } catch (parseError) {
-      console.error(
-        "Could not parse function error:",
-        parseError
+
+      throw new Error(message);
+    }
+
+    if (!data?.success) {
+      throw new Error(
+        data?.error ||
+          data?.message ||
+          "Failed to create client account."
       );
     }
 
-    throw new Error(
-      details ||
-        error.message ||
-        "Failed to create client account."
+    console.log(
+      "CLIENT CREATED SUCCESSFULLY:",
+      data
     );
-  }
 
-  if (!data?.success) {
-    throw new Error(
-      data?.error ||
-        "Failed to create client account."
+    return data;
+
+  } catch (error) {
+    console.error(
+      "CREATE CLIENT FROM ENQUIRY ERROR:",
+      error
     );
-  }
 
-  return data;
+    throw error;
+  }
 }
