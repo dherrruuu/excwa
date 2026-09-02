@@ -46,7 +46,7 @@ import DevProtectedRoute from "./components/developer/DevProtectedRoute";
 // CLIENT PORTAL
 // ============================================================
 
-import ClientActivate from "./pages/client-portal/ClientActivate";
+import ClientActivate from "./pages/auth/ClientActivate";
 import ClientLogin from "./pages/client-portal/ClientLogin";
 import ClientDashboard from "./pages/client-portal/ClientDashboard";
 
