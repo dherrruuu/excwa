@@ -12,7 +12,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import ExcwaLogo from "../../components/common/ExcwaLogo";
 
-import "../../styles/client-portal.css";
+import "../../styles/client-activation.css";
 
 export default function ClientActivate() {
   const navigate = useNavigate();
@@ -33,14 +33,14 @@ export default function ClientActivate() {
   const [success, setSuccess] = useState("");
 
   /* =========================================================
-     CHECK ACTIVATION / RECOVERY SESSION
+     INITIALIZE CLIENT ACTIVATION
   ========================================================= */
 
   useEffect(() => {
     let mounted = true;
-    let authSubscription = null;
+    let subscription = null;
 
-    async function initializeActivation() {
+    const initializeActivation = async () => {
       try {
         setLoading(true);
         setError("");
@@ -49,36 +49,35 @@ export default function ClientActivate() {
            AUTH STATE LISTENER
         ===================================================== */
 
-        const {
-          data: authListener,
-        } = supabase.auth.onAuthStateChange(
-          (event, currentSession) => {
-            if (!mounted) {
-              return;
+        const { data: authListener } =
+          supabase.auth.onAuthStateChange(
+            (event, currentSession) => {
+              if (!mounted) return;
+
+              console.log(
+                "Client activation auth event:",
+                event
+              );
+
+              if (
+                currentSession &&
+                (
+                  event === "PASSWORD_RECOVERY" ||
+                  event === "SIGNED_IN" ||
+                  event === "INITIAL_SESSION"
+                )
+              ) {
+                setSessionReady(true);
+                setLoading(false);
+              }
             }
+          );
 
-            console.log(
-              "Client activation auth event:",
-              event
-            );
-
-            if (
-              (event === "PASSWORD_RECOVERY" ||
-                event === "SIGNED_IN" ||
-                event === "INITIAL_SESSION") &&
-              currentSession
-            ) {
-              setSessionReady(true);
-              setLoading(false);
-            }
-          }
-        );
-
-        authSubscription =
+        subscription =
           authListener?.subscription || null;
 
         /* =====================================================
-           FIRST: CHECK EXISTING SESSION
+           CHECK EXISTING SESSION
         ===================================================== */
 
         const {
@@ -90,9 +89,7 @@ export default function ClientActivate() {
           throw sessionError;
         }
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         if (sessionData?.session) {
           setSessionReady(true);
@@ -101,21 +98,14 @@ export default function ClientActivate() {
         }
 
         /* =====================================================
-           SECOND: PROCESS SUPABASE RECOVERY HASH
-
-           Example:
-
-           /client/activate
-           #access_token=...
-           &refresh_token=...
-           &type=recovery
+           PROCESS INVITATION / RECOVERY HASH
         ===================================================== */
 
         const hash = window.location.hash || "";
 
         if (hash) {
           const hashParams = new URLSearchParams(
-            hash.replace(/^#/, "")
+            hash.substring(1)
           );
 
           const accessToken =
@@ -124,49 +114,41 @@ export default function ClientActivate() {
           const refreshToken =
             hashParams.get("refresh_token");
 
-          const recoveryType =
+          const tokenType =
             hashParams.get("type");
 
           console.log(
-            "Client activation hash detected:",
+            "Client activation token detected:",
             {
-              hasAccessToken:
-                Boolean(accessToken),
-
-              hasRefreshToken:
-                Boolean(refreshToken),
-
-              type: recoveryType,
+              hasAccessToken: Boolean(accessToken),
+              hasRefreshToken: Boolean(refreshToken),
+              type: tokenType,
             }
           );
 
-          /*
-           * Only create a session when both
-           * tokens are available.
-           */
-
           if (accessToken && refreshToken) {
             const {
-              data: recoverySession,
-              error: recoveryError,
+              data: activationData,
+              error: activationError,
             } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
             });
 
-            if (recoveryError) {
-              throw recoveryError;
+            if (activationError) {
+              throw activationError;
             }
 
             if (
-              recoverySession?.session &&
+              activationData?.session &&
               mounted
             ) {
               setSessionReady(true);
               setLoading(false);
 
               /*
-               * Remove tokens from browser URL.
+               * Remove sensitive tokens from
+               * the browser URL.
                */
 
               window.history.replaceState(
@@ -182,16 +164,14 @@ export default function ClientActivate() {
         }
 
         /* =====================================================
-           THIRD: FINAL SESSION CHECK
+           FINAL SESSION CHECK
         ===================================================== */
 
         await new Promise((resolve) =>
           setTimeout(resolve, 800)
         );
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         const {
           data: latestSessionData,
@@ -209,7 +189,7 @@ export default function ClientActivate() {
         }
 
         /* =====================================================
-           NO VALID SESSION
+           INVALID / EXPIRED ACTIVATION
         ===================================================== */
 
         setSessionReady(false);
@@ -224,9 +204,7 @@ export default function ClientActivate() {
           err
         );
 
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         setSessionReady(false);
         setLoading(false);
@@ -236,15 +214,15 @@ export default function ClientActivate() {
             "Unable to open the client activation link."
         );
       }
-    }
+    };
 
     initializeActivation();
 
     return () => {
       mounted = false;
 
-      if (authSubscription) {
-        authSubscription.unsubscribe();
+      if (subscription) {
+        subscription.unsubscribe();
       }
     };
   }, []);
@@ -253,7 +231,7 @@ export default function ClientActivate() {
      PASSWORD VALIDATION
   ========================================================= */
 
-  function validatePassword() {
+  const validatePassword = () => {
     if (!password) {
       return "Please enter a password.";
     }
@@ -271,24 +249,21 @@ export default function ClientActivate() {
     }
 
     return "";
-  }
+  };
 
   /* =========================================================
      ACTIVATE CLIENT ACCOUNT
   ========================================================= */
 
-  async function handleSubmit(event) {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (submitting) {
-      return;
-    }
+    if (submitting) return;
 
     setError("");
     setSuccess("");
 
-    const validationError =
-      validatePassword();
+    const validationError = validatePassword();
 
     if (validationError) {
       setError(validationError);
@@ -299,7 +274,6 @@ export default function ClientActivate() {
       setError(
         "Your activation session is not ready. Please reopen the activation email."
       );
-
       return;
     }
 
@@ -307,7 +281,7 @@ export default function ClientActivate() {
       setSubmitting(true);
 
       /* =====================================================
-         SET PERMANENT PASSWORD
+         UPDATE AUTH PASSWORD
       ===================================================== */
 
       const {
@@ -328,7 +302,7 @@ export default function ClientActivate() {
       }
 
       /* =====================================================
-         ACTIVATION SUCCESS
+         SUCCESS
       ===================================================== */
 
       setSuccess(
@@ -339,10 +313,8 @@ export default function ClientActivate() {
       setConfirmPassword("");
 
       /*
-       * Do NOT automatically open the dashboard.
-       *
-       * Client explicitly logs in using
-       * the newly created permanent password.
+       * Give the user time to see the success message,
+       * then send them to the permanent login page.
        */
 
       setTimeout(() => {
@@ -352,7 +324,7 @@ export default function ClientActivate() {
       }, 1500);
     } catch (err) {
       console.error(
-        "Client password activation failed:",
+        "Client account activation failed:",
         err
       );
 
@@ -363,39 +335,41 @@ export default function ClientActivate() {
     } finally {
       setSubmitting(false);
     }
-  }
+  };
 
   /* =========================================================
-     LOADING STATE
+     LOADING SCREEN
   ========================================================= */
 
   if (loading) {
     return (
-      <div className="client-auth-page">
-        <div className="client-auth-card">
+      <div className="client-activation-page">
+        <div className="client-activation-container">
+          <div className="client-activation-card">
 
-          <div className="client-auth-logo">
-            <ExcwaLogo />
+            <div className="client-activation-logo">
+              <ExcwaLogo />
+            </div>
+
+            <div className="client-activation-loading">
+
+              <Loader2
+                size={30}
+                className="client-activation-spinner"
+              />
+
+              <h2>
+                Verifying Activation Link
+              </h2>
+
+              <p>
+                Please wait while we securely verify
+                your EXCWA client account.
+              </p>
+
+            </div>
+
           </div>
-
-          <div className="client-auth-loading">
-
-            <Loader2
-              size={28}
-              className="client-auth-spinner"
-            />
-
-            <h2>
-              Verifying activation link
-            </h2>
-
-            <p>
-              Please wait while we securely verify
-              your EXCWA client account.
-            </p>
-
-          </div>
-
         </div>
       </div>
     );
@@ -407,44 +381,50 @@ export default function ClientActivate() {
 
   if (!sessionReady) {
     return (
-      <div className="client-auth-page">
-        <div className="client-auth-card">
+      <div className="client-activation-page">
+        <div className="client-activation-container">
+          <div className="client-activation-card">
 
-          <div className="client-auth-logo">
-            <ExcwaLogo />
+            <div className="client-activation-logo">
+              <ExcwaLogo />
+            </div>
+
+            <div className="client-activation-icon error">
+              <AlertCircle size={32} />
+            </div>
+
+            <div className="client-activation-header">
+
+              <h1>
+                Activation Link Unavailable
+              </h1>
+
+              <p>
+                {error ||
+                  "This activation link is invalid or has expired."}
+              </p>
+
+            </div>
+
+            <div className="client-activation-actions">
+
+              <Link
+                to="/client/login"
+                className="client-activation-button primary"
+              >
+                Go to Client Login
+              </Link>
+
+              <Link
+                to="/"
+                className="client-activation-button secondary"
+              >
+                Back to EXCWA
+              </Link>
+
+            </div>
+
           </div>
-
-          <div className="client-auth-icon error">
-            <AlertCircle size={32} />
-          </div>
-
-          <h1>
-            Activation Link Unavailable
-          </h1>
-
-          <p className="client-auth-description">
-            {error ||
-              "This activation link is invalid or has expired."}
-          </p>
-
-          <div className="client-auth-actions">
-
-            <Link
-              to="/client/login"
-              className="client-auth-primary-button"
-            >
-              Go to Client Login
-            </Link>
-
-            <Link
-              to="/"
-              className="client-auth-secondary-button"
-            >
-              Back to EXCWA
-            </Link>
-
-          </div>
-
         </div>
       </div>
     );
@@ -455,214 +435,253 @@ export default function ClientActivate() {
   ========================================================= */
 
   return (
-    <div className="client-auth-page">
+    <div className="client-activation-page">
+      <div className="client-activation-container">
+        <div className="client-activation-card">
 
-      <div className="client-auth-card">
+          {/* =================================================
+              LOGO
+          ================================================= */}
 
-        {/* LOGO */}
-
-        <div className="client-auth-logo">
-          <ExcwaLogo />
-        </div>
-
-        {/* HEADER */}
-
-        <div className="client-auth-header">
-
-          <div className="client-auth-icon success">
-            <CheckCircle2 size={30} />
+          <div className="client-activation-logo">
+            <ExcwaLogo />
           </div>
 
-          <h1>
-            Activate Your Client Account
-          </h1>
+          {/* =================================================
+              HEADER
+          ================================================= */}
 
-          <p>
-            Your EXCWA client account is ready.
-            Create a permanent password to access
-            your client portal.
-          </p>
+          <div className="client-activation-header">
 
-        </div>
-
-        {/* SUCCESS */}
-
-        {success && (
-          <div className="client-auth-success">
-            <CheckCircle2 size={18} />
-            <span>{success}</span>
-          </div>
-        )}
-
-        {/* ERROR */}
-
-        {error && (
-          <div className="client-auth-error">
-            <AlertCircle size={18} />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {/* FORM */}
-
-        <form
-          onSubmit={handleSubmit}
-          className="client-auth-form"
-        >
-
-          {/* PASSWORD */}
-
-          <div className="client-auth-field">
-
-            <label htmlFor="password">
-              Create Password
-            </label>
-
-            <div className="client-auth-input-wrapper">
-
-              <LockKeyhole size={18} />
-
-              <input
-                id="password"
-                type={
-                  showPassword
-                    ? "text"
-                    : "password"
-                }
-                value={password}
-                onChange={(event) =>
-                  setPassword(event.target.value)
-                }
-                placeholder="Enter your password"
-                autoComplete="new-password"
-                disabled={submitting}
-              />
-
-              <button
-                type="button"
-                className="client-auth-password-toggle"
-                onClick={() =>
-                  setShowPassword(
-                    (value) => !value
-                  )
-                }
-                aria-label={
-                  showPassword
-                    ? "Hide password"
-                    : "Show password"
-                }
-              >
-                {showPassword ? (
-                  <EyeOff size={18} />
-                ) : (
-                  <Eye size={18} />
-                )}
-              </button>
-
+            <div className="client-activation-icon success">
+              <CheckCircle2 size={30} />
             </div>
 
-            <small>
-              Password must contain at least 8 characters.
-            </small>
+            <h1>
+              Activate Your Client Account
+            </h1>
+
+            <p>
+              Your EXCWA client account is ready.
+              Create a permanent password to access
+              your client portal.
+            </p>
 
           </div>
 
-          {/* CONFIRM PASSWORD */}
+          {/* =================================================
+              SUCCESS MESSAGE
+          ================================================= */}
 
-          <div className="client-auth-field">
+          {success && (
+            <div className="client-activation-success">
+              <CheckCircle2 size={18} />
 
-            <label htmlFor="confirmPassword">
-              Confirm Password
-            </label>
-
-            <div className="client-auth-input-wrapper">
-
-              <LockKeyhole size={18} />
-
-              <input
-                id="confirmPassword"
-                type={
-                  showConfirmPassword
-                    ? "text"
-                    : "password"
-                }
-                value={confirmPassword}
-                onChange={(event) =>
-                  setConfirmPassword(
-                    event.target.value
-                  )
-                }
-                placeholder="Confirm your password"
-                autoComplete="new-password"
-                disabled={submitting}
-              />
-
-              <button
-                type="button"
-                className="client-auth-password-toggle"
-                onClick={() =>
-                  setShowConfirmPassword(
-                    (value) => !value
-                  )
-                }
-                aria-label={
-                  showConfirmPassword
-                    ? "Hide password"
-                    : "Show password"
-                }
-              >
-                {showConfirmPassword ? (
-                  <EyeOff size={18} />
-                ) : (
-                  <Eye size={18} />
-                )}
-              </button>
-
+              <span>
+                {success}
+              </span>
             </div>
+          )}
 
-          </div>
+          {/* =================================================
+              ERROR MESSAGE
+          ================================================= */}
 
-          {/* SUBMIT */}
+          {error && (
+            <div className="client-activation-error">
+              <AlertCircle size={18} />
 
-          <button
-            type="submit"
-            className="client-auth-primary-button"
-            disabled={submitting}
+              <span>
+                {error}
+              </span>
+            </div>
+          )}
+
+          {/* =================================================
+              FORM
+          ================================================= */}
+
+          <form
+            onSubmit={handleSubmit}
+            className="client-activation-form"
           >
-            {submitting ? (
-              <>
-                <Loader2
+
+            {/* =================================================
+                PASSWORD
+            ================================================= */}
+
+            <div className="client-activation-field">
+
+              <label htmlFor="client-password">
+                Create Password
+              </label>
+
+              <div className="client-activation-input-wrapper">
+
+                <LockKeyhole
                   size={18}
-                  className="client-auth-spinner"
+                  className="client-activation-input-icon"
                 />
 
-                Activating Account...
-              </>
-            ) : (
-              <>
-                <CheckCircle2 size={18} />
+                <input
+                  id="client-password"
+                  className="client-activation-input"
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
+                  value={password}
+                  onChange={(event) =>
+                    setPassword(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Enter your password"
+                  autoComplete="new-password"
+                  disabled={submitting}
+                  minLength={8}
+                />
 
-                Activate Client Account
-              </>
-            )}
-          </button>
+                <button
+                  type="button"
+                  className="client-activation-password-toggle"
+                  onClick={() =>
+                    setShowPassword(
+                      (value) => !value
+                    )
+                  }
+                  aria-label={
+                    showPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                  disabled={submitting}
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
 
-        </form>
+              </div>
 
-        {/* FOOTER */}
+              <small className="client-activation-password-hint">
+                Password must contain at least 8 characters.
+              </small>
 
-        <div className="client-auth-footer">
+            </div>
 
-          <span>
-            Already activated?
-          </span>
+            {/* =================================================
+                CONFIRM PASSWORD
+            ================================================= */}
 
-          <Link to="/client/login">
-            Sign in to Client Portal
-          </Link>
+            <div className="client-activation-field">
+
+              <label htmlFor="client-confirm-password">
+                Confirm Password
+              </label>
+
+              <div className="client-activation-input-wrapper">
+
+                <LockKeyhole
+                  size={18}
+                  className="client-activation-input-icon"
+                />
+
+                <input
+                  id="client-confirm-password"
+                  className="client-activation-input"
+                  type={
+                    showConfirmPassword
+                      ? "text"
+                      : "password"
+                  }
+                  value={confirmPassword}
+                  onChange={(event) =>
+                    setConfirmPassword(
+                      event.target.value
+                    )
+                  }
+                  placeholder="Confirm your password"
+                  autoComplete="new-password"
+                  disabled={submitting}
+                  minLength={8}
+                />
+
+                <button
+                  type="button"
+                  className="client-activation-password-toggle"
+                  onClick={() =>
+                    setShowConfirmPassword(
+                      (value) => !value
+                    )
+                  }
+                  aria-label={
+                    showConfirmPassword
+                      ? "Hide password"
+                      : "Show password"
+                  }
+                  disabled={submitting}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} />
+                  ) : (
+                    <Eye size={18} />
+                  )}
+                </button>
+
+              </div>
+
+            </div>
+
+            {/* =================================================
+                SUBMIT
+            ================================================= */}
+
+            <button
+              type="submit"
+              className="client-activation-button primary"
+              disabled={submitting}
+            >
+              {submitting ? (
+                <>
+                  <Loader2
+                    size={18}
+                    className="client-activation-spinner"
+                  />
+
+                  Activating Account...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={18} />
+
+                  Activate Client Account
+                </>
+              )}
+            </button>
+
+          </form>
+
+          {/* =================================================
+              FOOTER
+          ================================================= */}
+
+          <div className="client-activation-footer">
+
+            <span>
+              Already activated?
+            </span>
+
+            <Link to="/client/login">
+              Sign in to Client Portal
+            </Link>
+
+          </div>
 
         </div>
-
       </div>
     </div>
   );
