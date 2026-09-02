@@ -1,0 +1,735 @@
+/* ============================================================
+   EXCWA CLIENT LOGIN
+   Premium Client Portal Authentication
+   ============================================================ */
+
+.client-login-page {
+  min-height: 100vh;
+  width: 100%;
+
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px;
+
+  background:
+    radial-gradient(
+      circle at 12% 18%,
+      rgba(91, 86, 255, 0.16),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 88% 82%,
+      rgba(0, 210, 255, 0.12),
+      transparent 32%
+    ),
+    #06080c;
+
+  color: #edf2f7;
+}
+
+
+/* ============================================================
+   BACKGROUND GRID
+   ============================================================ */
+
+.client-login-grid {
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  opacity: 0.16;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    );
+
+  background-size: 46px 46px;
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      black,
+      transparent 90%
+    );
+}
+
+
+/* ============================================================
+   AMBIENT GLOWS
+   ============================================================ */
+
+.client-login-glow {
+  position: absolute;
+
+  width: 430px;
+  height: 430px;
+
+  border-radius: 50%;
+
+  filter: blur(110px);
+
+  pointer-events: none;
+}
+
+.client-login-glow-one {
+  top: -250px;
+  left: -180px;
+
+  background: rgba(87, 82, 255, 0.13);
+}
+
+.client-login-glow-two {
+  right: -200px;
+  bottom: -240px;
+
+  background: rgba(0, 205, 255, 0.11);
+}
+
+
+/* ============================================================
+   MAIN CARD
+   ============================================================ */
+
+.client-login-card {
+  width: min(100%, 455px);
+
+  position: relative;
+  z-index: 2;
+
+  padding: 40px;
+
+  border: 1px solid rgba(255, 255, 255, 0.085);
+
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(19, 23, 31, 0.97),
+      rgba(9, 12, 18, 0.98)
+    );
+
+  box-shadow:
+    0 35px 100px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(71, 79, 255, 0.045),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045);
+
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+
+/* ============================================================
+   TOP LIGHT
+   ============================================================ */
+
+.client-login-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 12%;
+
+  width: 76%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(112, 117, 255, 0.65),
+      rgba(30, 207, 241, 0.45),
+      transparent
+    );
+
+  opacity: 0.7;
+}
+
+
+/* ============================================================
+   BRAND
+   ============================================================ */
+
+.client-login-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  margin-bottom: 40px;
+}
+
+.client-login-logo {
+  width: 43px;
+  height: 43px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6962ff,
+      #19c8ee
+    );
+
+  color: #ffffff;
+
+  font-size: 19px;
+
+  font-weight: 800;
+
+  box-shadow:
+    0 10px 32px rgba(66, 92, 255, 0.24);
+}
+
+.client-login-brand-text {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.client-login-brand-text strong {
+  color: #f3f6fa;
+
+  font-size: 16px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.11em;
+}
+
+.client-login-brand-text span {
+  color: #667184;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.19em;
+}
+
+
+/* ============================================================
+   HEADING
+   ============================================================ */
+
+.client-login-heading {
+  margin-bottom: 30px;
+}
+
+.client-login-eyebrow {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #7279ff;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.19em;
+
+  text-transform: uppercase;
+}
+
+.client-login-heading h1 {
+  margin: 0 0 10px;
+
+  color: #f2f5f8;
+
+  font-size: clamp(30px, 5vw, 38px);
+
+  font-weight: 750;
+
+  line-height: 1.08;
+
+  letter-spacing: -0.04em;
+}
+
+.client-login-heading p {
+  max-width: 380px;
+
+  margin: 0;
+
+  color: #8993a4;
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+
+/* ============================================================
+   FORM
+   ============================================================ */
+
+.client-login-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 19px;
+}
+
+.client-login-field {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.client-login-field label {
+  color: #b9c1ce;
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  letter-spacing: 0.01em;
+}
+
+
+/* ============================================================
+   INPUT
+   ============================================================ */
+
+.client-login-input {
+  height: 53px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 0 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.client-login-input > svg {
+  flex-shrink: 0;
+
+  color: #687488;
+
+  transition: color 0.2s ease;
+}
+
+.client-login-input:focus-within {
+  border-color: rgba(106, 113, 255, 0.65);
+
+  background:
+    rgba(255, 255, 255, 0.038);
+
+  box-shadow:
+    0 0 0 4px rgba(88, 97, 255, 0.075),
+    0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.client-login-input:focus-within > svg {
+  color: #777dff;
+}
+
+.client-login-input input {
+  width: 100%;
+  height: 100%;
+
+  min-width: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #edf2f7;
+
+  font: inherit;
+
+  font-size: 13px;
+}
+
+.client-login-input input::placeholder {
+  color: #596374;
+}
+
+.client-login-input input:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.6;
+}
+
+
+/* ============================================================
+   PASSWORD TOGGLE
+   ============================================================ */
+
+.client-password-toggle {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 3px;
+
+  padding: 0;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #778398;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.client-password-toggle:hover {
+  color: #ffffff;
+
+  background:
+    rgba(255, 255, 255, 0.05);
+}
+
+.client-password-toggle:active {
+  transform: scale(0.92);
+}
+
+.client-password-toggle:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   ERROR MESSAGE
+   ============================================================ */
+
+.client-login-error {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 9px;
+
+  padding: 12px 14px;
+
+  border: 1px solid rgba(255, 82, 82, 0.18);
+
+  border-radius: 11px;
+
+  background:
+    rgba(255, 70, 70, 0.055);
+
+  color: #ff9d9d;
+
+  font-size: 11px;
+
+  line-height: 1.55;
+
+  animation: clientLoginErrorIn 0.2s ease;
+}
+
+.client-login-error svg {
+  flex-shrink: 0;
+
+  margin-top: 1px;
+}
+
+
+/* ============================================================
+   SUBMIT BUTTON
+   ============================================================ */
+
+.client-login-submit {
+  width: 100%;
+
+  height: 53px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  margin-top: 5px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #625cff 0%,
+      #18bfe8 100%
+    );
+
+  color: #ffffff;
+
+  font: inherit;
+
+  font-size: 12px;
+
+  font-weight: 750;
+
+  letter-spacing: 0.01em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 12px 32px rgba(57, 91, 255, 0.2);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+
+.client-login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  filter: brightness(1.05);
+
+  box-shadow:
+    0 17px 40px rgba(57, 91, 255, 0.3);
+}
+
+.client-login-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.client-login-submit:disabled {
+  cursor: not-allowed;
+
+  opacity: 0.62;
+}
+
+
+/* ============================================================
+   LOGIN SPINNER
+   ============================================================ */
+
+.client-login-spinner {
+  animation:
+    clientLoginSpin 0.8s linear infinite;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.client-login-footer {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 27px;
+
+  color: #596375;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.client-login-footer a {
+  color: #8187ff;
+
+  font-weight: 650;
+
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+.client-login-footer a:hover {
+  color: #afb2ff;
+}
+
+.client-login-footer-dot {
+  color: #303744;
+}
+
+
+/* ============================================================
+   OPTIONAL SECURITY INDICATOR
+   ============================================================ */
+
+.client-login-security {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  margin-top: 20px;
+
+  color: #4f5a6b;
+
+  font-size: 9px;
+
+  letter-spacing: 0.01em;
+}
+
+.client-login-security svg {
+  color: #5965b8;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 560px) {
+  .client-login-page {
+    padding: 18px;
+  }
+
+  .client-login-card {
+    padding: 29px 22px;
+
+    border-radius: 20px;
+  }
+
+  .client-login-brand {
+    margin-bottom: 32px;
+  }
+
+  .client-login-heading {
+    margin-bottom: 26px;
+  }
+
+  .client-login-heading h1 {
+    font-size: 30px;
+  }
+
+  .client-login-heading p {
+    font-size: 12px;
+  }
+
+  .client-login-form {
+    gap: 17px;
+  }
+
+  .client-login-input,
+  .client-login-submit {
+    height: 51px;
+  }
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 380px) {
+  .client-login-page {
+    padding: 12px;
+  }
+
+  .client-login-card {
+    padding: 25px 18px;
+  }
+
+  .client-login-heading h1 {
+    font-size: 27px;
+  }
+
+  .client-login-brand-text strong {
+    font-size: 14px;
+  }
+}
+
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes clientLoginSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes clientLoginErrorIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================================================
+   ACCESSIBILITY
+   ============================================================ */
+
+.client-login-submit:focus-visible,
+.client-password-toggle:focus-visible,
+.client-login-footer a:focus-visible {
+  outline: 2px solid #747aff;
+
+  outline-offset: 3px;
+}
