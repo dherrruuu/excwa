@@ -46,6 +46,7 @@ import DevProtectedRoute from "./components/developer/DevProtectedRoute";
 // CLIENT PORTAL
 // ============================================================
 
+import ClientActivate from "./pages/client-portal/ClientActivate";
 import ClientLogin from "./pages/client-portal/ClientLogin";
 import ClientDashboard from "./pages/client-portal/ClientDashboard";
 
@@ -122,6 +123,15 @@ export default function App() {
             element={<DevDashboard />}
           />
         </Route>
+
+        {/* ======================================================
+            CLIENT PORTAL ACTIVATION
+            ====================================================== */}
+
+        <Route
+          path="/client/activate"
+          element={<ClientActivate />}
+        />
 
         {/* ======================================================
             CLIENT PORTAL LOGIN
