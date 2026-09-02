@@ -12,7 +12,7 @@ import {
 import { supabase } from "../../lib/supabase";
 import ExcwaLogo from "../../components/common/ExcwaLogo";
 
-import "../../styles/client/ClientLogin.css";
+import "../../styles/client-portal.css";
 
 export default function ClientActivate() {
   const navigate = useNavigate();
