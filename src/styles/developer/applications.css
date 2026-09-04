@@ -1,13 +1,38 @@
 /* ============================================================
    EXCWA TECH — DEVELOPER APPLICATIONS
-   Sparse / Premium Dashboard Style
+   Premium Dark / Glass UI
+   Full Width + Responsive
+   ============================================================ */
+
+
+/* ============================================================
+   GLOBAL BOX SIZING
+   ============================================================ */
+
+.dev-app-list,
+.dev-app-list *,
+.dev-app-list *::before,
+.dev-app-list *::after {
+  box-sizing: border-box;
+}
+
+
+/* ============================================================
+   APPLICATION LIST
    ============================================================ */
 
 .dev-app-list {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+
+  gap: 14px;
+
+  grid-column: 1 / -1 !important;
 }
 
 
@@ -18,85 +43,89 @@
 .dev-app-card {
   position: relative;
 
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+
+  flex: 1 1 100%;
+  align-self: stretch;
 
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
 
-  gap: 20px;
+  padding: 20px 22px 18px;
 
-  padding: 16px 18px;
-
-  border: 1px solid rgba(255, 255, 255, 0.065);
-  border-radius: 9px;
+  border: 1px solid rgba(98, 226, 255, 0.12);
+  border-radius: 17px;
 
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.018),
-      rgba(255, 255, 255, 0.006)
+      rgba(15, 22, 32, 0.97),
+      rgba(7, 11, 17, 0.99)
     );
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.01);
+    0 12px 32px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 
   overflow: hidden;
 
   transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    box-shadow 160ms ease;
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
 
 
-/* subtle cyan highlight */
+/* ============================================================
+   TOP LIGHT
+   ============================================================ */
 
 .dev-app-card::before {
   content: "";
 
   position: absolute;
   top: 0;
-  left: 18px;
-  right: 18px;
+  left: 0;
+  right: 0;
 
   height: 1px;
 
-  background:
-    linear-gradient(
-      90deg,
-      transparent,
-      rgba(66, 223, 255, 0.18),
-      transparent
-    );
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(98, 226, 255, 0.35) 50%,
+    transparent 100%
+  );
 
-  opacity: 0;
+  opacity: 0.75;
 
-  transition: opacity 160ms ease;
+  pointer-events: none;
 }
 
 
-.dev-app-card:hover {
-  transform: translateY(-1px);
+/* ============================================================
+   CARD HOVER
+   ============================================================ */
 
-  border-color: rgba(66, 223, 255, 0.14);
+.dev-app-card:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(98, 226, 255, 0.22);
 
   background:
     linear-gradient(
       145deg,
-      rgba(66, 223, 255, 0.025),
-      rgba(255, 255, 255, 0.008)
+      rgba(17, 27, 39, 0.98),
+      rgba(8, 13, 20, 1)
     );
 
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.16);
-}
-
-.dev-app-card:hover::before {
-  opacity: 1;
+    0 18px 42px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(98, 226, 255, 0.035),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
 
@@ -104,9 +133,52 @@
    CONTENT
    ============================================================ */
 
+.dev-app-card > .dev-app-content {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+
+  padding: 0;
+}
+
 .dev-app-content {
   min-width: 0;
-  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+
+/* ============================================================
+   CATEGORY
+   ============================================================ */
+
+.dev-opp-category {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+  max-width: 100%;
+
+  margin-bottom: 12px;
+  padding: 7px 11px;
+
+  border: 1px solid rgba(98, 226, 255, 0.15);
+  border-radius: 999px;
+
+  background: rgba(98, 226, 255, 0.04);
+
+  color: #62e2ff;
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+
+  white-space: nowrap;
 }
 
 
@@ -115,33 +187,20 @@
    ============================================================ */
 
 .dev-app-content h3 {
-  margin: 0;
+  width: 100%;
+  min-width: 0;
 
-  color: #edf2f7;
+  margin: 0 0 7px;
 
-  font-size: 13px;
+  color: #eef3f8;
+
+  font-size: 18px;
+  font-weight: 700;
   line-height: 1.35;
 
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 
   overflow-wrap: anywhere;
-}
-
-
-/* ============================================================
-   META / PROJECT ID
-   ============================================================ */
-
-.dev-app-content p {
-  margin: 4px 0 0;
-
-  color: #5e6b7d;
-
-  font-size: 8px;
-  line-height: 1.4;
-
-  font-weight: 500;
 }
 
 
@@ -149,22 +208,50 @@
    DESCRIPTION
    ============================================================ */
 
+.dev-app-content p,
 .dev-app-description {
-  display: -webkit-box;
+  width: 100%;
+  max-width: 850px;
+  min-width: 0;
 
-  margin-top: 7px;
+  margin: 0;
 
-  max-width: 680px;
+  color: #8996a8;
 
-  color: #778497;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.55;
 
-  font-size: 9px;
-  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 
-  overflow: hidden;
+/* ============================================================
+   TAG
+   ============================================================ */
+
+.dev-app-content .dev-opp-tag {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+  max-width: 100%;
+
+  margin-top: 12px;
+  padding: 6px 10px;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #9aa7b8;
+
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+
+  white-space: nowrap;
 }
 
 
@@ -172,106 +259,457 @@
    STATUS BADGE
    ============================================================ */
 
-.dev-app-card > .dev-status-badge {
-  flex: 0 0 auto;
-
+.dev-status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
 
-  padding: 5px 9px;
+  width: fit-content;
 
-  border: 1px solid rgba(99, 229, 173, 0.17);
+  padding: 6px 10px;
+
+  border: 1px solid rgba(69, 212, 154, 0.15);
   border-radius: 999px;
 
-  background: rgba(99, 229, 173, 0.035);
+  background: rgba(69, 212, 154, 0.055);
 
-  color: #67dca6;
+  color: #45d49a;
 
-  font-size: 8px;
-  line-height: 1;
-
+  font-size: 10px;
   font-weight: 700;
+  line-height: 1;
 
   white-space: nowrap;
 }
 
 
-/* If the badge contains text such as "Completed" */
-
-.dev-app-card > .dev-status-badge::before {
-  content: "";
-
-  width: 5px;
-  height: 5px;
-
-  margin-right: 5px;
-
-  border-radius: 50%;
-
-  background: #55d998;
-
-  box-shadow:
-    0 0 7px rgba(85, 217, 152, 0.45);
-}
-
-
 /* ============================================================
-   OPTIONAL STATUS VARIANTS
+   STATUS COLORS
    ============================================================ */
 
 .dev-status-badge.pending {
-  border-color: rgba(255, 190, 92, 0.16);
-  background: rgba(255, 190, 92, 0.035);
-  color: #e8b96b;
+  border-color: rgba(246, 200, 95, 0.16);
+  background: rgba(246, 200, 95, 0.055);
+  color: #f6c85f;
+}
+
+.dev-status-badge.approved,
+.dev-status-badge.selected {
+  border-color: rgba(69, 212, 154, 0.16);
+  background: rgba(69, 212, 154, 0.055);
+  color: #45d49a;
 }
 
 .dev-status-badge.rejected {
-  border-color: rgba(255, 100, 100, 0.16);
-  background: rgba(255, 100, 100, 0.035);
-  color: #ed8888;
+  border-color: rgba(255, 107, 122, 0.16);
+  background: rgba(255, 107, 122, 0.055);
+  color: #ff6b7a;
+}
+
+.dev-status-badge.withdrawn {
+  border-color: rgba(148, 163, 184, 0.14);
+  background: rgba(148, 163, 184, 0.045);
+  color: #94a3b8;
+}
+
+.dev-status-badge.under-review {
+  border-color: rgba(98, 226, 255, 0.16);
+  background: rgba(98, 226, 255, 0.05);
+  color: #62e2ff;
+}
+
+.dev-status-badge.changes-requested {
+  border-color: rgba(246, 200, 95, 0.16);
+  background: rgba(246, 200, 95, 0.055);
+  color: #f6c85f;
 }
 
 
 /* ============================================================
-   RESPONSIVE
+   TOP RIGHT STATUS
    ============================================================ */
 
-@media (max-width: 900px) {
-  .dev-app-list {
-    gap: 8px;
-  }
+.dev-app-card > .dev-status-badge {
+  position: absolute;
 
-  .dev-app-card {
-    padding: 15px;
-  }
+  top: 20px;
+  right: 22px;
+
+  z-index: 5;
 }
 
 
-@media (max-width: 520px) {
-  .dev-app-card {
-    align-items: flex-start;
-    flex-direction: column;
+/* ============================================================
+   DETAILS CONTAINER
+   ============================================================ */
 
+.dev-app-card .dev-app-details,
+.dev-app-card .dev-opp-details {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  margin-top: 18px;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+
+  background: rgba(3, 7, 12, 0.40);
+
+  overflow: hidden;
+}
+
+
+/* ============================================================
+   DETAIL ITEM
+   ============================================================ */
+
+.dev-app-card .dev-app-detail,
+.dev-app-card .dev-opp-detail {
+  min-width: 0;
+
+  padding: 15px;
+
+  background: transparent;
+}
+
+
+/* VERTICAL DIVIDER */
+
+.dev-app-card .dev-app-detail:nth-child(odd),
+.dev-app-card .dev-opp-detail:nth-child(odd) {
+  border-right: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+
+/* HORIZONTAL DIVIDER */
+
+.dev-app-card .dev-app-detail:nth-child(n + 3),
+.dev-app-card .dev-opp-detail:nth-child(n + 3) {
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+
+/* ============================================================
+   DETAIL LABEL
+   ============================================================ */
+
+.dev-app-card .dev-app-detail-label,
+.dev-app-card .dev-opp-detail-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-bottom: 7px;
+
+  color: #718096;
+
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   DETAIL VALUE
+   ============================================================ */
+
+.dev-app-card .dev-app-detail-value,
+.dev-app-card .dev-opp-detail-value {
+  min-width: 0;
+
+  color: #dbe3ed;
+
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.dev-app-card .dev-app-detail-value.muted,
+.dev-app-card .dev-opp-detail-value.muted {
+  color: #687587;
+}
+
+
+/* PAYOUT */
+
+.dev-app-card .dev-app-detail-value.payout,
+.dev-app-card .dev-opp-detail-value.payout {
+  color: #45d49a;
+
+  font-size: 14px;
+  font-weight: 750;
+}
+
+
+/* ============================================================
+   APPLIED INDICATOR
+   ============================================================ */
+
+.dev-app-applied,
+.dev-application-applied {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-top: 16px;
+  padding: 11px 14px;
+
+  border: 1px solid rgba(98, 226, 255, 0.11);
+  border-radius: 12px;
+
+  background: rgba(98, 226, 255, 0.025);
+
+  color: #62b8d0;
+
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.3;
+
+  cursor: default;
+}
+
+.dev-app-applied:hover,
+.dev-application-applied:hover {
+  border-color: rgba(98, 226, 255, 0.14);
+
+  background: rgba(98, 226, 255, 0.035);
+}
+
+
+/* ============================================================
+   APPLICATION STATUS
+   ============================================================ */
+
+.dev-app-status {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 14px;
+  padding: 12px 14px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.055);
+
+  color: #7f8da0;
+
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.dev-app-status strong {
+  color: #dbe3ed;
+  font-weight: 700;
+}
+
+
+/* ============================================================
+   ICONS
+   ============================================================ */
+
+.dev-app-card svg {
+  width: 14px;
+  height: 14px;
+
+  flex: 0 0 auto;
+
+  color: #708198;
+
+  stroke-width: 1.7;
+}
+
+.dev-app-card .dev-app-applied svg,
+.dev-app-card .dev-application-applied svg {
+  color: #45b8d5;
+}
+
+
+/* ============================================================
+   MOBILE / TABLET
+   ============================================================ */
+
+@media (max-width: 760px) {
+
+  .dev-app-list {
     gap: 12px;
   }
 
+  .dev-app-card {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
   .dev-app-card > .dev-status-badge {
-    align-self: flex-start;
+    top: 18px;
+    right: 18px;
   }
 
   .dev-app-content h3 {
-    font-size: 13px;
+    font-size: 17px;
+  }
+
+  .dev-app-card .dev-app-detail,
+  .dev-app-card .dev-opp-detail {
+    padding: 13px;
   }
 }
 
 
-@media (max-width: 380px) {
-  .dev-app-card {
-    padding: 13px;
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 600px) {
+
+  .dev-app-list {
+    width: 100% !important;
+    gap: 11px;
   }
 
+  .dev-app-card {
+    width: 100% !important;
+
+    padding: 16px;
+
+    border-radius: 15px;
+  }
+
+  /* Move badge into normal flow */
+
+  .dev-app-card > .dev-status-badge {
+    position: static;
+
+    align-self: flex-end;
+
+    margin-bottom: 13px;
+  }
+
+  .dev-opp-category {
+    margin-bottom: 11px;
+  }
+
+  .dev-app-content h3 {
+    margin-bottom: 6px;
+
+    font-size: 16px;
+  }
+
+  .dev-app-content p,
   .dev-app-description {
-    font-size: 8.5px;
+    font-size: 11px;
+  }
+
+  .dev-app-content .dev-opp-tag {
+    margin-top: 10px;
+  }
+
+  .dev-app-card .dev-app-details,
+  .dev-app-card .dev-opp-details {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    margin-top: 14px;
+
+    border-radius: 12px;
+  }
+
+  .dev-app-card .dev-app-detail,
+  .dev-app-card .dev-opp-detail {
+    padding: 12px;
+  }
+
+  .dev-app-status {
+    margin-top: 12px;
+    padding: 11px 0 2px;
+  }
+
+  .dev-app-applied,
+  .dev-application-applied {
+    margin-top: 13px;
+  }
+}
+
+
+/* ============================================================
+   SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 420px) {
+
+  .dev-app-card {
+    padding: 14px;
+
+    border-radius: 14px;
+  }
+
+  .dev-status-badge {
+    padding: 6px 9px;
+
+    font-size: 9px;
+  }
+
+  .dev-app-content h3 {
+    font-size: 15px;
+  }
+
+  /* Single column details */
+
+  .dev-app-card .dev-app-details,
+  .dev-app-card .dev-opp-details {
+    grid-template-columns: 1fr;
+  }
+
+  /* Remove vertical divider */
+
+  .dev-app-card .dev-app-detail:nth-child(odd),
+  .dev-app-card .dev-opp-detail:nth-child(odd) {
+    border-right: 0;
+  }
+
+  /* Add horizontal dividers */
+
+  .dev-app-card .dev-app-detail + .dev-app-detail,
+  .dev-app-card .dev-opp-detail + .dev-opp-detail {
+    border-top: 1px solid rgba(255, 255, 255, 0.055);
+  }
+
+  .dev-app-card .dev-app-detail:first-child,
+  .dev-app-card .dev-opp-detail:first-child {
+    border-top: 0;
+  }
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .dev-app-card {
+    transition: none;
+  }
+
+  .dev-app-card:hover {
+    transform: none;
   }
 }

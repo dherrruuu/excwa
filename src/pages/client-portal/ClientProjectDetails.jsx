@@ -19,6 +19,10 @@ import {
 import { getClientProject } from "../../services/client/clientProjectService";
 import "../../styles/client-portal.css";
 
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
 const formatDate = (value) => {
   if (!value) return "Not set";
 
@@ -35,12 +39,14 @@ const formatDate = (value) => {
 
 const asList = (value) => {
   if (Array.isArray(value)) return value;
+
   if (typeof value === "string" && value.trim()) {
     return value
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean);
   }
+
   return [];
 };
 
@@ -51,18 +57,42 @@ const formatStatus = (value) => {
 };
 
 const getStatusClass = (value) => {
-  return `status-${String(value || "unknown").replaceAll("_", "-")}`;
+  return `status-${String(value || "unknown").replaceAll(
+    "_",
+    "-"
+  )}`;
 };
+
+
+/* ============================================================
+   PROJECT PROGRESS
+   ============================================================ */
+
+/*
+ * Visible client workflow:
+ *
+ * 1. Assigned
+ * 2. Development
+ * 3. Submitted
+ * 4. Under Review
+ * 5. Approved
+ * 6. Completed
+ *
+ * Visual behavior:
+ *
+ * Previous stages  -> GREEN
+ * Current stage    -> CYAN / BLUE GLOW
+ * Future stages    -> DARK / GREY
+ *
+ * changes_requested:
+ * Development becomes the current stage again.
+ */
 
 const getProgressSteps = (status) => {
   const steps = [
     {
-      key: "created",
-      label: "Project Created",
-    },
-    {
       key: "assigned",
-      label: "Developer Assigned",
+      label: "Assigned",
     },
     {
       key: "in_progress",
@@ -86,39 +116,55 @@ const getProgressSteps = (status) => {
     },
   ];
 
-  const statusOrder = [
-    "draft",
-    "open",
-    "assigned",
-    "in_progress",
-    "submitted",
-    "under_review",
-    "changes_requested",
-    "approved",
-    "completed",
-    "closed",
-  ];
+  const progressMap = {
+    draft: 0,
+    open: 0,
 
-  const currentIndex = statusOrder.indexOf(status);
+    assigned: 0,
+
+    in_progress: 1,
+
+    changes_requested: 1,
+
+    submitted: 2,
+
+    under_review: 3,
+
+    approved: 4,
+
+    completed: 5,
+
+    closed: 5,
+  };
+
+  const currentIndex =
+    progressMap[status] !== undefined
+      ? progressMap[status]
+      : 0;
 
   return steps.map((step, index) => {
-    let active = false;
+    let state = "upcoming";
 
-    if (status === "changes_requested") {
-      active = index <= 3;
-    } else if (status === "closed") {
-      active = index <= 6;
-    } else {
-      const stepIndex = statusOrder.indexOf(step.key);
-      active = stepIndex !== -1 && currentIndex >= stepIndex;
+    if (index < currentIndex) {
+      state = "completed";
+    } else if (index === currentIndex) {
+      state = "current";
     }
 
     return {
       ...step,
-      active,
+      state,
+      isCompleted: state === "completed",
+      isCurrent: state === "current",
+      isUpcoming: state === "upcoming",
     };
   });
 };
+
+
+/* ============================================================
+   COMPONENT
+   ============================================================ */
 
 export default function ClientProjectDetails() {
   const { projectId } = useParams();
@@ -127,6 +173,10 @@ export default function ClientProjectDetails() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  /* ==========================================================
+     LOAD PROJECT
+     ========================================================== */
 
   useEffect(() => {
     let mounted = true;
@@ -143,7 +193,8 @@ export default function ClientProjectDetails() {
       .catch((loadError) => {
         if (mounted) {
           setError(
-            loadError.message || "Unable to load this project."
+            loadError?.message ||
+              "Unable to load this project."
           );
         }
       })
@@ -158,6 +209,11 @@ export default function ClientProjectDetails() {
     };
   }, [projectId]);
 
+
+  /* ==========================================================
+     LOADING STATE
+     ========================================================== */
+
   if (loading) {
     return (
       <div className="client-portal-loading">
@@ -165,10 +221,16 @@ export default function ClientProjectDetails() {
           size={30}
           className="client-portal-loading-spinner"
         />
+
         <p>Loading project details...</p>
       </div>
     );
   }
+
+
+  /* ==========================================================
+     ERROR STATE
+     ========================================================== */
 
   if (error || !project) {
     return (
@@ -194,6 +256,11 @@ export default function ClientProjectDetails() {
     );
   }
 
+
+  /* ==========================================================
+     PROJECT DATA
+     ========================================================== */
+
   const submission = project.latest_submission;
   const assignment = project.assignment;
 
@@ -217,12 +284,21 @@ export default function ClientProjectDetails() {
     ? `${project.id.slice(0, 8)}...`
     : "Not available";
 
+  const isChangesRequested =
+    project.status === "changes_requested";
+
+
+  /* ==========================================================
+     RENDER
+     ========================================================== */
+
   return (
     <div className="client-portal">
       <main className="client-portal-main client-project-details-main">
-        {/* =====================================================
+
+        {/* ====================================================
             TOP BAR
-        ===================================================== */}
+        ==================================================== */}
 
         <header className="client-portal-topbar">
           <div>
@@ -242,10 +318,12 @@ export default function ClientProjectDetails() {
           </Link>
         </header>
 
+
         <section className="client-portal-content client-project-details-content">
-          {/* =====================================================
+
+          {/* ==================================================
               PROJECT HERO
-          ===================================================== */}
+          ================================================== */}
 
           <section className="client-project-hero">
             <div className="client-project-hero-content">
@@ -262,7 +340,8 @@ export default function ClientProjectDetails() {
 
               <div className="client-project-hero-meta">
                 <span>
-                  Project ID: <strong>{shortProjectId}</strong>
+                  Project ID:{" "}
+                  <strong>{shortProjectId}</strong>
                 </span>
 
                 <span>
@@ -285,11 +364,13 @@ export default function ClientProjectDetails() {
             </div>
           </section>
 
-          {/* =====================================================
+
+          {/* ==================================================
               QUICK INFORMATION
-          ===================================================== */}
+          ================================================== */}
 
           <section className="client-project-summary-grid">
+
             <div className="client-project-summary-card">
               <div className="client-project-summary-icon">
                 <Layers3 size={18} />
@@ -297,11 +378,13 @@ export default function ClientProjectDetails() {
 
               <div>
                 <span>Project Type</span>
+
                 <strong>
                   {project.project_type || "Not set"}
                 </strong>
               </div>
             </div>
+
 
             <div className="client-project-summary-card">
               <div className="client-project-summary-icon">
@@ -310,11 +393,13 @@ export default function ClientProjectDetails() {
 
               <div>
                 <span>Category</span>
+
                 <strong>
                   {project.category || "Project"}
                 </strong>
               </div>
             </div>
+
 
             <div className="client-project-summary-card">
               <div className="client-project-summary-icon">
@@ -323,11 +408,13 @@ export default function ClientProjectDetails() {
 
               <div>
                 <span>Deadline</span>
+
                 <strong>
                   {formatDate(project.deadline)}
                 </strong>
               </div>
             </div>
+
 
             <div className="client-project-summary-card">
               <div className="client-project-summary-icon">
@@ -336,6 +423,7 @@ export default function ClientProjectDetails() {
 
               <div>
                 <span>Assignment</span>
+
                 <strong>
                   {assignment
                     ? "Developer Assigned"
@@ -343,16 +431,19 @@ export default function ClientProjectDetails() {
                 </strong>
               </div>
             </div>
+
           </section>
 
-          {/* =====================================================
+
+          {/* ==================================================
               MAIN INFORMATION GRID
-          ===================================================== */}
+          ================================================== */}
 
           <div className="client-project-detail-grid">
-            {/* ===================================================
+
+            {/* =================================================
                 PROJECT INFORMATION
-            =================================================== */}
+            ================================================= */}
 
             <section className="client-project-panel">
               <div className="client-project-panel-heading">
@@ -360,6 +451,7 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <h3>Project Information</h3>
+
                   <p>
                     General information about your project.
                   </p>
@@ -367,8 +459,10 @@ export default function ClientProjectDetails() {
               </div>
 
               <div className="client-project-meta-grid">
+
                 <div>
                   <span>Category</span>
+
                   <strong>
                     {project.category || "Project"}
                   </strong>
@@ -376,6 +470,7 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <span>Project Type</span>
+
                   <strong>
                     {project.project_type || "Not set"}
                   </strong>
@@ -383,6 +478,7 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <span>Project ID</span>
+
                   <strong title={project.id}>
                     {shortProjectId}
                   </strong>
@@ -390,16 +486,19 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <span>Created</span>
+
                   <strong>
                     {formatDate(project.created_at)}
                   </strong>
                 </div>
+
               </div>
             </section>
 
-            {/* ===================================================
+
+            {/* =================================================
                 TIMELINE
-            =================================================== */}
+            ================================================= */}
 
             <section className="client-project-panel">
               <div className="client-project-panel-heading">
@@ -407,6 +506,7 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <h3>Timeline</h3>
+
                   <p>
                     Important project dates and activity.
                   </p>
@@ -414,8 +514,10 @@ export default function ClientProjectDetails() {
               </div>
 
               <div className="client-project-meta-grid">
+
                 <div>
                   <span>Created</span>
+
                   <strong>
                     {formatDate(project.created_at)}
                   </strong>
@@ -423,6 +525,7 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <span>Deadline</span>
+
                   <strong>
                     {formatDate(project.deadline)}
                   </strong>
@@ -430,6 +533,7 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <span>Latest Submission</span>
+
                   <strong>
                     {submission
                       ? formatDate(submission.submitted_at)
@@ -439,24 +543,30 @@ export default function ClientProjectDetails() {
 
                 <div>
                   <span>Current Status</span>
+
                   <strong>
                     {formatStatus(project.status)}
                   </strong>
                 </div>
+
               </div>
             </section>
+
           </div>
 
-          {/* =====================================================
+
+          {/* ==================================================
               SCOPE & REQUIREMENTS
-          ===================================================== */}
+          ================================================== */}
 
           <section className="client-project-panel client-project-full-panel">
+
             <div className="client-project-panel-heading">
               <FileCheck2 size={18} />
 
               <div>
                 <h3>Scope & Requirements</h3>
+
                 <p>
                   Technologies, roles, skills and expected
                   deliverables for this project.
@@ -464,7 +574,11 @@ export default function ClientProjectDetails() {
               </div>
             </div>
 
+
             <div className="client-project-scope-grid">
+
+              {/* TECHNOLOGIES */}
+
               <div className="client-project-scope-item">
                 <span>Technology Stack</span>
 
@@ -485,6 +599,9 @@ export default function ClientProjectDetails() {
                 </div>
               </div>
 
+
+              {/* SKILLS */}
+
               <div className="client-project-scope-item">
                 <span>Required Skills</span>
 
@@ -504,6 +621,9 @@ export default function ClientProjectDetails() {
                 </div>
               </div>
 
+
+              {/* ROLES */}
+
               <div className="client-project-scope-item">
                 <span>Required Roles</span>
 
@@ -522,7 +642,9 @@ export default function ClientProjectDetails() {
                   )}
                 </div>
               </div>
+
             </div>
+
 
             <div className="client-project-copy">
               <span>Deliverables</span>
@@ -531,13 +653,16 @@ export default function ClientProjectDetails() {
                 {project.deliverables || "Not set"}
               </p>
             </div>
+
           </section>
 
-          {/* =====================================================
+
+          {/* ==================================================
               PROJECT PROGRESS
-          ===================================================== */}
+          ================================================== */}
 
           <section className="client-project-panel client-project-progress-panel">
+
             <div className="client-project-panel-heading">
               <Clock3 size={18} />
 
@@ -545,41 +670,113 @@ export default function ClientProjectDetails() {
                 <h3>Project Progress</h3>
 
                 <p>
-                  Current progress based on the project
-                  workflow.
+                  Track your project through each stage of the
+                  development workflow.
                 </p>
               </div>
             </div>
 
-            <div className="client-project-progress">
-              {progressSteps.map((step, index) => (
-                <div
-                  className={`client-project-progress-step ${
-                    step.active ? "is-active" : ""
-                  }`}
-                  key={step.key}
-                >
-                  <div className="client-project-progress-marker">
-                    {step.active ? (
-                      <CheckCircle2 size={17} />
-                    ) : (
-                      <span>{index + 1}</span>
-                    )}
-                  </div>
 
-                  <div className="client-project-progress-label">
-                    {step.label}
+            <div
+              className="client-project-progress"
+              aria-label={`Project progress: ${formatStatus(
+                project.status
+              )}`}
+            >
+
+              {progressSteps.map((step, index) => {
+                const isLast =
+                  index === progressSteps.length - 1;
+
+                return (
+                  <div
+                    className={`client-project-progress-item is-${step.state}`}
+                    key={step.key}
+                  >
+
+                    {/* ========================================
+                        STAGE
+                    ======================================== */}
+
+                    <div className="client-project-progress-stage">
+
+                      <div className="client-project-progress-marker">
+
+                        {step.isCompleted ? (
+                          <CheckCircle2
+                            size={16}
+                            strokeWidth={2.5}
+                          />
+                        ) : (
+                          <span>{index + 1}</span>
+                        )}
+
+                      </div>
+
+
+                      <div className="client-project-progress-label">
+
+                        <span className="client-project-progress-number">
+                          STAGE{" "}
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+
+                        <span className="client-project-progress-name">
+                          {step.label}
+                        </span>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* ========================================
+                        CONNECTOR
+                    ======================================== */}
+
+                    {!isLast && (
+                      <div className="client-project-progress-connector">
+                        <span />
+                      </div>
+                    )}
+
                   </div>
-                </div>
-              ))}
+                );
+              })}
+
             </div>
+
+
+            {/* ================================================
+                CHANGES REQUESTED
+            ================================================= */}
+
+            {isChangesRequested && (
+              <div className="client-project-progress-notice">
+
+                <span className="client-project-progress-notice-dot" />
+
+                <div>
+                  <strong>Changes Requested</strong>
+
+                  <p>
+                    Updates are required before the project can
+                    move forward for review.
+                  </p>
+                </div>
+
+              </div>
+            )}
+
           </section>
 
-          {/* =====================================================
+
+          {/* ==================================================
               LATEST UPDATE
-          ===================================================== */}
+          ================================================== */}
 
           <section className="client-project-panel">
+
             <div className="client-project-panel-heading">
               <FileCheck2 size={18} />
 
@@ -592,7 +789,9 @@ export default function ClientProjectDetails() {
               </div>
             </div>
 
+
             <div className="client-project-meta-grid">
+
               <div>
                 <span>Submission</span>
 
@@ -603,6 +802,7 @@ export default function ClientProjectDetails() {
                 </strong>
               </div>
 
+
               <div>
                 <span>Review Status</span>
 
@@ -612,25 +812,31 @@ export default function ClientProjectDetails() {
                     : "Not submitted"}
                 </strong>
               </div>
+
             </div>
+
 
             <div className="client-project-submission-note">
               {submission?.review_message ||
                 submission?.submission_notes ||
                 "Your project updates will appear here when work is submitted."}
             </div>
+
           </section>
 
-          {/* =====================================================
+
+          {/* ==================================================
               WORK PREVIEW
-          ===================================================== */}
+          ================================================== */}
 
           <section
             className={`client-project-preview-panel ${
               canPreview ? "is-ready" : "is-locked"
             }`}
           >
+
             <div className="client-project-panel-heading">
+
               {canPreview ? (
                 <Play size={18} />
               ) : (
@@ -648,7 +854,9 @@ export default function ClientProjectDetails() {
                     : "Preview is not available for this project yet."}
                 </p>
               </div>
+
             </div>
+
 
             {canPreview ? (
               <a
@@ -658,7 +866,9 @@ export default function ClientProjectDetails() {
                 rel="noreferrer"
               >
                 <Play size={16} />
+
                 Open Live Preview
+
                 <ExternalLink size={14} />
               </a>
             ) : previewEnabled ? (
@@ -666,7 +876,9 @@ export default function ClientProjectDetails() {
                 Preview is being prepared
               </span>
             ) : null}
+
           </section>
+
         </section>
       </main>
     </div>

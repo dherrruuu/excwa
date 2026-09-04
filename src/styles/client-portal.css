@@ -1,24 +1,30 @@
 /* ============================================================
    EXCWA CLIENT PORTAL
-   Premium dark glassmorphism dashboard
+   Premium Dark Glassmorphism UI
+   Complete Client Portal Styles
    ============================================================ */
 
+
 /* ============================================================
-   ROOT
+   ROOT / DESIGN TOKENS
    ============================================================ */
 
 :root {
   --client-bg: #060a10;
   --client-bg-soft: #0a1018;
-  --client-surface: rgba(14, 21, 31, 0.78);
-  --client-surface-strong: rgba(17, 25, 37, 0.9);
 
-  --client-border: rgba(255, 255, 255, 0.08);
-  --client-border-soft: rgba(255, 255, 255, 0.055);
+  --client-surface: rgba(14, 21, 31, 0.78);
+  --client-surface-strong: rgba(17, 25, 37, 0.92);
+  --client-surface-soft: rgba(255, 255, 255, 0.018);
+
+  --client-border: rgba(255, 255, 255, 0.075);
+  --client-border-soft: rgba(255, 255, 255, 0.045);
+  --client-border-cyan: rgba(98, 226, 255, 0.13);
 
   --client-text: #f4f7fb;
-  --client-text-soft: #aab5c5;
-  --client-text-muted: #718096;
+  --client-text-soft: #aeb9c8;
+  --client-text-muted: #748195;
+  --client-text-dim: #596678;
 
   --client-cyan: #62e2ff;
   --client-blue: #4f8cff;
@@ -46,10 +52,12 @@
     );
 }
 
+
 /* ============================================================
    RESET
    ============================================================ */
 
+.client-portal,
 .client-portal *,
 .client-portal *::before,
 .client-portal *::after {
@@ -57,7 +65,9 @@
 }
 
 .client-portal button,
-.client-portal a {
+.client-portal input,
+.client-portal textarea,
+.client-portal select {
   font: inherit;
 }
 
@@ -65,9 +75,21 @@
   border: 0;
 }
 
+.client-portal button,
+.client-portal a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.client-portal img {
+  max-width: 100%;
+  display: block;
+}
+
 .client-portal {
-  min-height: 100vh;
   width: 100%;
+  min-height: 100vh;
+  position: relative;
+
   display: flex;
 
   color: var(--client-text);
@@ -79,8 +101,8 @@
       transparent 28%
     ),
     radial-gradient(
-      circle at 25% 92%,
-      rgba(98, 226, 255, 0.055),
+      circle at 24% 92%,
+      rgba(98, 226, 255, 0.05),
       transparent 26%
     ),
     var(--client-bg);
@@ -94,26 +116,25 @@
     "Segoe UI",
     sans-serif;
 
-  position: relative;
   overflow-x: hidden;
 }
 
-/* subtle background atmosphere */
-
 .client-portal::before {
   content: "";
+
   position: fixed;
   inset: 0;
+
   pointer-events: none;
 
   background-image:
     linear-gradient(
-      rgba(255, 255, 255, 0.018) 1px,
+      rgba(255, 255, 255, 0.017) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.018) 1px,
+      rgba(255, 255, 255, 0.017) 1px,
       transparent 1px
     );
 
@@ -125,8 +146,17 @@
     transparent 90%
   );
 
-  opacity: 0.45;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    black,
+    transparent 90%
+  );
+
+  opacity: 0.42;
+
+  z-index: 0;
 }
+
 
 /* ============================================================
    SIDEBAR
@@ -135,11 +165,12 @@
 .client-portal-sidebar {
   width: var(--client-sidebar-width);
   min-width: var(--client-sidebar-width);
-
   height: 100vh;
+
   position: fixed;
   left: 0;
   top: 0;
+
   z-index: 30;
 
   display: flex;
@@ -150,8 +181,8 @@
   background:
     linear-gradient(
       180deg,
-      rgba(13, 20, 30, 0.94),
-      rgba(7, 12, 19, 0.96)
+      rgba(13, 20, 30, 0.96),
+      rgba(7, 12, 19, 0.98)
     );
 
   border-right: 1px solid var(--client-border);
@@ -163,6 +194,7 @@
   backdrop-filter: blur(22px) saturate(120%);
   -webkit-backdrop-filter: blur(22px) saturate(120%);
 }
+
 
 /* ============================================================
    BRAND
@@ -180,12 +212,15 @@
   width: 37px;
   height: 37px;
 
+  flex: 0 0 auto;
+
   display: grid;
   place-items: center;
 
   border-radius: 10px;
 
-  color: white;
+  color: #ffffff;
+
   font-size: 17px;
   font-weight: 800;
 
@@ -214,11 +249,13 @@
 
   font-size: 16px;
   line-height: 1.1;
+
   letter-spacing: 0.04em;
 }
 
 .client-portal-brand span {
   display: block;
+
   margin-top: 3px;
 
   color: var(--client-text-muted);
@@ -228,6 +265,7 @@
 
   letter-spacing: 0.16em;
 }
+
 
 /* ============================================================
    NAVIGATION
@@ -243,18 +281,19 @@
   width: 100%;
   min-height: 44px;
 
+  position: relative;
+
   display: flex;
   align-items: center;
   gap: 12px;
 
   padding: 0 12px;
 
-  position: relative;
-
+  border: 1px solid transparent;
   border-radius: 10px;
 
-  background: transparent;
   color: var(--client-text-muted);
+  background: transparent;
 
   cursor: pointer;
   text-align: left;
@@ -268,11 +307,13 @@
 
 .client-portal-nav-item svg {
   flex: 0 0 auto;
+
   opacity: 0.78;
 
   transition:
     color 180ms ease,
-    opacity 180ms ease;
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .client-portal-nav-item span:not(.client-portal-nav-badge) {
@@ -282,14 +323,17 @@
 
 .client-portal-nav-item:hover {
   color: var(--client-text);
+
   background: rgba(255, 255, 255, 0.035);
 
   transform: translateX(2px);
 }
 
 .client-portal-nav-item:hover svg {
-  opacity: 1;
   color: var(--client-cyan);
+  opacity: 1;
+
+  transform: translateX(1px);
 }
 
 .client-portal-nav-item.active {
@@ -301,6 +345,8 @@
       rgba(98, 226, 255, 0.105),
       rgba(79, 140, 255, 0.055)
     );
+
+  border-color: rgba(98, 226, 255, 0.035);
 
   box-shadow:
     inset 0 1px rgba(255, 255, 255, 0.035),
@@ -319,13 +365,15 @@
 
   border-radius: 4px;
 
-  background: linear-gradient(
-    to bottom,
-    var(--client-cyan),
-    var(--client-blue)
-  );
+  background:
+    linear-gradient(
+      to bottom,
+      var(--client-cyan),
+      var(--client-blue)
+    );
 
-  box-shadow: 0 0 12px rgba(98, 226, 255, 0.55);
+  box-shadow:
+    0 0 12px rgba(98, 226, 255, 0.55);
 }
 
 .client-portal-nav-item.active svg {
@@ -342,13 +390,14 @@
   border-radius: 999px;
 
   color: var(--client-text-muted);
-
   background: rgba(255, 255, 255, 0.035);
 
   font-size: 8px !important;
   font-weight: 700 !important;
+
   letter-spacing: 0.05em;
 }
+
 
 /* ============================================================
    SIDEBAR LOGOUT
@@ -356,6 +405,7 @@
 
 .client-portal-sidebar-bottom {
   margin-top: auto;
+
   padding-top: 14px;
 
   border-top: 1px solid var(--client-border-soft);
@@ -380,17 +430,22 @@
 
   transition:
     color 180ms ease,
-    background 180ms ease;
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 .client-portal-logout:hover {
   color: #ff9aa5;
   background: rgba(255, 107, 122, 0.06);
+
+  transform: translateX(2px);
 }
 
 .client-portal-logout svg {
   width: 18px;
+  flex: 0 0 auto;
 }
+
 
 /* ============================================================
    MAIN
@@ -401,7 +456,11 @@
   min-height: 100vh;
 
   margin-left: var(--client-sidebar-width);
+
+  position: relative;
+  z-index: 1;
 }
+
 
 /* ============================================================
    TOPBAR
@@ -410,18 +469,20 @@
 .client-portal-topbar {
   min-height: 86px;
 
+  position: sticky;
+  top: 0;
+
+  z-index: 20;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
 
   padding: 18px 34px;
 
-  position: sticky;
-  top: 0;
-  z-index: 20;
-
-  background: rgba(6, 10, 16, 0.68);
+  background: rgba(6, 10, 16, 0.72);
 
   border-bottom: 1px solid var(--client-border-soft);
 
@@ -454,29 +515,37 @@
 
   font-size: 24px;
   font-weight: 650;
+
+  line-height: 1.2;
+
   letter-spacing: -0.025em;
 }
 
+
 /* ============================================================
-   USER
+   TOPBAR USER
    ============================================================ */
 
 .client-portal-user {
   display: flex;
   align-items: center;
   gap: 10px;
+
+  min-width: 0;
 }
 
 .client-portal-user-avatar {
   width: 36px;
   height: 36px;
 
+  flex: 0 0 auto;
+
   display: grid;
   place-items: center;
 
   border-radius: 50%;
 
-  color: white;
+  color: #ffffff;
 
   background:
     linear-gradient(
@@ -493,12 +562,22 @@
   font-weight: 800;
 }
 
+.client-portal-user-info {
+  min-width: 0;
+}
+
 .client-portal-user-info strong,
 .client-portal-user-info span {
   display: block;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .client-portal-user-info strong {
+  max-width: 180px;
+
   color: var(--client-text);
 
   font-size: 12px;
@@ -506,12 +585,15 @@
 }
 
 .client-portal-user-info span {
+  max-width: 220px;
+
   margin-top: 2px;
 
   color: var(--client-text-muted);
 
   font-size: 10px;
 }
+
 
 /* ============================================================
    CONTENT
@@ -522,8 +604,9 @@
 
   margin: 0 auto;
 
-  padding: 30px 34px 50px;
+  padding: 30px 34px 55px;
 }
+
 
 /* ============================================================
    WELCOME
@@ -532,14 +615,16 @@
 .client-portal-welcome {
   min-height: 165px;
 
+  position: relative;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 24px;
 
   padding: 30px;
 
-  position: relative;
   overflow: hidden;
 
   border: 1px solid rgba(98, 226, 255, 0.09);
@@ -563,10 +648,32 @@
   -webkit-backdrop-filter: blur(18px);
 }
 
+.client-portal-welcome::before {
+  content: "";
+
+  position: absolute;
+
+  right: -70px;
+  bottom: -110px;
+
+  width: 230px;
+  height: 230px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(98, 226, 255, 0.045);
+
+  box-shadow:
+    0 0 70px rgba(98, 226, 255, 0.035);
+
+  pointer-events: none;
+}
+
 .client-portal-welcome::after {
   content: "";
 
   position: absolute;
+
   right: -100px;
   top: -130px;
 
@@ -585,6 +692,8 @@
 .client-portal-welcome > div:first-child {
   position: relative;
   z-index: 1;
+
+  min-width: 0;
 }
 
 .client-portal-welcome span {
@@ -599,6 +708,8 @@
 .client-portal-welcome h2 {
   margin: 8px 0 6px;
 
+  color: var(--client-text);
+
   font-family:
     "Space Grotesk",
     Inter,
@@ -611,6 +722,8 @@
 }
 
 .client-portal-welcome p {
+  max-width: 680px;
+
   margin: 0;
 
   color: var(--client-text-soft);
@@ -622,6 +735,9 @@
 .client-portal-welcome-icon {
   width: 62px;
   height: 62px;
+
+  position: relative;
+  z-index: 1;
 
   display: grid;
   place-items: center;
@@ -645,6 +761,7 @@
     0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
+
 /* ============================================================
    STATS
    ============================================================ */
@@ -661,10 +778,12 @@
 }
 
 .client-portal-stat-card {
+  min-width: 0;
   min-height: 92px;
 
   display: flex;
   align-items: center;
+
   gap: 13px;
 
   padding: 17px;
@@ -709,6 +828,7 @@
 
   flex: 0 0 auto;
 
+  border: 1px solid rgba(98, 226, 255, 0.08);
   border-radius: 11px;
 
   color: var(--client-cyan);
@@ -719,8 +839,6 @@
       rgba(98, 226, 255, 0.1),
       rgba(79, 140, 255, 0.055)
     );
-
-  border: 1px solid rgba(98, 226, 255, 0.08);
 }
 
 .client-portal-stat-card span {
@@ -748,11 +866,14 @@
   line-height: 1;
 }
 
+
 /* ============================================================
-   SECTION
+   GENERAL SECTION
    ============================================================ */
 
 .client-portal-section {
+  width: 100%;
+
   margin-top: 18px;
 
   padding: 22px;
@@ -779,9 +900,14 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
+
   gap: 18px;
 
   margin-bottom: 17px;
+}
+
+.client-portal-section-header > div {
+  min-width: 0;
 }
 
 .client-portal-section-header span {
@@ -809,8 +935,9 @@
   letter-spacing: -0.025em;
 }
 
+
 /* ============================================================
-   VIEW ALL
+   VIEW ALL / INLINE ACTION
    ============================================================ */
 
 .client-portal-view-all {
@@ -818,7 +945,11 @@
   align-items: center;
   gap: 6px;
 
+  flex: 0 0 auto;
+
   padding: 7px 10px;
+
+  border-radius: 8px;
 
   color: var(--client-cyan);
   background: transparent;
@@ -828,27 +959,34 @@
   font-size: 11px;
   font-weight: 650;
 
-  border-radius: 8px;
-
   transition:
     background 160ms ease,
-    transform 160ms ease;
+    transform 160ms ease,
+    color 160ms ease;
 }
 
 .client-portal-view-all:hover {
+  color: #a9efff;
+
   background: rgba(98, 226, 255, 0.06);
+
   transform: translateX(2px);
 }
+
 
 /* ============================================================
    PROJECT LIST
    ============================================================ */
 
 .client-portal-project-list {
+  width: 100%;
+
   display: flex;
   flex-direction: column;
+
   gap: 9px;
 }
+
 
 /* ============================================================
    PROJECT CARD
@@ -856,10 +994,12 @@
 
 .client-portal-project-card {
   width: 100%;
+  min-width: 0;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
 
   padding: 15px 16px;
@@ -912,6 +1052,7 @@
 
   display: flex;
   align-items: flex-start;
+
   gap: 13px;
 }
 
@@ -935,6 +1076,10 @@
       rgba(98, 226, 255, 0.09),
       rgba(79, 140, 255, 0.045)
     );
+}
+
+.client-portal-project-main > div:last-child {
+  min-width: 0;
 }
 
 .client-portal-project-main h3 {
@@ -972,11 +1117,13 @@
   line-height: 1.55;
 
   display: -webkit-box;
+
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 
   overflow: hidden;
 }
+
 
 /* ============================================================
    PROJECT STATUS AREA
@@ -988,17 +1135,18 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
   gap: 12px;
 
   color: var(--client-text-muted);
 }
 
 .client-project-status {
+  min-height: 26px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  min-height: 26px;
 
   padding: 4px 9px;
 
@@ -1015,6 +1163,7 @@
   white-space: nowrap;
 }
 
+
 /* ============================================================
    STATUS COLORS
    ============================================================ */
@@ -1026,39 +1175,52 @@
 
 .status-assigned {
   color: var(--client-cyan);
+
   background: rgba(98, 226, 255, 0.055);
+
   border-color: rgba(98, 226, 255, 0.13);
 }
 
 .status-in-progress {
   color: #7faeff;
+
   background: rgba(79, 140, 255, 0.065);
+
   border-color: rgba(79, 140, 255, 0.13);
 }
 
 .status-submitted,
 .status-under-review {
   color: #b8a3ff;
+
   background: rgba(139, 92, 246, 0.065);
+
   border-color: rgba(139, 92, 246, 0.14);
 }
 
 .status-changes-requested {
   color: #ffd27b;
+
   background: rgba(246, 200, 95, 0.06);
+
   border-color: rgba(246, 200, 95, 0.13);
 }
 
 .status-approved,
 .status-completed {
   color: var(--client-success);
+
   background: rgba(69, 212, 131, 0.055);
+
   border-color: rgba(69, 212, 131, 0.13);
 }
 
 .status-closed {
   color: #8c98a8;
+
+  background: rgba(255, 255, 255, 0.025);
 }
+
 
 /* ============================================================
    PROJECT DATE
@@ -1072,12 +1234,14 @@
   color: var(--client-text-muted);
 
   font-size: 9px;
+
   white-space: nowrap;
 }
 
 .client-portal-project-date svg {
   opacity: 0.8;
 }
+
 
 /* ============================================================
    EMPTY STATE
@@ -1121,6 +1285,8 @@
 .client-portal-empty h3 {
   margin: 0;
 
+  color: var(--client-text);
+
   font-family:
     "Space Grotesk",
     Inter,
@@ -1139,6 +1305,17 @@
   font-size: 11px;
   line-height: 1.6;
 }
+
+
+/* ============================================================
+   PROJECT DETAILS
+   ============================================================ */
+
+.client-project-details-main {
+  width: 100%;
+  min-height: 100vh;
+}
+
 
 /* ============================================================
    BACK LINK
@@ -1171,17 +1348,12 @@
 
 .client-project-back-link:hover {
   color: var(--client-cyan);
+
   background: rgba(98, 226, 255, 0.045);
+
   transform: translateX(-2px);
 }
 
-/* ============================================================
-   PROJECT DETAILS MAIN
-   ============================================================ */
-
-.client-project-details-main {
-  min-height: 100vh;
-}
 
 /* ============================================================
    PROJECT HERO
@@ -1191,6 +1363,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+
   gap: 25px;
 
   padding: 27px;
@@ -1219,8 +1392,31 @@
   -webkit-backdrop-filter: blur(20px);
 }
 
+.client-project-hero::after {
+  content: "";
+
+  position: absolute;
+
+  right: -100px;
+  top: -140px;
+
+  width: 270px;
+  height: 270px;
+
+  border-radius: 50%;
+
+  background: rgba(79, 140, 255, 0.04);
+
+  filter: blur(30px);
+
+  pointer-events: none;
+}
+
 .client-project-hero-content {
   min-width: 0;
+
+  position: relative;
+  z-index: 1;
 }
 
 .client-project-eyebrow {
@@ -1264,6 +1460,7 @@
 .client-project-hero-meta {
   display: flex;
   flex-wrap: wrap;
+
   gap: 18px;
 
   margin-top: 15px;
@@ -1278,11 +1475,15 @@
 }
 
 .client-project-hero-status {
+  position: relative;
+  z-index: 1;
+
   flex: 0 0 auto;
 }
 
+
 /* ============================================================
-   SUMMARY CARDS
+   PROJECT SUMMARY GRID
    ============================================================ */
 
 .client-project-summary-grid {
@@ -1297,11 +1498,13 @@
 }
 
 .client-project-summary-card {
+  min-width: 0;
+  min-height: 78px;
+
   display: flex;
   align-items: center;
-  gap: 11px;
 
-  min-height: 78px;
+  gap: 11px;
 
   padding: 14px;
 
@@ -1352,11 +1555,14 @@
 
   margin-top: 3px;
 
-  color: var(--client-text);
+  color: var(--client-text-soft);
 
   font-size: 11px;
   font-weight: 650;
+
+  overflow-wrap: anywhere;
 }
+
 
 /* ============================================================
    DETAIL GRID
@@ -1373,11 +1579,14 @@
   margin-top: 14px;
 }
 
+
 /* ============================================================
-   PROJECT PANEL
+   GENERAL PROJECT PANEL
    ============================================================ */
 
 .client-project-panel {
+  min-width: 0;
+
   padding: 21px;
 
   border: 1px solid var(--client-border);
@@ -1401,6 +1610,7 @@
 .client-project-panel-heading {
   display: flex;
   align-items: flex-start;
+
   gap: 10px;
 
   color: var(--client-cyan);
@@ -1408,7 +1618,12 @@
 
 .client-project-panel-heading > svg {
   flex: 0 0 auto;
+
   margin-top: 1px;
+}
+
+.client-project-panel-heading > div {
+  min-width: 0;
 }
 
 .client-project-panel-heading h3 {
@@ -1434,8 +1649,9 @@
   line-height: 1.55;
 }
 
+
 /* ============================================================
-   META GRID
+   PROJECT META
    ============================================================ */
 
 .client-project-meta-grid {
@@ -1482,16 +1698,20 @@
   overflow-wrap: anywhere;
 }
 
+
 /* ============================================================
-   FULL PANEL
+   FULL WIDTH PANEL
    ============================================================ */
 
 .client-project-full-panel {
+  width: 100%;
+
   margin-top: 14px;
 }
 
+
 /* ============================================================
-   SCOPE
+   SCOPE / REQUIREMENTS
    ============================================================ */
 
 .client-project-scope-grid {
@@ -1526,6 +1746,7 @@
 .client-project-tags {
   display: flex;
   flex-wrap: wrap;
+
   gap: 6px;
 }
 
@@ -1533,6 +1754,8 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
+
+  max-width: 100%;
 
   padding: 6px 8px;
 
@@ -1545,10 +1768,13 @@
 
   font-size: 9px;
   font-weight: 600;
+
+  overflow-wrap: anywhere;
 }
 
 .client-project-tags strong {
   color: var(--client-text-muted);
+
   font-size: 10px;
 }
 
@@ -1566,9 +1792,8 @@
 }
 
 
-
 /* ============================================================
-   SUBMISSION
+   SUBMISSION / LATEST UPDATE
    ============================================================ */
 
 .client-project-submission-note {
@@ -1587,6 +1812,7 @@
   line-height: 1.65;
 }
 
+
 /* ============================================================
    WORK PREVIEW
    ============================================================ */
@@ -1599,6 +1825,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
 
   border: 1px solid var(--client-border);
@@ -1639,13 +1866,15 @@
 }
 
 .client-project-preview-panel.is-ready
-  .client-project-panel-heading {
+.client-project-panel-heading {
   color: var(--client-success);
 }
 
 .client-project-preview-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+
   gap: 8px;
 
   flex: 0 0 auto;
@@ -1668,6 +1897,8 @@
 
   font-size: 10px;
   font-weight: 700;
+
+  cursor: pointer;
 
   transition:
     transform 180ms ease,
@@ -1708,49 +1939,45 @@
   font-weight: 600;
 }
 
+
 /* ============================================================
-   PROGRESS TRACKER
+   6-STAGE PROJECT PROGRESS TRACKER
+   Assigned
+   Development
+   Submitted
+   Under Review
+   Approved
+   Completed
    ============================================================ */
 
 .client-project-progress-panel {
+  width: 100%;
+
   margin-top: 16px;
+
+  overflow: hidden;
 }
 
 .client-project-progress {
-  position: relative;
+  width: 100%;
 
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(6, minmax(0, 1fr));
 
   gap: 0;
 
-  padding: 8px 0;
+  margin-top: 24px;
 
-  margin-top: 22px;
+  padding: 6px 0 4px;
+
+  position: relative;
 }
 
-.client-project-progress::before {
-  content: "";
+.client-project-progress-item {
+  min-width: 0;
 
-  position: absolute;
-  left: 5%;
-  right: 5%;
-  top: 22px;
-
-  height: 1px;
-
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.04),
-    rgba(255, 255, 255, 0.08)
-  );
-
-  pointer-events: none;
-  z-index: 0;
-}
-
-.client-project-progress-step {
   position: relative;
   z-index: 1;
 
@@ -1758,100 +1985,694 @@
   flex-direction: column;
   align-items: center;
 
-  gap: 10px;
-
   text-align: center;
+}
 
-  transition: all 180ms ease;
+.client-project-progress-stage {
+  width: 100%;
+
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  position: relative;
+  z-index: 2;
 }
 
 .client-project-progress-marker {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
 
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
-  border-radius: 50%;
-
-  background: rgba(7, 12, 19, 0.88);
-
-  color: #6f8093;
-
-  font-size: 9px;
-  font-weight: 700;
-
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.015);
+  display: grid;
+  place-items: center;
 
   flex: 0 0 auto;
 
-  transition: all 180ms ease;
-}
+  border: 1.5px solid rgba(255, 255, 255, 0.085);
+  border-radius: 50%;
 
-.client-project-progress-step:hover .client-project-progress-marker {
-  border-color: rgba(255, 255, 255, 0.12);
-
-  background: rgba(12, 18, 28, 0.92);
-
-  box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
-}
-
-.client-project-progress-step.is-active .client-project-progress-marker {
-  border-color: rgba(98, 226, 255, 0.36);
+  color: #6f8093;
 
   background:
     radial-gradient(
       circle,
-      rgba(98, 226, 255, 0.21),
-      rgba(98, 226, 255, 0.065)
+      rgba(15, 22, 32, 0.96),
+      rgba(7, 12, 19, 0.96)
     );
 
-  color: #a8eaf5;
+  font-size: 9px;
+  font-weight: 750;
 
   box-shadow:
-    0 0 24px rgba(98, 226, 255, 0.16),
-    0 0 12px rgba(98, 226, 255, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 5px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px rgba(255, 255, 255, 0.025);
+
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease,
+    transform 180ms ease;
 }
+
+.client-project-progress-marker::after {
+  content: "";
+
+  position: absolute;
+  inset: 4px;
+
+  border-radius: 50%;
+
+  border: 1px solid transparent;
+
+  pointer-events: none;
+}
+
+.client-project-progress-item.is-upcoming
+.client-project-progress-marker {
+  color: #667487;
+
+  border-color: rgba(255, 255, 255, 0.075);
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(13, 20, 29, 0.95),
+      rgba(7, 12, 19, 0.98)
+    );
+
+  box-shadow:
+    0 5px 14px rgba(0, 0, 0, 0.18),
+    inset 0 1px rgba(255, 255, 255, 0.018);
+}
+
+.client-project-progress-item.is-current
+.client-project-progress-marker {
+  border-color: rgba(98, 226, 255, 0.42);
+
+  color: #b7f1ff;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(98, 226, 255, 0.22),
+      rgba(98, 226, 255, 0.075) 48%,
+      rgba(8, 15, 23, 0.95) 100%
+    );
+
+  box-shadow:
+    0 0 26px rgba(98, 226, 255, 0.18),
+    0 0 10px rgba(98, 226, 255, 0.09),
+    inset 0 1px rgba(255, 255, 255, 0.07);
+}
+
+.client-project-progress-item.is-current
+.client-project-progress-marker::after {
+  border-color: rgba(98, 226, 255, 0.16);
+
+  box-shadow:
+    inset 0 0 7px rgba(98, 226, 255, 0.12);
+}
+
+.client-project-progress-item.is-completed
+.client-project-progress-marker {
+  border-color: rgba(69, 212, 131, 0.42);
+
+  color: #9af0bf;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(69, 212, 131, 0.18),
+      rgba(69, 212, 131, 0.045) 52%,
+      rgba(7, 15, 18, 0.96)
+    );
+
+  box-shadow:
+    0 0 19px rgba(69, 212, 131, 0.11),
+    inset 0 1px rgba(255, 255, 255, 0.045);
+}
+
+.client-project-progress-item.is-completed
+.client-project-progress-marker::after {
+  border-color: rgba(69, 212, 131, 0.11);
+}
+
+
+/* ============================================================
+   PROGRESS LABEL
+   ============================================================ */
 
 .client-project-progress-label {
-  color: #7a8a9a;
+  min-width: 0;
 
-  font-size: 8px;
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
 
-  line-height: 1.4;
+  align-items: center;
 
-  min-width: 70px;
+  margin-top: 10px;
 
-  transition: color 180ms ease;
+  transition:
+    color 180ms ease,
+    opacity 180ms ease;
 }
 
-.client-project-progress-step:hover .client-project-progress-label {
-  color: #9aacbc;
+.client-project-progress-number {
+  display: block;
+
+  color: #566476;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 0.13em;
+
+  white-space: nowrap;
 }
 
-.client-project-progress-step.is-active .client-project-progress-label {
-  color: #b5e0ed;
+.client-project-progress-name {
+  display: block;
+
+  margin-top: 4px;
+
+  max-width: 105px;
+
+  color: #788698;
+
+  font-size: 9px;
+  font-weight: 650;
+
+  line-height: 1.35;
+
+  white-space: normal;
+}
+
+.client-project-progress-item.is-upcoming
+.client-project-progress-name {
+  color: #657386;
+}
+
+.client-project-progress-item.is-upcoming
+.client-project-progress-number {
+  color: #4e5c6d;
+}
+
+.client-project-progress-item.is-current
+.client-project-progress-number {
+  color: rgba(98, 226, 255, 0.7);
+}
+
+.client-project-progress-item.is-current
+.client-project-progress-name {
+  color: #bcecf7;
+
+  font-weight: 750;
+}
+
+.client-project-progress-item.is-completed
+.client-project-progress-number {
+  color: rgba(69, 212, 131, 0.62);
+}
+
+.client-project-progress-item.is-completed
+.client-project-progress-name {
+  color: #a0d9b8;
 
   font-weight: 700;
 }
+
+
+/* ============================================================
+   PROGRESS CONNECTOR
+   ============================================================ */
+
+.client-project-progress-connector {
+  position: absolute;
+
+  top: 18px;
+
+  left: 50%;
+
+  width: 100%;
+  height: 2px;
+
+  z-index: -1;
+
+  pointer-events: none;
+}
+
+.client-project-progress-connector::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  top: 0;
+
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.035)
+    );
+
+  box-shadow:
+    0 0 4px rgba(0, 0, 0, 0.3);
+
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.client-project-progress-item.is-completed
+.client-project-progress-connector::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(69, 212, 131, 0.82),
+      rgba(69, 212, 131, 0.34)
+    );
+
+  box-shadow:
+    0 0 7px rgba(69, 212, 131, 0.08);
+}
+
+.client-project-progress-item.is-current
+.client-project-progress-connector::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(98, 226, 255, 0.7),
+      rgba(98, 226, 255, 0.08)
+    );
+
+  box-shadow:
+    0 0 7px rgba(98, 226, 255, 0.08);
+}
+
+
+/* ============================================================
+   CHANGES REQUESTED NOTICE
+   ============================================================ */
+
+.client-project-progress-notice {
+  width: 100%;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin-top: 19px;
+
+  padding: 12px 13px;
+
+  border: 1px solid rgba(246, 200, 95, 0.13);
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(246, 200, 95, 0.045),
+      rgba(246, 200, 95, 0.018)
+    );
+}
+
+.client-project-progress-notice-dot {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 auto;
+
+  margin-top: 5px;
+
+  border-radius: 50%;
+
+  background: var(--client-warning);
+
+  box-shadow:
+    0 0 10px rgba(246, 200, 95, 0.35);
+}
+
+.client-project-progress-notice strong {
+  display: block;
+
+  color: #f8d789;
+
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.client-project-progress-notice p {
+  margin: 4px 0 0;
+
+  color: #a18e69;
+
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+
+.client-profile-card,
+.client-portal-profile-card {
+  width: 100%;
+
+  padding: 22px;
+
+  border: 1px solid var(--client-border);
+  border-radius: var(--client-radius);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 24, 35, 0.82),
+      rgba(8, 14, 21, 0.76)
+    );
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.18),
+    inset 0 1px rgba(255, 255, 255, 0.035);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.client-profile-header {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding-bottom: 18px;
+
+  border-bottom: 1px solid var(--client-border-soft);
+}
+
+.client-profile-avatar {
+  width: 48px;
+  height: 48px;
+
+  flex: 0 0 auto;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 14px;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(98, 226, 255, 0.92),
+      rgba(79, 140, 255, 0.92)
+    );
+
+  box-shadow:
+    0 10px 26px rgba(79, 140, 255, 0.17),
+    inset 0 1px rgba(255, 255, 255, 0.28);
+
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.client-profile-header h2 {
+  margin: 0;
+
+  color: var(--client-text);
+
+  font-family:
+    "Space Grotesk",
+    Inter,
+    sans-serif;
+
+  font-size: 18px;
+}
+
+.client-profile-header p {
+  margin: 4px 0 0;
+
+  color: var(--client-text-muted);
+
+  font-size: 10px;
+}
+
+.client-profile-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-top: 18px;
+}
+
+.client-profile-field {
+  min-width: 0;
+
+  padding: 13px;
+
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.client-profile-field > span {
+  display: block;
+
+  color: var(--client-text-muted);
+
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.client-profile-field strong {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--client-text-soft);
+
+  font-size: 11px;
+  font-weight: 650;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   PLACEHOLDER PAGES
+   Messages / Payments
+   ============================================================ */
+
+.client-portal-placeholder {
+  min-height: 310px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 30px;
+
+  text-align: center;
+
+  border: 1px solid var(--client-border);
+  border-radius: var(--client-radius);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(14, 21, 31, 0.82),
+      rgba(8, 14, 21, 0.76)
+    );
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.16),
+    inset 0 1px rgba(255, 255, 255, 0.035);
+}
+
+.client-portal-placeholder-icon {
+  width: 52px;
+  height: 52px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(98, 226, 255, 0.09);
+  border-radius: 14px;
+
+  color: var(--client-cyan);
+
+  background: rgba(98, 226, 255, 0.04);
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.client-portal-placeholder h2 {
+  margin: 15px 0 6px;
+
+  color: var(--client-text);
+
+  font-family:
+    "Space Grotesk",
+    Inter,
+    sans-serif;
+
+  font-size: 18px;
+}
+
+.client-portal-placeholder p {
+  max-width: 440px;
+
+  margin: 0;
+
+  color: var(--client-text-muted);
+
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.client-portal-placeholder-badge {
+  margin-top: 15px;
+
+  padding: 6px 10px;
+
+  border: 1px solid rgba(98, 226, 255, 0.09);
+  border-radius: 999px;
+
+  color: var(--client-text-muted);
+
+  background: rgba(98, 226, 255, 0.025);
+
+  font-size: 8px;
+  font-weight: 750;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* ============================================================
+   GENERIC BUTTONS
+   ============================================================ */
+
+.client-portal-primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 38px;
+
+  padding: 0 14px;
+
+  border: 1px solid rgba(98, 226, 255, 0.15);
+  border-radius: 9px;
+
+  color: #ecfbff;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(98, 226, 255, 0.14),
+      rgba(79, 140, 255, 0.12)
+    );
+
+  cursor: pointer;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.client-portal-primary-button:hover {
+  transform: translateY(-1px);
+
+  border-color: rgba(98, 226, 255, 0.26);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(98, 226, 255, 0.2),
+      rgba(79, 140, 255, 0.17)
+    );
+
+  box-shadow:
+    0 10px 25px rgba(79, 140, 255, 0.1);
+}
+
+.client-portal-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 38px;
+
+  padding: 0 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 9px;
+
+  color: var(--client-text-soft);
+
+  background: rgba(255, 255, 255, 0.025);
+
+  cursor: pointer;
+
+  font-size: 10px;
+  font-weight: 650;
+
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.client-portal-secondary-button:hover {
+  color: var(--client-text);
+
+  border-color: rgba(98, 226, 255, 0.12);
+
+  background: rgba(98, 226, 255, 0.04);
+}
+
 
 /* ============================================================
    LOADING
    ============================================================ */
 
 .client-portal-loading {
+  width: 100%;
   min-height: 100vh;
 
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 
@@ -1873,7 +2694,8 @@
 .client-portal-loading-spinner {
   color: var(--client-cyan);
 
-  animation: clientPortalSpin 0.9s linear infinite;
+  animation:
+    clientPortalSpin 0.9s linear infinite;
 }
 
 @keyframes clientPortalSpin {
@@ -1881,6 +2703,7 @@
     transform: rotate(360deg);
   }
 }
+
 
 /* ============================================================
    ERROR PAGE
@@ -1928,6 +2751,8 @@
 .client-portal-error-card h2 {
   margin: 14px 0 7px;
 
+  color: var(--client-text);
+
   font-family:
     "Space Grotesk",
     Inter,
@@ -1948,11 +2773,13 @@
 .client-portal-error-card button {
   margin-top: 20px;
 
-  padding: 10px 15px;
+  min-height: 38px;
+
+  padding: 0 15px;
 
   border-radius: 9px;
 
-  color: white;
+  color: #ffffff;
 
   background:
     linear-gradient(
@@ -1968,7 +2795,50 @@
 
   box-shadow:
     0 10px 25px rgba(79, 140, 255, 0.16);
+
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
+
+.client-portal-error-card button:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 13px 30px rgba(79, 140, 255, 0.22);
+}
+
+
+/* ============================================================
+   SCROLLBARS
+   ============================================================ */
+
+.client-portal * {
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(98, 226, 255, 0.2)
+    transparent;
+}
+
+.client-portal *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.client-portal *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.client-portal *::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: rgba(98, 226, 255, 0.16);
+}
+
+.client-portal *::-webkit-scrollbar-thumb:hover {
+  background: rgba(98, 226, 255, 0.27);
+}
+
 
 /* ============================================================
    RESPONSIVE — 1100px
@@ -1988,15 +2858,20 @@
 
   .client-project-progress {
     grid-template-columns:
-      repeat(4, minmax(0, 1fr));
+      repeat(3, minmax(0, 1fr));
 
-    row-gap: 20px;
+    row-gap: 28px;
   }
 
-  .client-project-progress::before {
+  .client-project-progress-connector {
     display: none;
   }
+
+  .client-project-progress-item {
+    padding: 0 6px;
+  }
 }
+
 
 /* ============================================================
    RESPONSIVE — 860px
@@ -2053,6 +2928,7 @@
   .client-portal-nav-item.active::before {
     left: 9px;
     right: 9px;
+
     top: auto;
     bottom: 0;
 
@@ -2066,6 +2942,7 @@
 
   .client-portal-main {
     width: 100%;
+
     margin-left: 0;
   }
 
@@ -2088,6 +2965,7 @@
   }
 }
 
+
 /* ============================================================
    RESPONSIVE — 640px
    ============================================================ */
@@ -2101,6 +2979,8 @@
     min-height: 76px;
 
     align-items: flex-start;
+
+    padding: 17px 18px;
   }
 
   .client-portal-topbar h1 {
@@ -2139,6 +3019,10 @@
 
   .client-portal-section {
     padding: 17px;
+  }
+
+  .client-portal-section-header {
+    align-items: flex-start;
   }
 
   .client-portal-project-card {
@@ -2184,37 +3068,55 @@
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
 
-    row-gap: 24px;
+    row-gap: 25px;
+
+    margin-top: 20px;
   }
 
-  .client-project-progress::before {
+  .client-project-progress-connector {
     display: none;
+  }
+
+  .client-project-progress-item {
+    padding: 0 3px;
+  }
+
+  .client-project-progress-name {
+    max-width: 115px;
   }
 
   .client-project-preview-panel {
     align-items: flex-start;
+
     flex-direction: column;
   }
 
   .client-project-preview-button,
   .client-project-preview-locked {
     width: 100%;
+
     justify-content: center;
   }
+
+  .client-profile-grid {
+    grid-template-columns: 1fr;
+  }
 }
+
 
 /* ============================================================
    RESPONSIVE — 430px
    ============================================================ */
 
 @media (max-width: 430px) {
-  .client-portal-nav-item span:not(.client-portal-nav-badge) {
-    font-size: 11px;
-  }
-
   .client-portal-nav-item {
     min-height: 40px;
+
     padding: 0 10px;
+  }
+
+  .client-portal-nav-item span:not(.client-portal-nav-badge) {
+    font-size: 11px;
   }
 
   .client-portal-topbar {
@@ -2246,8 +3148,16 @@
     padding: 14px;
   }
 
+  .client-portal-section-header {
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
   .client-portal-project-card {
     padding: 13px;
+
+    gap: 12px;
   }
 
   .client-portal-project-main {
@@ -2263,6 +3173,14 @@
     font-size: 12px;
   }
 
+  .client-portal-project-main p {
+    font-size: 10px;
+  }
+
+  .client-portal-project-status {
+    align-items: flex-end;
+  }
+
   .client-project-panel {
     padding: 16px;
   }
@@ -2270,7 +3188,92 @@
   .client-project-scope-grid {
     gap: 10px;
   }
+
+  .client-project-progress {
+    row-gap: 22px;
+  }
+
+  .client-project-progress-marker {
+    width: 32px;
+    height: 32px;
+  }
+
+  .client-project-progress-label {
+    margin-top: 8px;
+  }
+
+  .client-project-progress-number {
+    font-size: 6px;
+  }
+
+  .client-project-progress-name {
+    max-width: 92px;
+
+    font-size: 8px;
+  }
+
+  .client-project-progress-notice {
+    padding: 11px;
+  }
+
+  .client-project-preview-panel {
+    padding: 16px;
+  }
+
+  .client-profile-card,
+  .client-portal-profile-card {
+    padding: 16px;
+  }
 }
+
+
+/* ============================================================
+   RESPONSIVE — 360px
+   ============================================================ */
+
+@media (max-width: 360px) {
+  .client-portal-brand strong {
+    font-size: 14px;
+  }
+
+  .client-portal-nav-item {
+    padding: 0 8px;
+  }
+
+  .client-portal-topbar h1 {
+    font-size: 18px;
+  }
+
+  .client-portal-content {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .client-portal-welcome {
+    padding: 17px;
+  }
+
+  .client-portal-welcome h2 {
+    font-size: 21px;
+  }
+
+  .client-project-hero {
+    padding: 18px;
+  }
+
+  .client-project-hero h2 {
+    font-size: 21px;
+  }
+
+  .client-project-panel {
+    padding: 14px;
+  }
+
+  .client-project-progress-name {
+    max-width: 82px;
+  }
+}
+
 
 /* ============================================================
    ACCESSIBILITY
@@ -2278,9 +3281,19 @@
 
 .client-portal button:focus-visible,
 .client-portal a:focus-visible {
-  outline: 2px solid rgba(98, 226, 255, 0.7);
+  outline: 2px solid rgba(98, 226, 255, 0.72);
+
   outline-offset: 3px;
+
+  box-shadow:
+    0 0 0 4px rgba(98, 226, 255, 0.08);
 }
+
+.client-portal button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 
 /* ============================================================
    REDUCED MOTION
@@ -2292,7 +3305,9 @@
   .client-portal *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+
     transition-duration: 0.01ms !important;
+
     scroll-behavior: auto !important;
   }
 }

@@ -21,6 +21,10 @@ import {
 import { supabase } from "../../lib/supabase";
 import "../../styles/client-portal.css";
 
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
 const formatDate = (value) => {
   if (!value) return "Not set";
 
@@ -37,6 +41,7 @@ const formatDate = (value) => {
   });
 };
 
+
 const formatStatus = (status) => {
   if (!status) return "Unknown";
 
@@ -44,6 +49,7 @@ const formatStatus = (status) => {
     .replaceAll("_", " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
+
 
 const formatList = (value) => {
   if (Array.isArray(value)) {
@@ -57,11 +63,132 @@ const formatList = (value) => {
   return "Not set";
 };
 
+
+const getStatusClass = (status) => {
+  return `status-${String(status || "unknown").replaceAll(
+    "_",
+    "-"
+  )}`;
+};
+
+
+/* ============================================================
+   PROJECT STATUS GROUPS
+   ============================================================ */
+
+const ACTIVE_PROJECT_STATUSES = new Set([
+  "assigned",
+  "in_progress",
+  "submitted",
+  "under_review",
+  "changes_requested",
+]);
+
+
+const COMPLETED_PROJECT_STATUSES = new Set([
+  "completed",
+]);
+
+
+const PENDING_PROJECT_STATUSES = new Set([
+  "draft",
+  "open",
+]);
+
+
+/* ============================================================
+   PROJECT PROGRESS
+   ============================================================ */
+
+const getProgressSteps = (status) => {
+  const steps = [
+    {
+      key: "assigned",
+      label: "Assigned",
+    },
+    {
+      key: "in_progress",
+      label: "Development",
+    },
+    {
+      key: "submitted",
+      label: "Submitted",
+    },
+    {
+      key: "under_review",
+      label: "Under Review",
+    },
+    {
+      key: "approved",
+      label: "Approved",
+    },
+    {
+      key: "completed",
+      label: "Completed",
+    },
+  ];
+
+
+  const progressMap = {
+    draft: 0,
+    open: 0,
+    assigned: 0,
+
+    in_progress: 1,
+
+    // Changes requested means the developer
+    // remains in the development stage.
+    changes_requested: 1,
+
+    submitted: 2,
+
+    under_review: 3,
+
+    approved: 4,
+
+    completed: 5,
+
+    closed: 5,
+  };
+
+
+  const currentIndex =
+    progressMap[status] !== undefined
+      ? progressMap[status]
+      : 0;
+
+
+  return steps.map((step, index) => {
+    let state = "upcoming";
+
+    if (index < currentIndex) {
+      state = "completed";
+    } else if (index === currentIndex) {
+      state = "current";
+    }
+
+    return {
+      ...step,
+      state,
+      isCompleted: state === "completed",
+      isCurrent: state === "current",
+      isUpcoming: state === "upcoming",
+    };
+  });
+};
+
+
+/* ============================================================
+   COMPONENT
+   ============================================================ */
+
 export default function ClientDashboard() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
+
   const [client, setClient] = useState(null);
+
   const [projects, setProjects] = useState([]);
 
   const [activeSection, setActiveSection] =
@@ -70,29 +197,34 @@ export default function ClientDashboard() {
   const [selectedProject, setSelectedProject] =
     useState(null);
 
-  // ==========================================================
-  // LOAD CLIENT PORTAL
-  // ==========================================================
+
+  /* ==========================================================
+     LOAD CLIENT PORTAL
+     ========================================================== */
 
   useEffect(() => {
     let mounted = true;
+
 
     const loadClientPortal = async () => {
       try {
         setLoading(true);
 
-        // ----------------------------------------------------
-        // CURRENT USER
-        // ----------------------------------------------------
+
+        /* ====================================================
+           CURRENT USER
+           ==================================================== */
 
         const {
           data: { user },
           error: userError,
         } = await supabase.auth.getUser();
 
+
         if (userError) {
           throw userError;
         }
+
 
         if (!user) {
           navigate("/client/login", {
@@ -102,9 +234,10 @@ export default function ClientDashboard() {
           return;
         }
 
-        // ----------------------------------------------------
-        // CLIENT USER
-        // ----------------------------------------------------
+
+        /* ====================================================
+           CLIENT USER
+           ==================================================== */
 
         const {
           data: clientUser,
@@ -115,9 +248,11 @@ export default function ClientDashboard() {
           .eq("user_id", user.id)
           .maybeSingle();
 
+
         if (clientUserError) {
           throw clientUserError;
         }
+
 
         if (!clientUser?.client_id) {
           throw new Error(
@@ -125,9 +260,10 @@ export default function ClientDashboard() {
           );
         }
 
-        // ----------------------------------------------------
-        // CLIENT PROFILE
-        // ----------------------------------------------------
+
+        /* ====================================================
+           CLIENT PROFILE
+           ==================================================== */
 
         const {
           data: clientData,
@@ -145,9 +281,11 @@ export default function ClientDashboard() {
           .eq("id", clientUser.client_id)
           .maybeSingle();
 
+
         if (clientError) {
           throw clientError;
         }
+
 
         if (!clientData) {
           throw new Error(
@@ -155,9 +293,10 @@ export default function ClientDashboard() {
           );
         }
 
-        // ----------------------------------------------------
-        // CLIENT PROJECTS
-        // ----------------------------------------------------
+
+        /* ====================================================
+           CLIENT PROJECTS
+           ==================================================== */
 
         const {
           data: projectData,
@@ -186,19 +325,26 @@ export default function ClientDashboard() {
             ascending: false,
           });
 
+
         if (projectError) {
           throw projectError;
         }
 
+
         if (mounted) {
           setClient(clientData);
-          setProjects(projectData || []);
+          setProjects(
+            Array.isArray(projectData)
+              ? projectData
+              : []
+          );
         }
       } catch (error) {
         console.error(
           "Client dashboard loading error:",
           error
         );
+
 
         if (mounted) {
           setClient(null);
@@ -211,16 +357,19 @@ export default function ClientDashboard() {
       }
     };
 
+
     loadClientPortal();
+
 
     return () => {
       mounted = false;
     };
   }, [navigate]);
 
-  // ==========================================================
-  // LOGOUT
-  // ==========================================================
+
+  /* ==========================================================
+     LOGOUT
+     ========================================================== */
 
   const handleLogout = async () => {
     try {
@@ -237,36 +386,40 @@ export default function ClientDashboard() {
     }
   };
 
-  // ==========================================================
-  // SECTION NAVIGATION
-  // ==========================================================
+
+  /* ==========================================================
+     SECTION NAVIGATION
+     ========================================================== */
 
   const handleSectionChange = (section) => {
     setActiveSection(section);
     setSelectedProject(null);
   };
 
-  // ==========================================================
-  // OPEN PROJECT
-  // ==========================================================
+
+  /* ==========================================================
+     OPEN PROJECT
+     ========================================================== */
 
   const openProject = (project) => {
     setSelectedProject(project);
     setActiveSection("project-details");
   };
 
-  // ==========================================================
-  // BACK TO PROJECTS
-  // ==========================================================
+
+  /* ==========================================================
+     BACK TO PROJECTS
+     ========================================================== */
 
   const backToProjects = () => {
     setSelectedProject(null);
     setActiveSection("projects");
   };
 
-  // ==========================================================
-  // LOADING
-  // ==========================================================
+
+  /* ==========================================================
+     LOADING
+     ========================================================== */
 
   if (loading) {
     return (
@@ -283,9 +436,10 @@ export default function ClientDashboard() {
     );
   }
 
-  // ==========================================================
-  // CLIENT ERROR
-  // ==========================================================
+
+  /* ==========================================================
+     CLIENT ERROR
+     ========================================================== */
 
   if (!client) {
     return (
@@ -315,51 +469,71 @@ export default function ClientDashboard() {
     );
   }
 
-  // ==========================================================
-  // PROJECT STATS
-  // ==========================================================
+
+  /* ==========================================================
+     PROJECT STATS
+     ========================================================== */
 
   const activeProjects = projects.filter(
     (project) =>
-      project.status === "assigned" ||
-      project.status === "in_progress" ||
-      project.status === "submitted" ||
-      project.status === "under_review" ||
-      project.status === "changes_requested"
+      ACTIVE_PROJECT_STATUSES.has(project.status)
   );
+
 
   const completedProjects = projects.filter(
     (project) =>
-      project.status === "completed"
+      COMPLETED_PROJECT_STATUSES.has(project.status)
   );
+
 
   const pendingProjects = projects.filter(
     (project) =>
-      project.status === "draft" ||
-      project.status === "open"
+      PENDING_PROJECT_STATUSES.has(project.status)
   );
 
-  // ==========================================================
-  // DISPLAY NAME
-  // ==========================================================
+
+  /* ==========================================================
+     DISPLAY NAME
+     ========================================================== */
 
   const displayName =
     client.contact_name ||
     client.company_name ||
     "Client";
 
-  // ==========================================================
-  // MAIN DASHBOARD
-  // ==========================================================
+
+  /* ==========================================================
+     PAGE TITLE
+     ========================================================== */
+
+  const pageTitles = {
+    overview: "Overview",
+    projects: "Projects",
+    "project-details": "Project Details",
+    messages: "Messages",
+    payments: "Payments",
+    profile: "Profile",
+  };
+
+
+  /* ==========================================================
+     MAIN DASHBOARD
+     ========================================================== */
 
   return (
     <div className="client-portal">
 
-      {/* ====================================================
+
+      {/* ======================================================
           SIDEBAR
-          ==================================================== */}
+          ====================================================== */}
 
       <aside className="client-portal-sidebar">
+
+
+        {/* ====================================================
+            BRAND
+            ==================================================== */}
 
         <div className="client-portal-brand">
 
@@ -379,7 +553,13 @@ export default function ClientDashboard() {
 
         </div>
 
+
+        {/* ====================================================
+            NAVIGATION
+            ==================================================== */}
+
         <nav className="client-portal-nav">
+
 
           {/* OVERVIEW */}
 
@@ -401,6 +581,7 @@ export default function ClientDashboard() {
             </span>
           </button>
 
+
           {/* PROJECTS */}
 
           <button
@@ -421,6 +602,7 @@ export default function ClientDashboard() {
               Projects
             </span>
           </button>
+
 
           {/* MESSAGES */}
 
@@ -446,6 +628,7 @@ export default function ClientDashboard() {
             </span>
           </button>
 
+
           {/* PAYMENTS */}
 
           <button
@@ -470,6 +653,7 @@ export default function ClientDashboard() {
             </span>
           </button>
 
+
           {/* PROFILE */}
 
           <button
@@ -492,7 +676,10 @@ export default function ClientDashboard() {
 
         </nav>
 
-        {/* LOGOUT */}
+
+        {/* ====================================================
+            LOGOUT
+            ==================================================== */}
 
         <div className="client-portal-sidebar-bottom">
 
@@ -512,15 +699,17 @@ export default function ClientDashboard() {
 
       </aside>
 
-      {/* ====================================================
-          RIGHT SIDE
-          ==================================================== */}
+
+      {/* ======================================================
+          MAIN
+          ====================================================== */}
 
       <main className="client-portal-main">
 
-        {/* ==================================================
+
+        {/* ====================================================
             TOPBAR
-            ================================================== */}
+            ==================================================== */}
 
         <header className="client-portal-topbar">
 
@@ -531,26 +720,14 @@ export default function ClientDashboard() {
             </span>
 
             <h1>
-              {activeSection === "overview" &&
+              {pageTitles[activeSection] ||
                 "Overview"}
-
-              {activeSection === "projects" &&
-                "Projects"}
-
-              {activeSection === "project-details" &&
-                "Project Details"}
-
-              {activeSection === "messages" &&
-                "Messages"}
-
-              {activeSection === "payments" &&
-                "Payments"}
-
-              {activeSection === "profile" &&
-                "Profile"}
             </h1>
 
           </div>
+
+
+          {/* USER */}
 
           <div className="client-portal-user">
 
@@ -567,7 +744,8 @@ export default function ClientDashboard() {
               </strong>
 
               <span>
-                {client.company_name}
+                {client.company_name ||
+                  "Client Account"}
               </span>
 
             </div>
@@ -576,18 +754,23 @@ export default function ClientDashboard() {
 
         </header>
 
-        {/* ==================================================
-            RIGHT CONTENT
-            ================================================== */}
+
+        {/* ====================================================
+            CONTENT
+            ==================================================== */}
 
         <section className="client-portal-content">
 
-          {/* =================================================
+
+          {/* ==================================================
               OVERVIEW
-              ================================================= */}
+              ================================================== */}
 
           {activeSection === "overview" && (
             <>
+
+              {/* WELCOME */}
+
               <div className="client-portal-welcome">
 
                 <div>
@@ -613,67 +796,106 @@ export default function ClientDashboard() {
 
               </div>
 
+
+              {/* STATS */}
+
               <div className="client-portal-stats">
 
+
+                {/* TOTAL */}
+
                 <div className="client-portal-stat-card">
+
                   <div className="client-portal-stat-icon">
                     <BriefcaseBusiness size={20} />
                   </div>
 
                   <div>
-                    <span>Total Projects</span>
+                    <span>
+                      Total Projects
+                    </span>
+
                     <strong>
                       {projects.length}
                     </strong>
                   </div>
+
                 </div>
 
+
+                {/* ACTIVE */}
+
                 <div className="client-portal-stat-card">
+
                   <div className="client-portal-stat-icon">
                     <Clock3 size={20} />
                   </div>
 
                   <div>
-                    <span>Active</span>
+                    <span>
+                      Active
+                    </span>
+
                     <strong>
                       {activeProjects.length}
                     </strong>
                   </div>
+
                 </div>
 
+
+                {/* COMPLETED */}
+
                 <div className="client-portal-stat-card">
+
                   <div className="client-portal-stat-icon">
                     <CheckCircle2 size={20} />
                   </div>
 
                   <div>
-                    <span>Completed</span>
+                    <span>
+                      Completed
+                    </span>
+
                     <strong>
                       {completedProjects.length}
                     </strong>
                   </div>
+
                 </div>
 
+
+                {/* PENDING */}
+
                 <div className="client-portal-stat-card">
+
                   <div className="client-portal-stat-icon">
                     <FolderKanban size={20} />
                   </div>
 
                   <div>
-                    <span>Pending</span>
+                    <span>
+                      Pending
+                    </span>
+
                     <strong>
                       {pendingProjects.length}
                     </strong>
                   </div>
+
                 </div>
 
               </div>
+
+
+              {/* RECENT PROJECTS */}
 
               <section className="client-portal-section">
 
                 <div className="client-portal-section-header">
 
                   <div>
+
                     <span>
                       YOUR WORK
                     </span>
@@ -681,14 +903,18 @@ export default function ClientDashboard() {
                     <h2>
                       Recent Projects
                     </h2>
+
                   </div>
+
 
                   {projects.length > 0 && (
                     <button
                       type="button"
                       className="client-portal-view-all"
                       onClick={() =>
-                        handleSectionChange("projects")
+                        handleSectionChange(
+                          "projects"
+                        )
                       }
                     >
                       View all
@@ -699,7 +925,9 @@ export default function ClientDashboard() {
 
                 </div>
 
+
                 {projects.length === 0 ? (
+
                   <div className="client-portal-empty">
 
                     <div className="client-portal-empty-icon">
@@ -716,12 +944,15 @@ export default function ClientDashboard() {
                     </p>
 
                   </div>
+
                 ) : (
+
                   <div className="client-portal-project-list">
 
                     {projects
                       .slice(0, 5)
                       .map((project) => (
+
                         <button
                           key={project.id}
                           type="button"
@@ -740,7 +971,8 @@ export default function ClientDashboard() {
                             <div>
 
                               <h3>
-                                {project.title}
+                                {project.title ||
+                                  "Untitled Project"}
                               </h3>
 
                               <span>
@@ -753,12 +985,13 @@ export default function ClientDashboard() {
 
                           </div>
 
+
                           <div className="client-portal-project-status">
 
                             <span
-                              className={`client-project-status status-${String(
-                                project.status || "unknown"
-                              ).replaceAll("_", "-")}`}
+                              className={`client-project-status ${getStatusClass(
+                                project.status
+                              )}`}
                             >
                               {formatStatus(
                                 project.status
@@ -768,25 +1001,31 @@ export default function ClientDashboard() {
                           </div>
 
                         </button>
+
                       ))}
 
                   </div>
+
                 )}
 
               </section>
+
             </>
           )}
 
-          {/* =================================================
+
+          {/* ==================================================
               PROJECTS
-              ================================================= */}
+              ================================================== */}
 
           {activeSection === "projects" && (
+
             <section className="client-portal-section">
 
               <div className="client-portal-section-header">
 
                 <div>
+
                   <span>
                     YOUR WORKSPACE
                   </span>
@@ -794,20 +1033,25 @@ export default function ClientDashboard() {
                   <h2>
                     All Projects
                   </h2>
+
                 </div>
 
                 <div>
+
                   <span>
                     {projects.length} project
                     {projects.length === 1
                       ? ""
                       : "s"}
                   </span>
+
                 </div>
 
               </div>
 
+
               {projects.length === 0 ? (
+
                 <div className="client-portal-empty">
 
                   <div className="client-portal-empty-icon">
@@ -824,10 +1068,13 @@ export default function ClientDashboard() {
                   </p>
 
                 </div>
+
               ) : (
+
                 <div className="client-portal-project-list">
 
                   {projects.map((project) => (
+
                     <button
                       key={project.id}
                       type="button"
@@ -846,7 +1093,8 @@ export default function ClientDashboard() {
                         <div>
 
                           <h3>
-                            {project.title}
+                            {project.title ||
+                              "Untitled Project"}
                           </h3>
 
                           <span>
@@ -864,12 +1112,13 @@ export default function ClientDashboard() {
 
                       </div>
 
+
                       <div className="client-portal-project-status">
 
                         <span
-                          className={`client-project-status status-${String(
-                            project.status || "unknown"
-                          ).replaceAll("_", "-")}`}
+                          className={`client-project-status ${getStatusClass(
+                            project.status
+                          )}`}
                         >
                           {formatStatus(
                             project.status
@@ -881,21 +1130,27 @@ export default function ClientDashboard() {
                       </div>
 
                     </button>
+
                   ))}
 
                 </div>
+
               )}
 
             </section>
+
           )}
 
-          {/* =================================================
+
+          {/* ==================================================
               PROJECT DETAILS
-              ================================================= */}
+              ================================================== */}
 
           {activeSection === "project-details" &&
             selectedProject && (
+
               <section className="client-portal-section">
+
 
                 {/* BACK */}
 
@@ -909,6 +1164,7 @@ export default function ClientDashboard() {
                   Back to Projects
                 </button>
 
+
                 {/* HERO */}
 
                 <div className="client-project-hero">
@@ -920,7 +1176,8 @@ export default function ClientDashboard() {
                     </span>
 
                     <h2>
-                      {selectedProject.title}
+                      {selectedProject.title ||
+                        "Untitled Project"}
                     </h2>
 
                     <p>
@@ -930,10 +1187,11 @@ export default function ClientDashboard() {
 
                   </div>
 
+
                   <span
-                    className={`client-project-status status-${String(
-                      selectedProject.status || "unknown"
-                    ).replaceAll("_", "-")}`}
+                    className={`client-project-status ${getStatusClass(
+                      selectedProject.status
+                    )}`}
                   >
                     {formatStatus(
                       selectedProject.status
@@ -942,9 +1200,139 @@ export default function ClientDashboard() {
 
                 </div>
 
-                {/* INFORMATION GRID */}
+
+                {/* ==================================================
+                    PROJECT PROGRESS
+                    ================================================== */}
+
+                <section className="client-project-panel client-project-progress-panel">
+
+                  <div className="client-project-panel-heading">
+
+                    <Layers3 size={18} />
+
+                    <div>
+
+                      <h3>
+                        Project Progress
+                      </h3>
+
+                      <p>
+                        Track your project through each
+                        stage of the development workflow.
+                      </p>
+
+                    </div>
+
+                  </div>
+
+
+                  <div
+                    className="client-project-progress"
+                    aria-label={`Project progress: ${formatStatus(
+                      selectedProject.status
+                    )}`}
+                  >
+
+                    {getProgressSteps(
+                      selectedProject.status
+                    ).map((step, index) => {
+
+                      const isLast =
+                        index === 5;
+
+                      return (
+                        <div
+                          key={step.key}
+                          className={`client-project-progress-item is-${step.state}`}
+                        >
+
+                          <div className="client-project-progress-stage">
+
+                            <div className="client-project-progress-marker">
+
+                              {step.isCompleted ? (
+                                <CheckCircle2
+                                  size={16}
+                                  strokeWidth={2.5}
+                                />
+                              ) : (
+                                <span>
+                                  {index + 1}
+                                </span>
+                              )}
+
+                            </div>
+
+
+                            <div className="client-project-progress-label">
+
+                              <span className="client-project-progress-number">
+                                STAGE{" "}
+                                {String(index + 1).padStart(
+                                  2,
+                                  "0"
+                                )}
+                              </span>
+
+                              <span className="client-project-progress-name">
+                                {step.label}
+                              </span>
+
+                            </div>
+
+                          </div>
+
+
+                          {!isLast && (
+                            <div className="client-project-progress-connector">
+                              <span />
+                            </div>
+                          )}
+
+                        </div>
+                      );
+                    })}
+
+                  </div>
+
+
+                  {/* CHANGES REQUESTED */}
+
+                  {selectedProject.status ===
+                    "changes_requested" && (
+
+                    <div className="client-project-progress-notice">
+
+                      <span className="client-project-progress-notice-dot" />
+
+                      <div>
+
+                        <strong>
+                          Changes Requested
+                        </strong>
+
+                        <p>
+                          Updates are required before
+                          the project can move forward
+                          for review.
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  )}
+
+                </section>
+
+
+                {/* ==================================================
+                    INFORMATION GRID
+                    ================================================== */}
 
                 <div className="client-project-detail-grid">
+
 
                   {/* PROJECT INFORMATION */}
 
@@ -960,9 +1348,11 @@ export default function ClientDashboard() {
 
                     </div>
 
+
                     <div className="client-project-meta-grid">
 
                       <div>
+
                         <span>
                           Category
                         </span>
@@ -971,9 +1361,12 @@ export default function ClientDashboard() {
                           {selectedProject.category ||
                             "Not set"}
                         </strong>
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Project Type
                         </span>
@@ -982,9 +1375,12 @@ export default function ClientDashboard() {
                           {selectedProject.project_type ||
                             "Not set"}
                         </strong>
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Status
                         </span>
@@ -994,26 +1390,35 @@ export default function ClientDashboard() {
                             selectedProject.status
                           )}
                         </strong>
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Budget
                         </span>
 
                         <strong>
-                          {selectedProject.budget !== null &&
-                          selectedProject.budget !== undefined
+                          {selectedProject.budget !==
+                            null &&
+                          selectedProject.budget !==
+                            undefined
                             ? `₹${Number(
                                 selectedProject.budget
-                              ).toLocaleString("en-IN")}`
+                              ).toLocaleString(
+                                "en-IN"
+                              )}`
                             : "Not set"}
                         </strong>
+
                       </div>
 
                     </div>
 
                   </section>
+
 
                   {/* TIMELINE */}
 
@@ -1029,9 +1434,11 @@ export default function ClientDashboard() {
 
                     </div>
 
+
                     <div className="client-project-meta-grid">
 
                       <div>
+
                         <span>
                           Created
                         </span>
@@ -1041,9 +1448,12 @@ export default function ClientDashboard() {
                             selectedProject.created_at
                           )}
                         </strong>
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Assigned
                         </span>
@@ -1053,9 +1463,12 @@ export default function ClientDashboard() {
                             selectedProject.assigned_at
                           )}
                         </strong>
+
                       </div>
 
+
                       <div>
+
                         <span>
                           Deadline
                         </span>
@@ -1065,11 +1478,13 @@ export default function ClientDashboard() {
                             selectedProject.deadline
                           )}
                         </strong>
+
                       </div>
 
                     </div>
 
                   </section>
+
 
                   {/* TECHNOLOGY */}
 
@@ -1085,6 +1500,7 @@ export default function ClientDashboard() {
 
                     </div>
 
+
                     <div className="client-project-copy">
 
                       <span>
@@ -1099,6 +1515,7 @@ export default function ClientDashboard() {
 
                     </div>
 
+
                     <div className="client-project-copy">
 
                       <span>
@@ -1112,6 +1529,7 @@ export default function ClientDashboard() {
                       </p>
 
                     </div>
+
 
                     <div className="client-project-copy">
 
@@ -1129,6 +1547,7 @@ export default function ClientDashboard() {
 
                   </section>
 
+
                   {/* DELIVERABLES */}
 
                   <section className="client-project-panel">
@@ -1143,6 +1562,7 @@ export default function ClientDashboard() {
 
                     </div>
 
+
                     <div className="client-project-copy">
 
                       <p>
@@ -1156,136 +1576,17 @@ export default function ClientDashboard() {
 
                 </div>
 
-                {/* PROJECT STATUS */}
-
-                <section className="client-project-preview-panel is-ready">
-
-                  <div className="client-project-panel-heading">
-
-                    <Layers3 size={18} />
-
-                    <div>
-
-                      <h3>
-                        Project Progress
-                      </h3>
-
-                      <p>
-                        Project status is managed by
-                        EXCWA and updated as work
-                        progresses.
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  <div className="client-project-progress">
-
-                    <div
-                      className={
-                        selectedProject.status ===
-                          "assigned" ||
-                        selectedProject.status ===
-                          "in_progress" ||
-                        selectedProject.status ===
-                          "submitted" ||
-                        selectedProject.status ===
-                          "under_review" ||
-                        selectedProject.status ===
-                          "changes_requested" ||
-                        selectedProject.status ===
-                          "completed"
-                          ? "completed"
-                          : ""
-                      }
-                    >
-                      <span>
-                        01
-                      </span>
-
-                      <strong>
-                        Assigned
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        selectedProject.status ===
-                          "in_progress" ||
-                        selectedProject.status ===
-                          "submitted" ||
-                        selectedProject.status ===
-                          "under_review" ||
-                        selectedProject.status ===
-                          "changes_requested" ||
-                        selectedProject.status ===
-                          "completed"
-                          ? "completed"
-                          : ""
-                      }
-                    >
-                      <span>
-                        02
-                      </span>
-
-                      <strong>
-                        Development
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        selectedProject.status ===
-                          "submitted" ||
-                        selectedProject.status ===
-                          "under_review" ||
-                        selectedProject.status ===
-                          "changes_requested" ||
-                        selectedProject.status ===
-                          "completed"
-                          ? "completed"
-                          : ""
-                      }
-                    >
-                      <span>
-                        03
-                      </span>
-
-                      <strong>
-                        Review
-                      </strong>
-                    </div>
-
-                    <div
-                      className={
-                        selectedProject.status ===
-                          "completed"
-                          ? "completed"
-                          : ""
-                      }
-                    >
-                      <span>
-                        04
-                      </span>
-
-                      <strong>
-                        Completed
-                      </strong>
-                    </div>
-
-                  </div>
-
-                </section>
-
               </section>
+
             )}
 
-          {/* =================================================
+
+          {/* ==================================================
               MESSAGES
-              ================================================= */}
+              ================================================== */}
 
           {activeSection === "messages" && (
+
             <section className="client-portal-section">
 
               <div className="client-portal-empty">
@@ -1306,13 +1607,16 @@ export default function ClientDashboard() {
               </div>
 
             </section>
+
           )}
 
-          {/* =================================================
+
+          {/* ==================================================
               PAYMENTS
-              ================================================= */}
+              ================================================== */}
 
           {activeSection === "payments" && (
+
             <section className="client-portal-section">
 
               <div className="client-portal-empty">
@@ -1333,13 +1637,16 @@ export default function ClientDashboard() {
               </div>
 
             </section>
+
           )}
 
-          {/* =================================================
+
+          {/* ==================================================
               PROFILE
-              ================================================= */}
+              ================================================== */}
 
           {activeSection === "profile" && (
+
             <section className="client-portal-section">
 
               <div className="client-project-detail-grid">
@@ -1356,9 +1663,11 @@ export default function ClientDashboard() {
 
                   </div>
 
+
                   <div className="client-project-meta-grid">
 
                     <div>
+
                       <span>
                         Contact Name
                       </span>
@@ -1367,9 +1676,12 @@ export default function ClientDashboard() {
                         {client.contact_name ||
                           "Not set"}
                       </strong>
+
                     </div>
 
+
                     <div>
+
                       <span>
                         Company
                       </span>
@@ -1378,9 +1690,12 @@ export default function ClientDashboard() {
                         {client.company_name ||
                           "Not set"}
                       </strong>
+
                     </div>
 
+
                     <div>
+
                       <span>
                         Email
                       </span>
@@ -1389,9 +1704,12 @@ export default function ClientDashboard() {
                         {client.email ||
                           "Not set"}
                       </strong>
+
                     </div>
 
+
                     <div>
+
                       <span>
                         Phone
                       </span>
@@ -1400,6 +1718,7 @@ export default function ClientDashboard() {
                         {client.phone ||
                           "Not set"}
                       </strong>
+
                     </div>
 
                   </div>
@@ -1409,6 +1728,7 @@ export default function ClientDashboard() {
               </div>
 
             </section>
+
           )}
 
         </section>

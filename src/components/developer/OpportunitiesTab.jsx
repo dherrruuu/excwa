@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Briefcase,
@@ -7,6 +7,7 @@ import {
   RefreshCw,
   Send,
   AlertCircle,
+  Check,
 } from "lucide-react";
 
 import "../../styles/developer/opportunities.css";
@@ -14,29 +15,75 @@ import "../../styles/developer/components.css";
 
 import {
   getOpenOpportunities,
+  getMyApplications,
   applyToOpportunity,
 } from "../../services/developerService";
 
 export default function DeveloperOpportunities({
   devProfile,
-  onAssignmentCreated,
 }) {
   const [opportunities, setOpportunities] = useState([]);
+  const [applications, setApplications] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
   const [error, setError] = useState("");
+  const [applyError, setApplyError] = useState("");
 
   const [selectedOpportunity, setSelectedOpportunity] =
     useState(null);
 
   const [applying, setApplying] = useState(false);
-  const [applyError, setApplyError] = useState("");
 
   /* ============================================================
-     LOAD OPPORTUNITIES
+     NORMALIZE APPLICATION STATUS
   ============================================================ */
 
-  const loadOpportunities = useCallback(
+  const normalizeStatus = useCallback((status) => {
+    return String(status || "")
+      .trim()
+      .toLowerCase();
+  }, []);
+
+  /* ============================================================
+     APPLIED OPPORTUNITY MAP
+
+     Maps opportunity_id -> application status.
+
+     Example:
+     {
+       "uuid-1": "pending",
+       "uuid-2": "approved"
+     }
+  ============================================================ */
+
+  const appliedOpportunityMap = useMemo(() => {
+    const map = new Map();
+
+    if (!Array.isArray(applications)) {
+      return map;
+    }
+
+    applications.forEach((application) => {
+      if (!application?.opportunity_id) {
+        return;
+      }
+
+      map.set(
+        application.opportunity_id,
+        normalizeStatus(application.status)
+      );
+    });
+
+    return map;
+  }, [applications, normalizeStatus]);
+
+  /* ============================================================
+     LOAD OPPORTUNITIES + APPLICATIONS
+  ============================================================ */
+
+  const loadData = useCallback(
     async (showRefresh = false) => {
       try {
         setError("");
@@ -48,19 +95,41 @@ export default function DeveloperOpportunities({
         }
 
         console.log(
-          "EXCWA: Loading open opportunities..."
+          "EXCWA: Loading opportunities and applications..."
         );
 
-        const data = await getOpenOpportunities();
+        const [
+          opportunitiesResult,
+          applicationsResult,
+        ] = await Promise.all([
+          getOpenOpportunities(),
+          getMyApplications(),
+        ]);
+
+        const openOpportunities = Array.isArray(
+          opportunitiesResult
+        )
+          ? opportunitiesResult
+          : [];
+
+        const myApplications = Array.isArray(
+          applicationsResult
+        )
+          ? applicationsResult
+          : [];
 
         console.log(
           "EXCWA: Open opportunities received:",
-          data
+          openOpportunities
         );
 
-        setOpportunities(
-          Array.isArray(data) ? data : []
+        console.log(
+          "EXCWA: Developer applications received:",
+          myApplications
         );
+
+        setOpportunities(openOpportunities);
+        setApplications(myApplications);
       } catch (err) {
         console.error(
           "EXCWA: Failed to load opportunities:",
@@ -68,6 +137,7 @@ export default function DeveloperOpportunities({
         );
 
         setOpportunities([]);
+        setApplications([]);
 
         setError(
           err?.message ||
@@ -84,16 +154,15 @@ export default function DeveloperOpportunities({
   /* ============================================================
      INITIAL LOAD
 
-     IMPORTANT:
-     Do NOT wait for devProfile.id.
+     Do not wait for devProfile.id.
 
-     getOpenOpportunities() only queries public/open
-     opportunity records for the developer portal.
+     Both service functions already determine the
+     authenticated developer internally.
   ============================================================ */
 
   useEffect(() => {
-    loadOpportunities();
-  }, [loadOpportunities]);
+    loadData();
+  }, [loadData]);
 
   /* ============================================================
      APPLY
@@ -101,15 +170,34 @@ export default function DeveloperOpportunities({
 
   const handleApply = useCallback(async () => {
     if (!selectedOpportunity?.id) {
-      setApplyError(
-        "Invalid opportunity."
-      );
+      setApplyError("Invalid opportunity.");
       return;
     }
 
     if (!devProfile?.id) {
       setApplyError(
         "Developer profile is still loading. Please try again."
+      );
+      return;
+    }
+
+    const opportunityId =
+      selectedOpportunity.id;
+
+    /* ========================================================
+       FRONTEND DUPLICATE PROTECTION
+
+       Do not allow the modal to submit if the developer
+       has already applied.
+    ======================================================== */
+
+    if (
+      appliedOpportunityMap.has(
+        opportunityId
+      )
+    ) {
+      setApplyError(
+        "You have already applied to this opportunity."
       );
       return;
     }
@@ -121,15 +209,13 @@ export default function DeveloperOpportunities({
 
       console.log(
         "EXCWA: Applying for opportunity:",
-        selectedOpportunity.id
+        opportunityId
       );
 
       const result =
         await applyToOpportunity({
-          opportunityId:
-            selectedOpportunity.id,
-          developerId:
-            devProfile.id,
+          opportunityId,
+          developerId: devProfile.id,
         });
 
       console.log(
@@ -137,34 +223,56 @@ export default function DeveloperOpportunities({
         result
       );
 
-      const appliedId =
-        selectedOpportunity.id;
+      /* ======================================================
+         KEEP THE OPPORTUNITY VISIBLE
+
+         Instead of removing it from the list, we add the
+         application locally so the button immediately becomes
+         "Applied ✓".
+      ====================================================== */
+
+      const newApplication = {
+        id:
+          result?.application_id ||
+          result?.id ||
+          `local-${opportunityId}`,
+        opportunity_id:
+          result?.opportunity_id ||
+          opportunityId,
+        developer_id:
+          result?.developer_id ||
+          devProfile.id,
+        status:
+          normalizeStatus(
+            result?.application_status
+          ) || "pending",
+      };
+
+      setApplications((current) => {
+        const alreadyExists = current.some(
+          (application) =>
+            application?.opportunity_id ===
+            opportunityId
+        );
+
+        if (alreadyExists) {
+          return current;
+        }
+
+        return [
+          ...current,
+          newApplication,
+        ];
+      });
 
       setSelectedOpportunity(null);
       setApplyError("");
 
       /*
-       * Remove immediately so the user does not
-       * see the same opportunity again.
+       * Re-check the database so the UI is synchronized
+       * with the actual application record.
        */
-      setOpportunities((current) =>
-        current.filter(
-          (item) =>
-            item.id !== appliedId
-        )
-      );
-
-      /*
-       * Refresh dashboard assignment.
-       */
-      if (onAssignmentCreated) {
-        await onAssignmentCreated();
-      }
-
-      /*
-       * Re-check database.
-       */
-      await loadOpportunities();
+      await loadData();
     } catch (err) {
       console.error(
         "EXCWA: Application failed:",
@@ -177,18 +285,19 @@ export default function DeveloperOpportunities({
       );
 
       /*
-       * Refresh because the opportunity may have
-       * been claimed by somebody else.
+       * Refresh because the opportunity or application
+       * may have changed while the request was running.
        */
-      await loadOpportunities(true);
+      await loadData(true);
     } finally {
       setApplying(false);
     }
   }, [
     selectedOpportunity,
     devProfile?.id,
-    onAssignmentCreated,
-    loadOpportunities,
+    appliedOpportunityMap,
+    normalizeStatus,
+    loadData,
   ]);
 
   /* ============================================================
@@ -198,8 +307,7 @@ export default function DeveloperOpportunities({
   function formatDate(date) {
     if (!date) return "—";
 
-    const parsedDate =
-      new Date(date);
+    const parsedDate = new Date(date);
 
     if (
       Number.isNaN(
@@ -324,7 +432,7 @@ export default function DeveloperOpportunities({
           type="button"
           className="dev-opportunities-refresh"
           onClick={() =>
-            loadOpportunities(true)
+            loadData(true)
           }
           disabled={refreshing}
         >
@@ -359,7 +467,7 @@ export default function DeveloperOpportunities({
             type="button"
             className="dev-opportunities-empty-refresh"
             onClick={() =>
-              loadOpportunities(true)
+              loadData(true)
             }
             disabled={refreshing}
           >
@@ -394,7 +502,7 @@ export default function DeveloperOpportunities({
               type="button"
               className="dev-opportunities-empty-refresh"
               onClick={() =>
-                loadOpportunities(true)
+                loadData(true)
               }
               disabled={refreshing}
             >
@@ -429,6 +537,16 @@ export default function DeveloperOpportunities({
                   opportunity.deliverables
                 );
 
+              const hasApplied =
+                appliedOpportunityMap.has(
+                  opportunity.id
+                );
+
+              const applicationStatus =
+                appliedOpportunityMap.get(
+                  opportunity.id
+                );
+
               return (
                 <article
                   className="dev-opportunity-card"
@@ -443,8 +561,16 @@ export default function DeveloperOpportunities({
                         "Project"}
                     </span>
 
-                    <span className="dev-opportunity-status">
-                      Open
+                    <span
+                      className={
+                        hasApplied
+                          ? "dev-opportunity-status dev-opportunity-status-applied"
+                          : "dev-opportunity-status"
+                      }
+                    >
+                      {hasApplied
+                        ? "Applied"
+                        : "Open"}
                     </span>
                   </div>
 
@@ -541,23 +667,65 @@ export default function DeveloperOpportunities({
 
                   </div>
 
-                  {/* APPLY BUTTON */}
+                  {/* ==================================================
+                      APPLY BUTTON
+
+                      Applied:
+                      - remains visible
+                      - disabled
+                      - cannot open modal
+
+                      Not applied:
+                      - opens modal
+                  ================================================== */}
 
                   <button
                     type="button"
-                    className="dev-opportunity-apply"
+                    className={
+                      hasApplied
+                        ? "dev-opportunity-apply dev-opportunity-apply-applied"
+                        : "dev-opportunity-apply"
+                    }
                     onClick={() => {
+                      if (hasApplied) {
+                        return;
+                      }
+
                       setSelectedOpportunity(
                         opportunity
                       );
 
                       setApplyError("");
                     }}
+                    disabled={hasApplied}
+                    aria-disabled={hasApplied}
                   >
-                    <Send size={14} />
+                    {hasApplied ? (
+                      <>
+                        <Check size={14} />
 
-                    View & Apply
+                        Applied ✓
+                      </>
+                    ) : (
+                      <>
+                        <Send size={14} />
+
+                        View & Apply
+                      </>
+                    )}
                   </button>
+
+                  {/* APPLICATION STATUS */}
+
+                  {hasApplied && (
+                    <span className="dev-opportunity-application-status">
+                      Application status:{" "}
+                      <strong>
+                        {applicationStatus ||
+                          "pending"}
+                      </strong>
+                    </span>
+                  )}
 
                 </article>
               );

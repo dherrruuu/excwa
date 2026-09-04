@@ -14,6 +14,10 @@ import {
 import { supabase } from "../../lib/supabase";
 import "../../styles/client-portal.css";
 
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
 const formatDate = (value) => {
   if (!value) return "Not set";
 
@@ -30,10 +34,38 @@ const formatDate = (value) => {
   });
 };
 
+
 const formatStatus = (status) => {
   return String(status || "unknown")
-    .replaceAll("_", " ");
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 };
+
+
+const getStatusClass = (status) => {
+  return `status-${String(status || "unknown").replaceAll(
+    "_",
+    "-"
+  )}`;
+};
+
+
+/* ============================================================
+   ACTIVE PROJECT STATUSES
+   ============================================================ */
+
+const ACTIVE_PROJECT_STATUSES = new Set([
+  "assigned",
+  "in_progress",
+  "submitted",
+  "under_review",
+  "changes_requested",
+]);
+
+
+/* ============================================================
+   COMPONENT
+   ============================================================ */
 
 export default function ClientProjects() {
   const navigate = useNavigate();
@@ -42,6 +74,11 @@ export default function ClientProjects() {
   const [projects, setProjects] = useState([]);
   const [error, setError] = useState("");
 
+
+  /* ==========================================================
+     LOAD CLIENT PROJECTS
+     ========================================================== */
+
   useEffect(() => {
     let mounted = true;
 
@@ -49,6 +86,10 @@ export default function ClientProjects() {
       try {
         setLoading(true);
         setError("");
+
+        /* ====================================================
+           GET AUTHENTICATED USER
+           ==================================================== */
 
         const {
           data: { user },
@@ -66,6 +107,11 @@ export default function ClientProjects() {
 
           return;
         }
+
+
+        /* ====================================================
+           GET CLIENT ACCOUNT
+           ==================================================== */
 
         const {
           data: clientUser,
@@ -85,6 +131,11 @@ export default function ClientProjects() {
             "Client account is not connected."
           );
         }
+
+
+        /* ====================================================
+           GET PROJECTS
+           ==================================================== */
 
         const {
           data,
@@ -114,7 +165,7 @@ export default function ClientProjects() {
         }
 
         if (mounted) {
-          setProjects(data || []);
+          setProjects(Array.isArray(data) ? data : []);
         }
       } catch (loadError) {
         console.error(
@@ -124,8 +175,9 @@ export default function ClientProjects() {
 
         if (mounted) {
           setProjects([]);
+
           setError(
-            loadError.message ||
+            loadError?.message ||
               "Unable to load your projects."
           );
         }
@@ -143,9 +195,10 @@ export default function ClientProjects() {
     };
   }, [navigate]);
 
-  // ==========================================================
-  // LOADING
-  // ==========================================================
+
+  /* ==========================================================
+     LOADING
+     ========================================================== */
 
   if (loading) {
     return (
@@ -155,16 +208,15 @@ export default function ClientProjects() {
           className="client-portal-loading-spinner"
         />
 
-        <p>
-          Loading your projects...
-        </p>
+        <p>Loading your projects...</p>
       </div>
     );
   }
 
-  // ==========================================================
-  // ERROR
-  // ==========================================================
+
+  /* ==========================================================
+     ERROR
+     ========================================================== */
 
   if (error) {
     return (
@@ -172,13 +224,9 @@ export default function ClientProjects() {
         <div className="client-portal-error-card">
           <FolderKanban size={32} />
 
-          <h2>
-            Projects unavailable
-          </h2>
+          <h2>Projects unavailable</h2>
 
-          <p>
-            {error}
-          </p>
+          <p>{error}</p>
 
           <button
             type="button"
@@ -193,36 +241,34 @@ export default function ClientProjects() {
     );
   }
 
-  // ==========================================================
-  // PROJECT COUNTS
-  // ==========================================================
 
-  const activeProjects = projects.filter(
-    (project) =>
-      project.status === "assigned" ||
-      project.status === "in_progress" ||
-      project.status === "submitted" ||
-      project.status === "under_review" ||
-      project.status === "changes_requested"
+  /* ==========================================================
+     PROJECT COUNTS
+     ========================================================== */
+
+  const activeProjects = projects.filter((project) =>
+    ACTIVE_PROJECT_STATUSES.has(project.status)
   );
 
   const completedProjects = projects.filter(
-    (project) =>
-      project.status === "completed"
+    (project) => project.status === "completed"
   );
 
-  // ==========================================================
-  // PAGE
-  // ==========================================================
+
+  /* ==========================================================
+     PAGE
+     ========================================================== */
 
   return (
     <div className="client-portal">
 
-      {/* ====================================================
+      {/* ======================================================
           SIDEBAR
-          ==================================================== */}
+          ====================================================== */}
 
       <aside className="client-portal-sidebar">
+
+        {/* BRAND */}
 
         <div className="client-portal-brand">
           <div className="client-portal-brand-mark">
@@ -230,15 +276,14 @@ export default function ClientProjects() {
           </div>
 
           <div>
-            <strong>
-              EXCWA
-            </strong>
+            <strong>EXCWA</strong>
 
-            <span>
-              CLIENT PORTAL
-            </span>
+            <span>CLIENT PORTAL</span>
           </div>
         </div>
+
+
+        {/* NAVIGATION */}
 
         <nav className="client-portal-nav">
 
@@ -250,46 +295,62 @@ export default function ClientProjects() {
             }
           >
             <FolderKanban size={18} />
+
             <span>Overview</span>
           </button>
+
 
           <button
             type="button"
             className="client-portal-nav-item active"
+            onClick={() =>
+              navigate("/client/projects")
+            }
           >
             <BriefcaseBusiness size={18} />
+
             <span>Projects</span>
           </button>
+
 
           <button
             type="button"
             className="client-portal-nav-item"
+            disabled
           >
             <span>Messages</span>
+
             <span className="client-portal-nav-badge">
               Soon
             </span>
           </button>
 
+
           <button
             type="button"
             className="client-portal-nav-item"
+            disabled
           >
             <span>Payments</span>
+
             <span className="client-portal-nav-badge">
               Soon
             </span>
           </button>
 
         </nav>
-
       </aside>
 
-      {/* ====================================================
+
+      {/* ======================================================
           MAIN
-          ==================================================== */}
+          ====================================================== */}
 
       <main className="client-portal-main">
+
+        {/* ====================================================
+            TOP BAR
+            ==================================================== */}
 
         <header className="client-portal-topbar">
 
@@ -298,10 +359,9 @@ export default function ClientProjects() {
               CLIENT PORTAL
             </span>
 
-            <h1>
-              Projects
-            </h1>
+            <h1>Projects</h1>
           </div>
+
 
           <button
             type="button"
@@ -311,187 +371,235 @@ export default function ClientProjects() {
             }
           >
             <ArrowLeft size={16} />
+
             Back to overview
           </button>
 
         </header>
 
+
+        {/* ====================================================
+            CONTENT
+            ==================================================== */}
+
         <section className="client-portal-content">
 
-          {/* =================================================
+          {/* ==================================================
               HEADER
-              ================================================= */}
+              ================================================== */}
 
           <div className="client-portal-section-header">
 
             <div>
-              <span>
-                YOUR WORKSPACE
-              </span>
+              <span>YOUR WORKSPACE</span>
 
-              <h2>
-                All Projects
-              </h2>
+              <h2>All Projects</h2>
             </div>
 
           </div>
 
-          {/* =================================================
+
+          {/* ==================================================
               SUMMARY
-              ================================================= */}
+              ================================================== */}
 
           <div className="client-portal-stats">
 
+            {/* TOTAL */}
+
             <div className="client-portal-stat-card">
+
               <div className="client-portal-stat-icon">
                 <BriefcaseBusiness size={20} />
               </div>
 
               <div>
-                <span>
-                  Total Projects
-                </span>
+                <span>Total Projects</span>
 
                 <strong>
                   {projects.length}
                 </strong>
               </div>
+
             </div>
 
+
+            {/* ACTIVE */}
+
             <div className="client-portal-stat-card">
+
               <div className="client-portal-stat-icon">
                 <Clock3 size={20} />
               </div>
 
               <div>
-                <span>
-                  Active
-                </span>
+                <span>Active</span>
 
                 <strong>
                   {activeProjects.length}
                 </strong>
               </div>
+
             </div>
 
+
+            {/* COMPLETED */}
+
             <div className="client-portal-stat-card">
+
               <div className="client-portal-stat-icon">
                 <CheckCircle2 size={20} />
               </div>
 
               <div>
-                <span>
-                  Completed
-                </span>
+                <span>Completed</span>
 
                 <strong>
                   {completedProjects.length}
                 </strong>
               </div>
+
             </div>
 
           </div>
 
-          {/* =================================================
+
+          {/* ==================================================
               PROJECT LIST
-              ================================================= */}
+              ================================================== */}
 
           {projects.length === 0 ? (
+
+            /* ==================================================
+               EMPTY STATE
+               ================================================== */
+
             <div className="client-portal-empty">
 
               <div className="client-portal-empty-icon">
                 <FolderKanban size={24} />
               </div>
 
-              <h3>
-                No projects yet
-              </h3>
+              <h3>No projects yet</h3>
 
               <p>
-                Your EXCWA projects will appear
-                here once they are created.
+                Your EXCWA projects will appear here once
+                they are created.
               </p>
 
             </div>
+
           ) : (
+
+            /* ==================================================
+               PROJECT CARDS
+               ================================================== */
+
             <div className="client-portal-project-list">
 
-              {projects.map((project) => (
-                <button
-                  key={project.id}
-                  type="button"
-                  className="client-portal-project-card"
-                  onClick={() =>
-                    navigate(
-                      `/client/projects/${project.id}`
-                    )
-                  }
-                >
+              {projects.map((project) => {
 
-                  <div className="client-portal-project-main">
+                const projectStatus =
+                  project.status || "unknown";
 
-                    <div className="client-portal-project-icon">
-                      <BriefcaseBusiness size={20} />
+                const projectCategory =
+                  project.category ||
+                  project.project_type ||
+                  "Project";
+
+                const projectDate = project.deadline
+                  ? `Due ${formatDate(project.deadline)}`
+                  : `Created ${formatDate(
+                      project.created_at
+                    )}`;
+
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    className="client-portal-project-card"
+                    onClick={() =>
+                      navigate(
+                        `/client/projects/${project.id}`
+                      )
+                    }
+                  >
+
+                    {/* ========================================
+                        PROJECT MAIN
+                    ======================================== */}
+
+                    <div className="client-portal-project-main">
+
+                      <div className="client-portal-project-icon">
+                        <BriefcaseBusiness size={20} />
+                      </div>
+
+
+                      <div>
+
+                        <h3>
+                          {project.title ||
+                            "Untitled Project"}
+                        </h3>
+
+                        <span>
+                          {projectCategory}
+                        </span>
+
+                        <p>
+                          {project.description ||
+                            "No project description available."}
+                        </p>
+
+                      </div>
+
                     </div>
 
-                    <div>
 
-                      <h3>
-                        {project.title}
-                      </h3>
+                    {/* ========================================
+                        PROJECT STATUS
+                    ======================================== */}
 
-                      <span>
-                        {project.category ||
-                          project.project_type ||
-                          "Project"}
+                    <div className="client-portal-project-status">
+
+                      <span
+                        className={`client-project-status ${getStatusClass(
+                          projectStatus
+                        )}`}
+                      >
+                        {formatStatus(projectStatus)}
                       </span>
 
-                      <p>
-                        {project.description ||
-                          "No project description available."}
-                      </p>
+
+                      {/* DATE */}
+
+                      <div className="client-portal-project-date">
+
+                        <CalendarDays size={14} />
+
+                        <span>
+                          {projectDate}
+                        </span>
+
+                      </div>
+
+
+                      {/* ARROW */}
+
+                      <ArrowRight size={18} />
 
                     </div>
 
-                  </div>
-
-                  <div className="client-portal-project-status">
-
-                    <span
-                      className={`client-project-status status-${String(
-                        project.status || "unknown"
-                      ).replaceAll("_", "-")}`}
-                    >
-                      {formatStatus(project.status)}
-                    </span>
-
-                    <div className="client-portal-project-date">
-                      <CalendarDays size={14} />
-                      <span>
-                        {project.deadline
-                          ? `Due ${formatDate(
-                              project.deadline
-                            )}`
-                          : `Created ${formatDate(
-                              project.created_at
-                            )}`}
-                      </span>
-                    </div>
-
-                    <ArrowRight size={18} />
-
-                  </div>
-
-                </button>
-              ))}
+                  </button>
+                );
+              })}
 
             </div>
           )}
 
         </section>
-
       </main>
-
     </div>
   );
 }

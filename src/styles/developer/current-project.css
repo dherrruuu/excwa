@@ -1,39 +1,31 @@
 /* ============================================================
-   EXCWA TECH — CURRENT PROJECT / MY WORK
-   Sparse • Premium • Dark • Cyan Accent
-   ============================================================ */
-
-
-/* ============================================================
-   ROOT CONTAINER
+   EXCWA TECH — DEVELOPER
+   CURRENT PROJECT / MY WORK
+   Premium Glassmorphism • Dark Tech • Cyan/Violet
    ============================================================ */
 
 .dev-current-project {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-
-  color: var(--dev-text, #edf2f7);
+  color: var(--dev-text, #edf4fa);
 }
-
 
 /* ============================================================
    PROJECT HEADER
    ============================================================ */
 
 .dev-project-header {
+  position: relative;
   width: 100%;
   min-width: 0;
-
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
-  gap: 18px;
-  margin-bottom: 18px;
-  padding-bottom: 15px;
-
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  gap: 24px;
+  margin-bottom: 22px;
+  padding: 0 0 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .dev-project-heading {
@@ -41,75 +33,62 @@
   flex: 1 1 auto;
 }
 
-
-/* ============================================================
-   CATEGORY
-   ============================================================ */
-
 .dev-project-heading .dev-opp-category {
   display: inline-flex;
   align-items: center;
-
   max-width: 100%;
-
-  margin-bottom: 7px;
-  padding: 4px 7px;
-
-  border: 1px solid rgba(85, 220, 255, 0.12);
-  border-radius: 5px;
-
-  background: rgba(85, 220, 255, 0.025);
-
-  color: var(--dev-cyan, #55dcff);
-
-  font-size: 7px;
-  line-height: 1.3;
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  border: 1px solid rgba(85, 220, 255, 0.18);
+  border-radius: 999px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(85, 220, 255, 0.09),
+      rgba(98, 226, 255, 0.025)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 18px rgba(85, 220, 255, 0.035);
+  color: #62e2ff;
+  font-size: 9px;
+  line-height: 1;
   font-weight: 700;
-
-  letter-spacing: 0.07em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-
   overflow-wrap: anywhere;
 }
-
-
-/* ============================================================
-   PROJECT TITLE
-   ============================================================ */
 
 .dev-project-heading h2 {
   margin: 0;
-
-  color: #edf2f7;
-
-  font-size: clamp(20px, 2.5vw, 25px);
-  line-height: 1.25;
-  font-weight: 700;
-
-  letter-spacing: -0.025em;
-
+  color: #f3f7fb;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -0.035em;
   overflow-wrap: anywhere;
 }
-
-
-/* ============================================================
-   PROJECT META / ID
-   ============================================================ */
 
 .dev-project-heading p {
-  max-width: 700px;
-
-  margin: 6px 0 0;
-
-  color: #667386;
-
-  font-size: 8px;
+  max-width: 760px;
+  margin: 9px 0 0;
+  color: #7d8998;
+  font-size: 11px;
   line-height: 1.55;
   font-weight: 500;
-
   overflow-wrap: anywhere;
 }
 
+.dev-project-id {
+  color: #9ba9b8;
+  font-family:
+    "SFMono-Regular",
+    "Cascadia Code",
+    "Roboto Mono",
+    Consolas,
+    monospace;
+  font-size: 10px;
+}
 
 /* ============================================================
    PROJECT ACTIONS
@@ -117,93 +96,123 @@
 
 .dev-project-actions {
   flex: 0 0 auto;
-
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
-  gap: 7px;
+  gap: 9px;
 }
 
 .dev-project-actions .dev-status-badge {
-  min-height: 27px;
+  min-height: 32px;
 }
 
 .dev-project-actions .dev-icon-button {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  color: #9eacba;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
+.dev-project-actions .dev-icon-button:hover:not(:disabled) {
+  color: #62e2ff;
+  border-color: rgba(98, 226, 255, 0.25);
+  background: rgba(98, 226, 255, 0.055);
+  box-shadow: 0 0 18px rgba(98, 226, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.dev-project-actions .dev-icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* ============================================================
-   REVIEWER FEEDBACK
+   STATUS BADGE
+   ============================================================ */
+
+.dev-current-project .dev-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 30px;
+  box-sizing: border-box;
+  padding: 6px 10px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dev-current-project .dev-status-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* ============================================================
+   CHANGES REQUESTED
    ============================================================ */
 
 .dev-changes-requested-panel {
   position: relative;
-
-  margin-top: 15px;
-
-  border: 1px solid rgba(231, 184, 102, 0.14);
-  border-radius: 9px;
-
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255, 202, 112, 0.16);
+  border-radius: 14px;
   background:
     linear-gradient(
-      145deg,
-      rgba(231, 184, 102, 0.032),
-      rgba(231, 184, 102, 0.006)
-    );
-
+      135deg,
+      rgba(255, 202, 112, 0.055),
+      rgba(255, 202, 112, 0.012)
+    ),
+    rgba(255, 255, 255, 0.012);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 12px 30px rgba(0, 0, 0, 0.12);
   overflow: hidden;
 }
 
-
-/* ============================================================
-   FEEDBACK HEADER
-   ============================================================ */
-
 .dev-changes-requested-header {
   display: grid;
-
-  grid-template-columns:
-    auto
-    minmax(0, 1fr)
-    auto;
-
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-
-  gap: 9px;
-
-  padding: 10px 11px;
-
-  border-bottom: 1px solid rgba(231, 184, 102, 0.075);
+  gap: 12px;
+  padding: 13px 15px;
+  border-bottom: 1px solid rgba(255, 202, 112, 0.08);
 }
 
-
-/* ============================================================
-   FEEDBACK ICON
-   ============================================================ */
-
 .dev-changes-requested-icon {
-  width: 30px;
-  height: 30px;
-
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  border: 1px solid rgba(231, 184, 102, 0.14);
-  border-radius: 7px;
-
-  background: rgba(231, 184, 102, 0.035);
-
-  color: var(--dev-yellow, #e7b866);
+  border: 1px solid rgba(255, 202, 112, 0.17);
+  border-radius: 10px;
+  background: rgba(255, 202, 112, 0.045);
+  color: #ffca70;
 }
-
-
-/* ============================================================
-   FEEDBACK HEADER CONTENT
-   ============================================================ */
 
 .dev-changes-requested-header > div:nth-child(2) {
   min-width: 0;
@@ -211,515 +220,535 @@
 
 .dev-changes-requested-header span {
   display: block;
-
-  color: #8e7952;
-
-  font-size: 7px;
-  line-height: 1.3;
+  color: #a88a58;
+  font-size: 8px;
+  line-height: 1.2;
   font-weight: 700;
-
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .dev-changes-requested-header h3 {
-  margin: 3px 0 0;
-
-  color: #e8dcc3;
-
-  font-size: 10px;
-  line-height: 1.35;
-  font-weight: 700;
-
-  overflow-wrap: anywhere;
-}
-
-
-/* ============================================================
-   FEEDBACK BODY
-   ============================================================ */
-
-.dev-changes-requested-body {
-  padding: 11px;
-}
-
-
-/* ============================================================
-   FEEDBACK LABEL
-   ============================================================ */
-
-.dev-feedback-label {
-  margin: 0 0 5px;
-
-  color: #8f7b56;
-
-  font-size: 7px;
+  margin: 4px 0 0;
+  color: #eee3ce;
+  font-size: 12px;
   line-height: 1.3;
   font-weight: 700;
+}
 
+.dev-changes-requested-body {
+  padding: 15px;
+}
+
+.dev-feedback-label {
+  margin: 0 0 7px;
+  color: #a18b67;
+  font-size: 8px;
+  line-height: 1.3;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-
-/* ============================================================
-   REVIEW MESSAGE
-   ============================================================ */
-
 .dev-review-message {
-  padding: 10px;
-
-  border: 1px solid rgba(231, 184, 102, 0.085);
-  border-radius: 7px;
-
-  background: rgba(0, 0, 0, 0.13);
-
-  color: #cbbfa9;
-
-  font-size: 9px;
-  line-height: 1.65;
-
+  padding: 12px 13px;
+  border: 1px solid rgba(255, 202, 112, 0.09);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.16);
+  color: #d2c5ad;
+  font-size: 10px;
+  line-height: 1.7;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
 .dev-review-message-empty {
   margin: 0;
-
-  color: #8e806a;
-
-  font-size: 9px;
-  line-height: 1.6;
+  color: #9c8e77;
+  font-size: 10px;
+  line-height: 1.7;
 }
 
 .dev-review-meta {
   display: flex;
   align-items: center;
-
   gap: 6px;
-  margin-top: 7px;
-
-  color: #685f51;
-
-  font-size: 7px;
-  line-height: 1.4;
+  margin-top: 9px;
+  color: #756a58;
+  font-size: 8px;
 }
 
 .dev-feedback-instruction {
-  margin: 9px 0 0;
-
-  color: #897b66;
-
-  font-size: 8px;
-  line-height: 1.6;
+  margin: 11px 0 0;
+  color: #92846e;
+  font-size: 9px;
+  line-height: 1.65;
 }
 
 .dev-feedback-instruction strong {
-  color: #c7b796;
+  color: #d2c19e;
 }
 
-
 /* ============================================================
-   PROJECT SECTION
+   GENERIC PROJECT SECTION
    ============================================================ */
 
 .dev-project-section {
+  position: relative;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-
-  margin-top: 15px;
-  padding: 13px;
-
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 9px;
-
+  margin-top: 16px;
+  padding: 17px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 14px;
   background:
     linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.014),
-      rgba(255, 255, 255, 0.004)
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
     );
-
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 10px 30px rgba(0, 0, 0, 0.12);
   overflow: hidden;
 }
 
+.dev-project-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(98, 226, 255, 0.22),
+      transparent
+    );
+  opacity: 0.7;
+}
 
-/* ============================================================
-   SECTION TITLE
-   ============================================================ */
-
-.dev-project-section h3 {
+.dev-project-section-heading {
   display: flex;
   align-items: center;
+  gap: 9px;
+  margin-bottom: 11px;
+}
 
-  gap: 7px;
+.dev-project-section-heading svg {
+  flex: 0 0 auto;
+  color: #62e2ff;
+  filter: drop-shadow(0 0 6px rgba(98, 226, 255, 0.16));
+}
 
-  margin: 0 0 8px;
-
-  color: #e5ebf1;
-
-  font-size: 10px;
+.dev-project-section-heading h3 {
+  margin: 0;
+  color: #e7edf4;
+  font-size: 12px;
   line-height: 1.35;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
-
-
-/* ============================================================
-   CYAN SECTION INDICATOR
-   ============================================================ */
-
-.dev-project-section h3::before {
-  content: "";
-
-  width: 3px;
-  height: 14px;
-
-  flex: 0 0 3px;
-
-  border-radius: 2px;
-
-  background: var(--dev-cyan, #55dcff);
-
-  box-shadow:
-    0 0 8px rgba(85, 220, 255, 0.16);
-}
-
-
-/* ============================================================
-   SECTION DESCRIPTION
-   ============================================================ */
 
 .dev-project-section > p {
   margin: 0;
-
-  color: #8b98a8;
-
-  font-size: 9px;
-  line-height: 1.7;
-
+  color: #9aa7b6;
+  font-size: 10px;
+  line-height: 1.75;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-
 /* ============================================================
-   PROJECT INFO GRID
+   REQUIREMENT
    ============================================================ */
 
-.dev-project-grid {
+.dev-project-requirement {
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(98, 226, 255, 0.045),
+      transparent 38%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.01)
+    );
+}
+
+/* ============================================================
+   PROJECT INFORMATION GRID
+   ============================================================ */
+
+.dev-project-info-grid {
   width: 100%;
   min-width: 0;
-
   display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 8px;
-
-  margin-top: 9px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 16px;
 }
 
-
-/* ============================================================
-   INFO CARD
-   ============================================================ */
-
-.dev-project-info {
+.dev-project-info-card {
   position: relative;
-
   min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
   box-sizing: border-box;
-
-  padding: 11px;
-
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 13px;
   background:
-    rgba(255, 255, 255, 0.011);
-
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.008)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    0 8px 22px rgba(0, 0, 0, 0.1);
   transition:
-    transform var(--dev-transition),
-    border-color var(--dev-transition),
-    background var(--dev-transition);
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+  overflow: hidden;
 }
 
-
-/* ============================================================
-   INFO CARD HOVER
-   ============================================================ */
-
-.dev-project-info:hover {
-  transform: translateY(-1px);
-
-  border-color: rgba(85, 220, 255, 0.12);
-
+.dev-project-info-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
-    rgba(85, 220, 255, 0.016);
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(98, 226, 255, 0.045),
+      transparent 48%
+    );
+  pointer-events: none;
 }
 
+.dev-project-info-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(98, 226, 255, 0.14);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(98, 226, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 12px 28px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(98, 226, 255, 0.025);
+}
 
-/* ============================================================
-   INFO LABEL
-   ============================================================ */
+.dev-project-info-icon {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(98, 226, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(98, 226, 255, 0.035);
+  color: #62e2ff;
+}
 
-.dev-project-info span {
+.dev-project-info-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.dev-project-info-content span {
   display: block;
-
   margin-bottom: 4px;
-
-  color: #5e6b7c;
-
-  font-size: 7px;
-  line-height: 1.3;
+  color: #687586;
+  font-size: 8px;
+  line-height: 1.25;
   font-weight: 700;
-
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-
-/* ============================================================
-   INFO VALUE
-   ============================================================ */
-
-.dev-project-info strong {
+.dev-project-info-content strong {
   display: block;
-
-  color: #d5dee8;
-
-  font-size: 9px;
+  color: #dce5ee;
+  font-size: 11px;
   line-height: 1.45;
   font-weight: 650;
-
   overflow-wrap: anywhere;
   word-break: break-word;
 }
 
-
 /* ============================================================
-   TECHNOLOGY / SKILLS CONTAINER
+   TAGS
    ============================================================ */
 
 .dev-current-project .dev-opp-tags {
   width: 100%;
   min-width: 0;
-
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-
-  gap: 5px;
+  gap: 7px;
 }
-
-
-/* ============================================================
-   PROJECT TAG
-   ============================================================ */
 
 .dev-current-project .dev-tag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   max-width: 100%;
-  min-height: 25px;
-
+  min-height: 29px;
   box-sizing: border-box;
-
-  padding: 4px 7px;
-
-  border: 1px solid rgba(255, 255, 255, 0.055);
-  border-radius: 6px;
-
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
   background:
-    rgba(255, 255, 255, 0.013);
-
-  color: #97a5b6;
-
-  font-size: 8px;
-  line-height: 1.3;
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+  color: #a5b2c0;
+  font-size: 9px;
+  line-height: 1.25;
   font-weight: 600;
-
   white-space: normal;
   overflow-wrap: anywhere;
   word-break: break-word;
-
   transition:
-    transform var(--dev-transition),
-    color var(--dev-transition),
-    border-color var(--dev-transition),
-    background var(--dev-transition);
+    transform 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
-
-
-/* ============================================================
-   TAG HOVER
-   ============================================================ */
 
 .dev-current-project .dev-tag:hover {
   transform: translateY(-1px);
-
   color: #e8faff;
-
-  border-color: rgba(85, 220, 255, 0.2);
-
-  background:
-    rgba(85, 220, 255, 0.028);
+  border-color: rgba(98, 226, 255, 0.2);
+  background: rgba(98, 226, 255, 0.045);
+  box-shadow: 0 0 15px rgba(98, 226, 255, 0.045);
 }
 
-
 /* ============================================================
-   DELIVERABLE LIST
+   DELIVERABLES
    ============================================================ */
 
-.dev-project-section ul {
+.dev-deliverables {
+  width: 100%;
+  min-width: 0;
+}
+
+.dev-deliverables > p {
   margin: 0;
-
-  padding-left: 17px;
-
-  color: #8f9bab;
-
-  font-size: 9px;
-  line-height: 1.7;
+  color: #9aa7b6;
+  font-size: 10px;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
-.dev-project-section li {
-  padding-left: 2px;
+.dev-deliverable-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.014);
+  color: #aab6c4;
+  font-size: 10px;
+  line-height: 1.55;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
-.dev-project-section li + li {
-  margin-top: 3px;
+.dev-deliverable-item + .dev-deliverable-item {
+  margin-top: 7px;
 }
 
+.dev-deliverable-item svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #69e5b7;
+  filter: drop-shadow(0 0 6px rgba(105, 229, 183, 0.12));
+}
+
+.dev-deliverable-item span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.dev-deliverable-item:hover {
+  transform: translateX(2px);
+  border-color: rgba(105, 229, 183, 0.12);
+  background: rgba(105, 229, 183, 0.025);
+}
 
 /* ============================================================
-   LAST SECTION
+   EMPTY / LOADING STATES
    ============================================================ */
 
-.dev-project-section:last-child {
-  margin-bottom: 0;
+.dev-current-project .dev-tab-empty {
+  min-height: 260px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 14px;
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(98, 226, 255, 0.035),
+      transparent 45%
+    ),
+    rgba(255, 255, 255, 0.012);
+  text-align: center;
 }
 
+.dev-current-project .dev-empty-icon {
+  color: #627180;
+  margin-bottom: 13px;
+}
+
+.dev-current-project .dev-tab-empty h3 {
+  margin: 0;
+  color: #dce5ed;
+  font-size: 15px;
+}
+
+.dev-current-project .dev-tab-empty p {
+  max-width: 420px;
+  margin: 7px 0 0;
+  color: #778494;
+  font-size: 10px;
+  line-height: 1.65;
+}
 
 /* ============================================================
-   RESPONSIVE — TABLET
+   RESPONSIVE
    ============================================================ */
 
 @media (max-width: 900px) {
-  .dev-project-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
-}
-
-
-/* ============================================================
-   RESPONSIVE — MOBILE
-   ============================================================ */
-
-@media (max-width: 640px) {
-  .dev-current-project {
-    width: 100%;
+  .dev-project-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dev-project-header {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 16px;
+  }
+}
 
-    gap: 12px;
+@media (max-width: 640px) {
+  .dev-project-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 13px;
   }
 
   .dev-project-actions {
-    width: 100%;
-
     justify-content: flex-start;
   }
 
-  .dev-project-grid {
+  .dev-project-info-grid {
     grid-template-columns: 1fr;
   }
 
   .dev-project-section {
-    padding: 12px;
+    padding: 14px;
   }
 
   .dev-project-heading h2 {
-    font-size: 21px;
+    font-size: 22px;
+  }
+
+  .dev-project-heading p {
+    font-size: 10px;
   }
 
   .dev-changes-requested-header {
-    grid-template-columns:
-      auto
-      minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
   }
 
   .dev-changes-requested-header > :last-child {
     grid-column: 2;
+    justify-self: start;
   }
 }
-
-
-/* ============================================================
-   RESPONSIVE — SMALL MOBILE
-   ============================================================ */
 
 @media (max-width: 420px) {
   .dev-project-header {
-    padding-bottom: 13px;
+    padding-bottom: 16px;
   }
 
   .dev-project-heading h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
 
   .dev-project-heading p {
-    font-size: 7px;
-  }
-
-  .dev-project-section {
-    padding: 11px;
-    margin-top: 12px;
-  }
-
-  .dev-project-section h3 {
     font-size: 9px;
   }
 
-  .dev-project-section > p {
+  .dev-project-id {
     font-size: 8px;
   }
 
-  .dev-project-info {
-    padding: 10px;
+  .dev-project-section {
+    padding: 13px;
+    margin-top: 13px;
   }
 
-  .dev-project-info strong {
-    font-size: 9px;
+  .dev-project-info-card {
+    padding: 12px;
+  }
+
+  .dev-project-info-icon {
+    width: 33px;
+    height: 33px;
+    flex-basis: 33px;
+  }
+
+  .dev-project-info-content strong {
+    font-size: 10px;
   }
 
   .dev-current-project .dev-tag {
-    min-height: 24px;
-    padding: 4px 6px;
-    font-size: 7px;
+    min-height: 27px;
+    padding: 5px 9px;
+    font-size: 8px;
   }
 
   .dev-changes-requested-body {
-    padding: 10px;
+    padding: 13px;
   }
 }
-
 
 /* ============================================================
    REDUCED MOTION
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .dev-project-info,
-  .dev-current-project .dev-tag {
+  .dev-project-info-card,
+  .dev-current-project .dev-tag,
+  .dev-deliverable-item,
+  .dev-project-actions .dev-icon-button {
     transition: none;
   }
 }
