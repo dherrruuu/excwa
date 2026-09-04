@@ -1,6 +1,7 @@
 /* ============================================================
    EXCWA CLIENT LOGIN
-   Premium Glassmorphism / Dark Tech
+   Premium Dark Glassmorphism
+   Complete Replacement
    ============================================================ */
 
 :root {
@@ -9,17 +10,28 @@
   --client-violet: #8b5cf6;
 
   --login-bg: #05080d;
-  --login-surface: rgba(13, 20, 30, 0.82);
-  --login-surface-strong: rgba(16, 25, 37, 0.92);
-
-  --login-border: rgba(255, 255, 255, 0.075);
-  --login-border-hover: rgba(98, 226, 255, 0.22);
 
   --login-text: #f4f7fb;
   --login-muted: #8d9aaa;
   --login-placeholder: #596576;
 
-  --login-radius: 18px;
+  --login-border: rgba(255, 255, 255, 0.075);
+  --login-border-hover: rgba(255, 255, 255, 0.14);
+  --login-border-focus: rgba(98, 226, 255, 0.40);
+
+  --login-card-radius: 20px;
+  --login-input-radius: 15px;
+}
+
+
+/* ============================================================
+   GLOBAL BOX SIZING
+   ============================================================ */
+
+.client-login-page *,
+.client-login-page *::before,
+.client-login-page *::after {
+  box-sizing: border-box;
 }
 
 
@@ -29,12 +41,15 @@
 
 .client-login-page {
   position: relative;
-  min-height: 100vh;
-  width: 100%;
+  isolation: isolate;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
 
   padding: 40px 20px;
 
@@ -42,13 +57,18 @@
 
   background:
     radial-gradient(
-      circle at 50% 20%,
-      rgba(98, 226, 255, 0.045),
+      circle at 50% 12%,
+      rgba(98, 226, 255, 0.055),
       transparent 30%
     ),
     radial-gradient(
-      circle at 15% 85%,
+      circle at 10% 90%,
       rgba(79, 140, 255, 0.04),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 95% 80%,
+      rgba(139, 92, 246, 0.035),
       transparent 30%
     ),
     var(--login-bg);
@@ -72,23 +92,26 @@
   position: fixed;
   inset: 0;
 
-  pointer-events: none;
+  width: 100%;
+  height: 100%;
 
   overflow: hidden;
 
-  z-index: 0;
+  pointer-events: none;
+
+  z-index: -1;
 }
 
 
-/* ------------------------------------------------------------
+/* ============================================================
    GRID
-   ------------------------------------------------------------ */
+   ============================================================ */
 
 .client-login-grid {
   position: absolute;
   inset: 0;
 
-  opacity: 0.24;
+  opacity: 0.22;
 
   background-image:
     linear-gradient(
@@ -103,7 +126,7 @@
 
   background-size: 46px 46px;
 
-  mask-image:
+  -webkit-mask-image:
     radial-gradient(
       ellipse at center,
       black 0%,
@@ -111,7 +134,7 @@
       transparent 82%
     );
 
-  -webkit-mask-image:
+  mask-image:
     radial-gradient(
       ellipse at center,
       black 0%,
@@ -122,7 +145,7 @@
 
 
 /* ============================================================
-   AMBIENT GLOWS
+   AMBIENT GLOW
    ============================================================ */
 
 .client-login-glow {
@@ -135,10 +158,11 @@
 
   filter: blur(110px);
 
-  opacity: 0.13;
+  opacity: 0.12;
 
   pointer-events: none;
 }
+
 
 .client-login-glow-one {
   top: -180px;
@@ -149,6 +173,7 @@
   background: rgba(98, 226, 255, 0.45);
 }
 
+
 .client-login-glow-two {
   right: -180px;
   bottom: -180px;
@@ -158,7 +183,7 @@
 
 
 /* ============================================================
-   LOGIN CONTAINER
+   CONTAINER
    ============================================================ */
 
 .client-login-container {
@@ -168,14 +193,12 @@
   width: 100%;
   max-width: 460px;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin: 0 auto;
 }
 
 
 /* ============================================================
-   LOGIN CARD
+   CARD
    ============================================================ */
 
 .client-login-card {
@@ -183,21 +206,21 @@
 
   width: 100%;
 
-  padding: 42px 42px 38px;
+  padding: 42px;
 
   border: 1px solid var(--login-border);
-  border-radius: var(--login-radius);
+  border-radius: var(--login-card-radius);
 
   background:
     radial-gradient(
       circle at 90% 0%,
-      rgba(98, 226, 255, 0.065),
+      rgba(98, 226, 255, 0.06),
       transparent 30%
     ),
     linear-gradient(
       145deg,
-      rgba(18, 28, 41, 0.91),
-      rgba(7, 12, 19, 0.95)
+      rgba(18, 28, 41, 0.92),
+      rgba(7, 12, 19, 0.96)
     );
 
   backdrop-filter: blur(26px) saturate(125%);
@@ -212,12 +235,11 @@
 }
 
 
-/* subtle glass highlight */
-
 .client-login-card::before {
   content: "";
 
   position: absolute;
+
   top: 0;
   left: 8%;
   right: 8%;
@@ -228,7 +250,7 @@
     linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.13),
       transparent
     );
 
@@ -245,15 +267,16 @@
   align-items: center;
   justify-content: center;
 
+  width: 100%;
+
   margin-bottom: 28px;
 }
 
 
-/* If ExcwaLogo renders an image */
-
 .client-login-logo img {
   display: block;
 
+  width: auto;
   max-width: 150px;
   max-height: 58px;
 
@@ -266,15 +289,20 @@
    ============================================================ */
 
 .client-login-heading {
-  text-align: center;
+  width: 100%;
 
   margin-bottom: 28px;
+
+  text-align: center;
 }
+
 
 .client-login-eyebrow {
   display: inline-block;
 
   margin-bottom: 10px;
+
+  color: var(--client-cyan);
 
   font-family:
     "Space Grotesk",
@@ -284,15 +312,18 @@
   font-size: 10px;
   font-weight: 700;
 
-  letter-spacing: 0.16em;
+  line-height: 1.2;
 
-  color: var(--client-cyan);
+  letter-spacing: 0.16em;
 
   opacity: 0.88;
 }
 
+
 .client-login-heading h1 {
   margin: 0;
+
+  color: var(--login-text);
 
   font-family:
     "Space Grotesk",
@@ -300,24 +331,23 @@
     sans-serif;
 
   font-size: clamp(27px, 5vw, 32px);
-  line-height: 1.15;
-
   font-weight: 650;
 
-  letter-spacing: -0.025em;
+  line-height: 1.15;
 
-  color: var(--login-text);
+  letter-spacing: -0.025em;
 }
+
 
 .client-login-heading p {
   max-width: 350px;
 
   margin: 11px auto 0;
 
+  color: var(--login-muted);
+
   font-size: 13px;
   line-height: 1.65;
-
-  color: var(--login-muted);
 }
 
 
@@ -328,16 +358,16 @@
 .client-login-error {
   display: flex;
   align-items: flex-start;
+
   gap: 10px;
 
   width: 100%;
 
   margin-bottom: 20px;
-
   padding: 12px 13px;
 
   border: 1px solid rgba(248, 113, 113, 0.18);
-  border-radius: 10px;
+  border-radius: 12px;
 
   background:
     linear-gradient(
@@ -350,13 +380,14 @@
 
   font-size: 12px;
   line-height: 1.5;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
+
 
 .client-login-error svg {
   flex: 0 0 auto;
+
+  width: 15px;
+  height: 15px;
 
   margin-top: 1px;
 }
@@ -373,6 +404,8 @@
   gap: 20px;
 
   width: 100%;
+
+  margin: 0;
 }
 
 
@@ -387,15 +420,23 @@
   gap: 8px;
 
   width: 100%;
+
+  margin: 0;
 }
 
+
 .client-login-field label {
-  padding-left: 2px;
+  display: block;
+
+  margin: 0;
+  padding-left: 3px;
+
+  color: #c4ccd7;
 
   font-size: 12px;
   font-weight: 600;
 
-  color: #c4ccd7;
+  line-height: 1.3;
 
   letter-spacing: 0.01em;
 }
@@ -403,101 +444,224 @@
 
 /* ============================================================
    INPUT WRAPPER
+   THIS IS THE ONLY ELEMENT THAT OWNS THE BORDER
    ============================================================ */
 
 .client-login-input {
   position: relative;
+  isolation: isolate;
 
   display: flex;
   align-items: center;
 
   width: 100%;
-  height: 48px;
+  height: 50px;
+
+  margin: 0;
+  padding: 0;
 
   border: 1px solid rgba(255, 255, 255, 0.075);
-  border-radius: 11px;
+  border-radius: var(--login-input-radius);
+
+  outline: none;
 
   background:
     linear-gradient(
       145deg,
-      rgba(11, 18, 27, 0.84),
-      rgba(6, 11, 18, 0.92)
+      rgba(15, 23, 34, 0.88),
+      rgba(7, 12, 19, 0.94)
     );
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 4px 14px rgba(0, 0, 0, 0.08);
+
+  overflow: hidden;
 
   transition:
     border-color 180ms ease,
-    box-shadow 180ms ease,
-    background 180ms ease;
+    background 180ms ease,
+    box-shadow 180ms ease;
 }
 
-.client-login-input:focus-within {
-  border-color: rgba(98, 226, 255, 0.38);
+
+/* ============================================================
+   INPUT WRAPPER HOVER
+   ============================================================ */
+
+.client-login-input:hover {
+  border-color: var(--login-border-hover);
 
   background:
     linear-gradient(
       145deg,
-      rgba(14, 24, 35, 0.9),
-      rgba(7, 13, 21, 0.94)
+      rgba(17, 27, 39, 0.92),
+      rgba(8, 14, 22, 0.96)
     );
 
   box-shadow:
-    0 0 0 3px rgba(98, 226, 255, 0.055),
-    0 8px 25px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 7px 20px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ============================================================
+   INPUT WRAPPER FOCUS
+   ============================================================ */
+
+.client-login-input:focus-within {
+  border-color: var(--login-border-focus);
+
+  outline: none;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 25, 37, 0.94),
+      rgba(7, 13, 21, 0.97)
+    );
+
+  box-shadow:
+    0 0 0 3px rgba(98, 226, 255, 0.045),
+    0 8px 24px rgba(0, 0, 0, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
 
 /* ============================================================
-   INPUT ICON
+   LEFT ICON
    ============================================================ */
 
 .client-login-input > svg {
+  position: relative;
+  z-index: 3;
+
   flex: 0 0 auto;
 
-  margin-left: 15px;
+  width: 17px;
+  height: 17px;
+
+  margin: 0 0 0 15px;
+  padding: 0;
+
+  border: 0 !important;
+
+  outline: 0 !important;
+
+  background: transparent !important;
 
   color: #69788b;
 
+  pointer-events: none;
+
+  box-shadow: none !important;
+
   transition:
-    color 180ms ease;
+    color 180ms ease,
+    transform 180ms ease;
 }
+
+
+.client-login-input:hover > svg {
+  color: #8291a3;
+}
+
 
 .client-login-input:focus-within > svg {
   color: var(--client-cyan);
+
+  transform: scale(1.03);
 }
 
 
 /* ============================================================
-   INPUT
+   INPUT ELEMENT
+   ABSOLUTELY NO BORDER
    ============================================================ */
 
 .client-login-input input {
+  position: relative;
+  z-index: 2;
+
+  flex: 1 1 auto;
+
   width: 100%;
+  min-width: 0;
   height: 100%;
 
-  min-width: 0;
+  margin: 0 !important;
 
-  padding: 0 14px;
+  padding: 0 14px !important;
 
-  border: 0;
-  outline: 0;
+  border: 0 !important;
 
-  background: transparent;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
 
-  color: #edf3f8;
+  outline: 0 !important;
+  outline-width: 0 !important;
 
-  font: inherit;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+
+  color: #edf3f8 !important;
+
+  font-family: inherit;
   font-size: 13px;
+  font-weight: 450;
+
+  line-height: 1.2;
+
+  caret-color: var(--client-cyan);
+
+  box-shadow: none !important;
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
 }
 
+
+/* ============================================================
+   INPUT ALL STATES
+   ============================================================ */
+
+.client-login-input input:hover,
+.client-login-input input:focus,
+.client-login-input input:focus-visible,
+.client-login-input input:active,
+.client-login-input input:valid,
+.client-login-input input:invalid {
+  border: 0 !important;
+
+  border-width: 0 !important;
+  border-style: none !important;
+
+  outline: 0 !important;
+
+  box-shadow: none !important;
+
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+
+/* ============================================================
+   PLACEHOLDER
+   ============================================================ */
+
 .client-login-input input::placeholder {
-  color: var(--login-placeholder);
+  color: var(--login-placeholder) !important;
 
   opacity: 0.85;
 }
+
+
+/* ============================================================
+   DISABLED INPUT
+   ============================================================ */
 
 .client-login-input input:disabled {
   cursor: not-allowed;
@@ -507,64 +671,147 @@
 
 
 /* ============================================================
-   AUTOFILL
+   CHROME / EDGE AUTOFILL
    ============================================================ */
 
 .client-login-input input:-webkit-autofill,
 .client-login-input input:-webkit-autofill:hover,
-.client-login-input input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #edf3f8;
+.client-login-input input:-webkit-autofill:focus,
+.client-login-input input:-webkit-autofill:active {
+  border: 0 !important;
+
+  border-width: 0 !important;
+  border-style: none !important;
+
+  outline: 0 !important;
+
+  -webkit-text-fill-color: #edf3f8 !important;
+
+  color: #edf3f8 !important;
+
+  caret-color: var(--client-cyan);
+
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+
+  -webkit-box-shadow:
+    0 0 0 1000px transparent inset !important;
 
   box-shadow:
-    0 0 0 1000px #0b131e inset;
+    0 0 0 1000px transparent inset !important;
 
   transition:
-    background-color 9999s ease-out;
+    background-color 99999s ease-out 0s;
+}
+
+
+/* ============================================================
+   STANDARD AUTOFILL
+   ============================================================ */
+
+.client-login-input input:autofill {
+  border: 0 !important;
+
+  outline: 0 !important;
+
+  background: transparent !important;
+
+  color: #edf3f8 !important;
 }
 
 
 /* ============================================================
    PASSWORD TOGGLE
+   NO BORDER / NO SEPARATOR
    ============================================================ */
 
 .client-password-toggle {
+  position: relative;
+  z-index: 4;
+
   flex: 0 0 auto;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
 
-  margin-right: 4px;
+  margin: 0 5px 0 0 !important;
+  padding: 0 !important;
 
-  padding: 0;
+  border: 0 !important;
 
-  border: 0;
-  border-radius: 8px;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-color: transparent !important;
 
-  background: transparent;
+  outline: 0 !important;
+
+  border-radius: 10px;
+
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
 
   color: #68778a;
 
   cursor: pointer;
 
+  box-shadow: none !important;
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
   transition:
     color 160ms ease,
-    background 160ms ease;
+    background 160ms ease,
+    transform 160ms ease;
 }
+
+
+/* ============================================================
+   PASSWORD BUTTON STATES
+   ============================================================ */
 
 .client-password-toggle:hover:not(:disabled) {
+  border: 0 !important;
+
+  outline: 0 !important;
+
   color: var(--client-cyan);
 
-  background: rgba(98, 226, 255, 0.055);
+  background:
+    rgba(98, 226, 255, 0.055) !important;
+
+  box-shadow: none !important;
+
+  transform: translateY(-1px);
 }
 
+
+.client-password-toggle:focus,
 .client-password-toggle:focus-visible {
-  outline: 2px solid rgba(98, 226, 255, 0.35);
-  outline-offset: 1px;
+  border: 0 !important;
+
+  outline: 0 !important;
+
+  box-shadow: none !important;
+
+  background: transparent !important;
 }
+
+
+.client-password-toggle:active:not(:disabled) {
+  border: 0 !important;
+
+  outline: 0 !important;
+
+  transform: translateY(0);
+}
+
 
 .client-password-toggle:disabled {
   cursor: not-allowed;
@@ -574,12 +821,35 @@
 
 
 /* ============================================================
+   PASSWORD BUTTON ICON
+   ============================================================ */
+
+.client-password-toggle svg {
+  width: 18px !important;
+  height: 18px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+
+  outline: 0 !important;
+
+  background: transparent !important;
+
+  color: inherit;
+
+  box-shadow: none !important;
+
+  pointer-events: none;
+}
+
+
+/* ============================================================
    SUBMIT BUTTON
    ============================================================ */
 
 .client-login-submit {
-  position: relative;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -587,14 +857,15 @@
   gap: 9px;
 
   width: 100%;
-  min-height: 49px;
+  min-height: 50px;
 
-  margin-top: 2px;
-
+  margin: 2px 0 0;
   padding: 0 18px;
 
   border: 1px solid rgba(98, 226, 255, 0.20);
-  border-radius: 11px;
+  border-radius: 13px;
+
+  outline: none;
 
   background:
     linear-gradient(
@@ -606,17 +877,11 @@
 
   color: #ffffff;
 
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-
+  font-family: inherit;
   font-size: 13px;
   font-weight: 650;
 
-  letter-spacing: 0.005em;
+  line-height: 1;
 
   cursor: pointer;
 
@@ -628,11 +893,19 @@
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
-    filter 180ms ease;
+    filter 180ms ease,
+    border-color 180ms ease;
 }
+
+
+/* ============================================================
+   SUBMIT HOVER
+   ============================================================ */
 
 .client-login-submit:hover:not(:disabled) {
   transform: translateY(-2px);
+
+  border-color: rgba(98, 226, 255, 0.30);
 
   filter: brightness(1.06);
 
@@ -642,14 +915,36 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
+
+/* ============================================================
+   SUBMIT ACTIVE
+   ============================================================ */
+
 .client-login-submit:active:not(:disabled) {
   transform: translateY(0);
+
+  filter: brightness(0.99);
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
+
+
+/* ============================================================
+   SUBMIT FOCUS
+   ============================================================ */
 
 .client-login-submit:focus-visible {
   outline: 2px solid rgba(98, 226, 255, 0.42);
+
   outline-offset: 3px;
 }
+
+
+/* ============================================================
+   SUBMIT DISABLED
+   ============================================================ */
 
 .client-login-submit:disabled {
   cursor: not-allowed;
@@ -658,9 +953,29 @@
 
   transform: none;
 
-  box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  filter: none;
+}
+
+
+/* ============================================================
+   SUBMIT ICON
+   ============================================================ */
+
+.client-login-submit svg {
+  flex: 0 0 auto;
+
+  width: 16px;
+  height: 16px;
+
+  margin: 0;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
+
+  box-shadow: none;
 }
 
 
@@ -669,8 +984,10 @@
    ============================================================ */
 
 .client-login-spinner {
-  animation: client-login-spin 0.85s linear infinite;
+  animation:
+    client-login-spin 0.85s linear infinite;
 }
+
 
 @keyframes client-login-spin {
   to {
@@ -695,22 +1012,33 @@
   color: #657285;
 
   font-size: 10px;
-  line-height: 1.4;
 
-  letter-spacing: 0.02em;
+  line-height: 1.4;
 
   text-align: center;
 }
 
+
 .client-login-security svg {
   flex: 0 0 auto;
 
+  width: 13px;
+  height: 13px;
+
+  margin: 0;
+
   color: #6f8297;
+
+  border: 0;
+
+  outline: 0;
+
+  background: transparent;
 }
 
 
 /* ============================================================
-   RESPONSIVE — TABLET
+   TABLET
    ============================================================ */
 
 @media (max-width: 640px) {
@@ -718,10 +1046,14 @@
     padding: 28px 16px;
   }
 
+  .client-login-container {
+    max-width: 440px;
+  }
+
   .client-login-card {
     padding: 34px 26px 30px;
 
-    border-radius: 16px;
+    border-radius: 18px;
   }
 
   .client-login-logo {
@@ -735,20 +1067,18 @@
   .client-login-heading h1 {
     font-size: 28px;
   }
-
-  .client-login-heading p {
-    font-size: 12.5px;
-  }
 }
 
 
 /* ============================================================
-   RESPONSIVE — MOBILE
+   MOBILE
    ============================================================ */
 
 @media (max-width: 430px) {
   .client-login-page {
     align-items: flex-start;
+
+    min-height: 100dvh;
 
     padding: 24px 13px;
   }
@@ -760,7 +1090,7 @@
   .client-login-card {
     padding: 30px 20px 27px;
 
-    border-radius: 15px;
+    border-radius: 17px;
   }
 
   .client-login-logo img {
@@ -781,13 +1111,15 @@
   }
 
   .client-login-input {
-    height: 47px;
+    height: 49px;
+
+    border-radius: 15px;
   }
 
   .client-login-submit {
-    min-height: 48px;
+    min-height: 49px;
 
-    font-size: 12.5px;
+    border-radius: 13px;
   }
 
   .client-login-security {
@@ -810,6 +1142,10 @@
    ============================================================ */
 
 @media (max-width: 350px) {
+  .client-login-page {
+    padding-inline: 10px;
+  }
+
   .client-login-card {
     padding: 27px 16px 24px;
   }
@@ -818,24 +1154,39 @@
     font-size: 24px;
   }
 
+  .client-login-heading p {
+    font-size: 11.5px;
+  }
+
+  .client-login-input {
+    height: 48px;
+
+    border-radius: 14px;
+  }
+
   .client-login-submit {
+    min-height: 48px;
+
     padding-inline: 12px;
   }
 }
 
 
 /* ============================================================
-   ACCESSIBILITY / REDUCED MOTION
+   REDUCED MOTION
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
   .client-login-input,
   .client-password-toggle,
-  .client-login-submit {
+  .client-login-submit,
+  .client-login-input > svg {
     transition: none;
   }
 
-  .client-login-submit:hover:not(:disabled) {
+  .client-password-toggle:hover:not(:disabled),
+  .client-login-submit:hover:not(:disabled),
+  .client-login-submit:active:not(:disabled) {
     transform: none;
   }
 
