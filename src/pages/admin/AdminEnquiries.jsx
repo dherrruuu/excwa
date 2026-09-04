@@ -11,6 +11,8 @@ import {
   Filter,
 } from "lucide-react";
 
+import { useNavigate } from "react-router-dom";
+
 import "../../styles/admin/admin-enquiries.css";
 
 import {
@@ -27,12 +29,16 @@ import EnquiryTable from "../../components/admin/EnquiryTable";
 import EnquiryDetails from "../../components/admin/EnquiryDetails";
 
 export default function AdminEnquiries() {
+  const navigate = useNavigate();
+
   const [enquiries, setEnquiries] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [converting, setConverting] = useState(false);
+  const [convertingToOpportunity, setConvertingToOpportunity] =
+    useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -174,6 +180,12 @@ export default function AdminEnquiries() {
     }
   };
 
+  /*
+   * =========================================================
+   * CONVERT ENQUIRY → CLIENT
+   * =========================================================
+   */
+
   const convertToClient = async (
     enquiry
   ) => {
@@ -211,24 +223,25 @@ export default function AdminEnquiries() {
 
       alert(
         `Client account created successfully!\n\n` +
-        `Email: ${result.email}\n` +
-        `Password: ${result.temporary_password}`
+          `Email: ${result.email}\n` +
+          `Password: ${result.temporary_password}`
       );
+
+      const updatedEnquiry = {
+        ...enquiry,
+        client_id: result.client_id,
+        status: "completed",
+      };
 
       setEnquiries((previous) =>
         previous.map((item) =>
           item.id === enquiry.id
-            ? {
-                ...item,
-                client_id:
-                  result.client_id,
-                status: "completed",
-              }
+            ? updatedEnquiry
             : item
         )
       );
 
-      setSelected(null);
+      setSelected(updatedEnquiry);
     } catch (error) {
       console.error(
         "Client conversion failed:",
@@ -244,8 +257,93 @@ export default function AdminEnquiries() {
     }
   };
 
+  /*
+   * =========================================================
+   * CONVERT CLIENT/ENQUIRY → OPPORTUNITY FORM
+   *
+   * This DOES NOT create an opportunity.
+   * It opens Admin Opportunities with pre-filled data.
+   * =========================================================
+   */
+
+  const convertToOpportunity = useCallback(
+    async (enquiry) => {
+      if (
+        !enquiry?.id ||
+        convertingToOpportunity
+      ) {
+        return;
+      }
+
+      if (!enquiry.client_id) {
+        alert(
+          "Please convert this enquiry to a client first."
+        );
+        return;
+      }
+
+      setConvertingToOpportunity(true);
+
+      try {
+        navigate("/admin/opportunities", {
+          state: {
+            createFromEnquiry: true,
+
+            enquiry: {
+              id: enquiry.id,
+              client_id: enquiry.client_id,
+
+              customer_name:
+                enquiry.customer_name || "",
+
+              email:
+                enquiry.email || "",
+
+              phone:
+                enquiry.phone || "",
+
+              service:
+                enquiry.service || "",
+
+              estimated_budget:
+                enquiry.estimated_budget || "",
+
+              project_description:
+                enquiry.project_description || "",
+
+              preferred_contact:
+                enquiry.preferred_contact || "",
+
+              created_at:
+                enquiry.created_at || null,
+            },
+          },
+        });
+      } catch (error) {
+        console.error(
+          "Failed to open opportunity form:",
+          error
+        );
+
+        alert(
+          "Failed to open the opportunity form."
+        );
+      } finally {
+        setConvertingToOpportunity(false);
+      }
+    },
+    [
+      navigate,
+      convertingToOpportunity,
+    ]
+  );
+
   return (
     <div className="admin-dashboard">
+
+      {/* =====================================================
+          PAGE HEADER
+      ===================================================== */}
 
       <div className="admin-page-heading">
         <div>
@@ -254,7 +352,9 @@ export default function AdminEnquiries() {
             Customer Requests
           </span>
 
-          <h1>Project Enquiries</h1>
+          <h1>
+            Project Enquiries
+          </h1>
 
           <p>
             View and manage all enquiries
@@ -263,6 +363,10 @@ export default function AdminEnquiries() {
           </p>
         </div>
       </div>
+
+      {/* =====================================================
+          TOOLBAR
+      ===================================================== */}
 
       <div className="admin-toolbar">
 
@@ -340,6 +444,10 @@ export default function AdminEnquiries() {
 
       </div>
 
+      {/* =====================================================
+          ENQUIRY TABLE
+      ===================================================== */}
+
       <section className="admin-panel">
 
         {loading ? (
@@ -359,20 +467,39 @@ export default function AdminEnquiries() {
 
       </section>
 
+      {/* =====================================================
+          ENQUIRY DETAILS
+      ===================================================== */}
+
       {selected && (
         <EnquiryDetails
           enquiry={selected}
+
           onClose={() =>
             setSelected(null)
           }
+
           onStatusChange={
             changeStatus
           }
+
           onDelete={remove}
+
           onConvertToClient={
             convertToClient
           }
-          converting={converting}
+
+          converting={
+            converting
+          }
+
+          onConvertToOpportunity={
+            convertToOpportunity
+          }
+
+          convertingToOpportunity={
+            convertingToOpportunity
+          }
         />
       )}
 

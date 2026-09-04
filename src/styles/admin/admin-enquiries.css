@@ -1,5 +1,6 @@
 /* =========================================================
    ADMIN ENQUIRIES
+   Premium • Compact • Responsive
    ========================================================= */
 
 /* =========================================================
@@ -11,6 +12,7 @@
   min-width: 0;
   box-sizing: border-box;
   color: #e7edf7;
+  overflow-x: hidden;
 }
 
 /* =========================================================
@@ -22,7 +24,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 28px;
+  margin-bottom: 26px;
 }
 
 .admin-page-heading > div {
@@ -33,9 +35,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-
-  margin-bottom: 10px;
-
+  margin-bottom: 9px;
   color: #6d7b8f;
   font-size: 10px;
   font-weight: 700;
@@ -49,9 +49,7 @@
 
 .admin-page-heading h1 {
   margin: 0;
-
   color: #f3f6fb;
-
   font-family: "Space Grotesk", Inter, system-ui, sans-serif;
   font-size: clamp(28px, 3vw, 38px);
   font-weight: 600;
@@ -62,9 +60,7 @@
 .admin-page-heading p {
   max-width: 620px;
   margin: 9px 0 0;
-
   color: #758297;
-
   font-size: 13px;
   line-height: 1.6;
 }
@@ -75,12 +71,11 @@
 
 .admin-toolbar {
   width: 100%;
-
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  margin-bottom: 18px;
+  gap: 9px;
+  margin-bottom: 17px;
 }
 
 /* =========================================================
@@ -89,17 +84,13 @@
 
 .admin-search {
   position: relative;
-
   display: flex;
   align-items: center;
   gap: 9px;
-
-  flex: 1;
-  min-width: 220px;
-  height: 44px;
-
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 43px;
   padding: 0 13px;
-
   box-sizing: border-box;
 
   background: rgba(255, 255, 255, 0.025);
@@ -117,9 +108,7 @@
 .admin-search:focus-within {
   background: rgba(255, 255, 255, 0.035);
   border-color: rgba(92, 210, 255, 0.35);
-
-  box-shadow:
-    0 0 0 3px rgba(82, 178, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(82, 178, 255, 0.05);
 }
 
 .admin-search svg {
@@ -131,16 +120,11 @@
 .admin-search input {
   width: 100%;
   min-width: 0;
-
   padding: 0;
-
   border: 0;
   outline: 0;
-
   background: transparent;
-
   color: #dce4ee;
-
   font: inherit;
   font-size: 13px;
 }
@@ -155,9 +139,8 @@
 
 .admin-toolbar > select {
   width: auto;
-  min-width: 145px;
-  height: 44px;
-
+  min-width: 140px;
+  height: 43px;
   padding: 0 34px 0 12px;
 
   border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
@@ -170,17 +153,16 @@
     no-repeat right 11px center;
 
   color: #aeb9c8;
-
   font: inherit;
   font-size: 11px;
 
   cursor: pointer;
-
   appearance: none;
 
   transition:
     background-color 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .admin-toolbar > select:hover {
@@ -189,6 +171,7 @@
 
 .admin-toolbar > select:focus {
   border-color: rgba(92, 210, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(82, 178, 255, 0.04);
 }
 
 .admin-toolbar > select option {
@@ -197,14 +180,13 @@
 }
 
 /* =========================================================
-   REFRESH / ICON BUTTON
+   ICON BUTTON
    ========================================================= */
 
 .admin-icon-button {
-  width: 44px;
-  height: 44px;
-
-  flex: 0 0 44px;
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
 
   display: inline-flex;
   align-items: center;
@@ -250,9 +232,7 @@
 .admin-panel {
   width: 100%;
   min-width: 0;
-
   overflow: hidden;
-
   box-sizing: border-box;
 
   background:
@@ -276,15 +256,16 @@
 
 .admin-table-wrap {
   width: 100%;
-
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
-
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #293241 transparent;
 }
 
 .admin-table-wrap::-webkit-scrollbar {
-  height: 6px;
+  height: 5px;
 }
 
 .admin-table-wrap::-webkit-scrollbar-track {
@@ -294,12 +275,6 @@
 .admin-table-wrap::-webkit-scrollbar-thumb {
   background: #293241;
   border-radius: 20px;
-}
-
-/* Firefox */
-.admin-table-wrap {
-  scrollbar-width: thin;
-  scrollbar-color: #293241 transparent;
 }
 
 /* =========================================================
@@ -312,11 +287,9 @@
 
   border-collapse: collapse;
   border-spacing: 0;
-
   table-layout: auto;
 
   background: transparent;
-
   color: #cbd5e4;
 }
 
@@ -325,16 +298,14 @@
 }
 
 .admin-table th {
-  height: 46px;
-
-  padding: 0 18px;
+  height: 45px;
+  padding: 0 17px;
 
   text-align: left;
   vertical-align: middle;
   white-space: nowrap;
 
   color: #59677a;
-
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -344,15 +315,13 @@
 }
 
 .admin-table td {
-  padding: 17px 18px;
+  padding: 16px 17px;
 
   color: #919daf;
-
   font-size: 11px;
   line-height: 1.4;
 
   border-bottom: 1px solid rgba(255, 255, 255, 0.045);
-
   vertical-align: middle;
 }
 
@@ -393,7 +362,7 @@
 }
 
 /* =========================================================
-   CUSTOMER CELL
+   CUSTOMER
    ========================================================= */
 
 .admin-table td:first-child {
@@ -402,11 +371,9 @@
 
 .admin-table td strong {
   display: block;
-
   margin-bottom: 4px;
 
   color: #dce3ed;
-
   font-size: 12px;
   font-weight: 600;
 }
@@ -415,7 +382,6 @@
   display: block;
 
   color: #59677a;
-
   font-size: 9px;
   line-height: 1.4;
 }
@@ -426,7 +392,6 @@
 
 .admin-table td:nth-child(2) {
   min-width: 150px;
-
   color: #a4afbf;
   font-weight: 500;
 }
@@ -437,7 +402,6 @@
 
 .admin-table td:nth-child(3) {
   min-width: 120px;
-
   color: #aeb8c7;
 }
 
@@ -447,12 +411,11 @@
 
 .admin-table td:nth-child(4) {
   min-width: 120px;
-
   color: #8e9bad;
 }
 
 /* =========================================================
-   STATUS COLUMN
+   STATUS
    ========================================================= */
 
 .admin-table td:nth-child(5) {
@@ -465,11 +428,8 @@
 
 .admin-table td:nth-child(6) {
   min-width: 175px;
-
   white-space: nowrap;
-
   color: #6f7d90;
-
   font-size: 10px;
 }
 
@@ -492,14 +452,11 @@
   border-radius: 999px;
 
   background: rgba(255, 255, 255, 0.025);
-
   color: #9ca8b8;
 
   font-size: 8px;
   font-weight: 700;
-
   line-height: 1;
-
   text-transform: capitalize;
   white-space: nowrap;
 }
@@ -507,110 +464,73 @@
 .admin-table .status-badge > span {
   width: 5px;
   height: 5px;
-
   flex: 0 0 5px;
 
   border-radius: 50%;
-
   background: currentColor;
 }
 
 /* =========================================================
-   STATUS - NEW
+   STATUS COLORS
    ========================================================= */
 
 .admin-table .status-new {
   color: #63d9ff;
-
   background: rgba(85, 210, 255, 0.06);
-
   border-color: rgba(85, 210, 255, 0.18);
 }
 
-/* =========================================================
-   STATUS - READ
-   ========================================================= */
-
 .admin-table .status-read {
   color: #a8b4c5;
-
   background: rgba(255, 255, 255, 0.035);
-
   border-color: rgba(255, 255, 255, 0.07);
 }
 
-/* =========================================================
-   STATUS - CONTACTED
-   ========================================================= */
-
 .admin-table .status-contacted {
   color: #c3a4ff;
-
   background: rgba(139, 92, 246, 0.07);
-
   border-color: rgba(139, 92, 246, 0.18);
 }
 
-/* =========================================================
-   STATUS - IN PROGRESS
-   ========================================================= */
-
 .admin-table .status-in_progress {
   color: #ffca70;
-
   background: rgba(255, 180, 70, 0.06);
-
   border-color: rgba(255, 180, 70, 0.18);
 }
 
-/* =========================================================
-   STATUS - COMPLETED
-   ========================================================= */
-
 .admin-table .status-completed {
   color: #69e5b7;
-
   background: rgba(34, 197, 94, 0.06);
-
   border-color: rgba(34, 197, 94, 0.18);
 }
 
-/* =========================================================
-   STATUS - ARCHIVED
-   ========================================================= */
-
 .admin-table .status-archived {
   color: #8491a4;
-
   background: rgba(100, 116, 139, 0.07);
-
   border-color: rgba(100, 116, 139, 0.16);
 }
 
 /* =========================================================
-   EMPTY / LOADING STATE
+   EMPTY STATE
    ========================================================= */
 
 .admin-empty {
-  min-height: 300px;
+  min-height: 280px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   padding: 40px;
-
   box-sizing: border-box;
 
   color: #657287;
-
   font-size: 12px;
-
   text-align: center;
 }
 
 /* =========================================================
-   ENQUIRY DETAILS OVERLAY
+   MODAL OVERLAY
    ========================================================= */
 
 .enquiry-details-overlay,
@@ -618,7 +538,6 @@
 .admin-modal-backdrop {
   position: fixed;
   inset: 0;
-
   z-index: 9999;
 
   display: flex;
@@ -641,7 +560,7 @@
 }
 
 /* =========================================================
-   MODAL / DRAWER
+   DRAWER
    ========================================================= */
 
 .enquiry-details-modal,
@@ -674,13 +593,12 @@
 }
 
 /* =========================================================
-   CENTERED ADMIN MODAL
+   CENTER MODAL
    ========================================================= */
 
 .admin-modal-backdrop {
   align-items: center;
   justify-content: center;
-
   padding: 24px;
 }
 
@@ -713,10 +631,17 @@
    MODAL SCROLLBAR
    ========================================================= */
 
+.enquiry-details-modal,
+.admin-modal-content,
+.admin-modal {
+  scrollbar-width: thin;
+  scrollbar-color: #293241 transparent;
+}
+
 .enquiry-details-modal::-webkit-scrollbar,
 .admin-modal-content::-webkit-scrollbar,
 .admin-modal::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .enquiry-details-modal::-webkit-scrollbar-track,
@@ -741,20 +666,18 @@
   align-items: flex-start;
   justify-content: space-between;
 
-  gap: 20px;
+  gap: 18px;
 
-  padding: 23px 25px;
+  padding: 21px 24px;
 
   border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.08));
 }
 
 .admin-modal-header .eyebrow {
   display: block;
-
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 
   color: #647287;
-
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -767,11 +690,9 @@
   color: #f1f5fa;
 
   font-family: "Space Grotesk", Inter, system-ui, sans-serif;
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 600;
-
   line-height: 1.25;
-
   letter-spacing: -0.03em;
 }
 
@@ -779,13 +700,13 @@
   margin: 6px 0 0;
 
   color: #74839a;
-
   font-size: 11px;
   line-height: 1.5;
 }
 
 /* =========================================================
-   DETAIL STATUS BAR
+   OLD DETAIL STATUS
+   Kept for compatibility with other admin modals
    ========================================================= */
 
 .admin-detail-status {
@@ -795,7 +716,7 @@
 
   gap: 15px;
 
-  padding: 15px 25px;
+  padding: 13px 24px;
 
   background: rgba(255, 255, 255, 0.018);
 
@@ -804,17 +725,14 @@
 
 .admin-detail-status > span {
   color: #687589;
-
   font-size: 9px;
   font-weight: 700;
-
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .admin-detail-status select {
-  height: 36px;
-
+  height: 34px;
   padding: 0 32px 0 10px;
 
   border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
@@ -827,12 +745,10 @@
     no-repeat right 10px center;
 
   color: #aeb9c8;
-
   font: inherit;
   font-size: 10px;
 
   cursor: pointer;
-
   appearance: none;
 }
 
@@ -846,17 +762,200 @@
 }
 
 /* =========================================================
+   CLIENT CONVERSION + CURRENT STATUS
+   Compact single-row layout
+   ========================================================= */
+
+.admin-client-conversion {
+  margin: 0;
+  padding: 12px 24px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+
+  background: rgba(255, 255, 255, 0.012);
+}
+
+.admin-client-conversion-row {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+/* =========================================================
+   CONVERT TO CLIENT BUTTON
+   ========================================================= */
+
+.admin-convert-client-button {
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  gap: 6px;
+
+  padding: 0 11px;
+
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 7px;
+
+  background: rgba(56, 189, 248, 0.07);
+  color: #7ddfff;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.admin-convert-client-button:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.13);
+  border-color: rgba(56, 189, 248, 0.48);
+  color: #ffffff;
+
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.08);
+
+  transform: translateY(-1px);
+}
+
+.admin-convert-client-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-convert-client-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   CURRENT STATUS
+   ========================================================= */
+
+.admin-current-status {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  margin-left: auto;
+
+  white-space: nowrap;
+}
+
+.admin-current-status > span {
+  color: #64748b;
+
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.admin-current-status select {
+  height: 31px;
+
+  min-width: 105px;
+
+  padding: 0 28px 0 9px;
+
+  border: 1px solid rgba(148, 163, 184, 0.17);
+  border-radius: 7px;
+  outline: none;
+
+  background:
+    #0d131b
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2369778a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")
+    no-repeat right 8px center;
+
+  color: #e2e8f0;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+
+  cursor: pointer;
+  appearance: none;
+
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.admin-current-status select:hover {
+  background-color: #101822;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.admin-current-status select:focus {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.04);
+}
+
+.admin-current-status select option {
+  background: #0d131b;
+  color: #e4eaf2;
+}
+
+/* =========================================================
+   CLIENT CREATED
+   ========================================================= */
+
+.admin-client-created {
+  min-height: 31px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 0 10px;
+
+  border: 1px solid rgba(34, 197, 94, 0.18);
+  border-radius: 7px;
+
+  background: rgba(34, 197, 94, 0.045);
+  color: #4ade80;
+}
+
+.admin-client-created strong {
+  color: #bbf7d0;
+
+  font-size: 10px;
+  font-weight: 650;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
    DETAIL GRID
    ========================================================= */
 
 .admin-detail-grid {
   display: grid;
-
   grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 1px;
 
-  margin: 20px 25px;
+  margin: 18px 24px;
 
   overflow: hidden;
 
@@ -873,7 +972,7 @@
 .admin-detail-item {
   min-width: 0;
 
-  padding: 15px;
+  padding: 14px;
 
   background: rgba(8, 13, 20, 0.88);
 }
@@ -881,6 +980,7 @@
 .admin-detail-item > span {
   display: flex;
   align-items: center;
+
   gap: 6px;
 
   margin-bottom: 7px;
@@ -889,7 +989,6 @@
 
   font-size: 8px;
   font-weight: 700;
-
   letter-spacing: 0.09em;
   text-transform: uppercase;
 }
@@ -910,7 +1009,6 @@
 
   font-size: 11px;
   font-weight: 500;
-
   line-height: 1.5;
 
   text-overflow: ellipsis;
@@ -919,7 +1017,6 @@
 
 .admin-detail-item a {
   color: #70dfff;
-
   text-decoration: none;
 }
 
@@ -932,9 +1029,9 @@
    ========================================================= */
 
 .admin-description {
-  margin: 0 25px 20px;
+  margin: 0 24px 18px;
 
-  padding: 17px;
+  padding: 16px;
 
   background: rgba(255, 255, 255, 0.022);
 
@@ -945,13 +1042,12 @@
 .admin-description > span {
   display: block;
 
-  margin-bottom: 9px;
+  margin-bottom: 8px;
 
   color: #687589;
 
   font-size: 8px;
   font-weight: 700;
-
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -977,9 +1073,9 @@
   align-items: center;
   justify-content: flex-end;
 
-  gap: 9px;
+  gap: 8px;
 
-  padding: 16px 25px;
+  padding: 14px 24px;
 
   border-top: 1px solid var(--line, rgba(255, 255, 255, 0.08));
 
@@ -991,7 +1087,7 @@
    ========================================================= */
 
 .admin-outline-button {
-  min-height: 38px;
+  min-height: 37px;
 
   display: inline-flex;
   align-items: center;
@@ -999,13 +1095,12 @@
 
   gap: 7px;
 
-  padding: 0 14px;
+  padding: 0 13px;
 
   border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
   border-radius: 8px;
 
   background: rgba(255, 255, 255, 0.025);
-
   color: #aab5c4;
 
   font: inherit;
@@ -1013,21 +1108,23 @@
   font-weight: 600;
 
   cursor: pointer;
-
   text-decoration: none;
 
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    transform 0.18s ease;
 }
 
 .admin-outline-button:hover {
   background: rgba(255, 255, 255, 0.06);
-
   border-color: rgba(255, 255, 255, 0.13);
-
   color: #ffffff;
+}
+
+.admin-outline-button:active {
+  transform: scale(0.98);
 }
 
 .admin-outline-button:disabled {
@@ -1040,7 +1137,7 @@
    ========================================================= */
 
 .admin-danger-button {
-  min-height: 38px;
+  min-height: 37px;
 
   display: inline-flex;
   align-items: center;
@@ -1048,13 +1145,12 @@
 
   gap: 7px;
 
-  padding: 0 14px;
+  padding: 0 13px;
 
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 8px;
 
   background: rgba(239, 68, 68, 0.055);
-
   color: #ff7f8e;
 
   font: inherit;
@@ -1065,13 +1161,18 @@
 
   transition:
     background 0.2s ease,
-    border-color 0.2s ease;
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.18s ease;
 }
 
 .admin-danger-button:hover {
   background: rgba(239, 68, 68, 0.1);
-
   border-color: rgba(239, 68, 68, 0.35);
+}
+
+.admin-danger-button:active {
+  transform: scale(0.98);
 }
 
 .admin-danger-button:disabled {
@@ -1183,8 +1284,7 @@
   .admin-page-heading {
     flex-direction: column;
     gap: 0;
-
-    margin-bottom: 20px;
+    margin-bottom: 19px;
   }
 
   .admin-page-heading h1 {
@@ -1195,14 +1295,11 @@
     font-size: 12px;
   }
 
-  /* -------------------------
-     TOOLBAR
-     ------------------------- */
+  /* Toolbar */
 
   .admin-toolbar {
     flex-wrap: wrap;
     gap: 8px;
-
     margin-bottom: 14px;
   }
 
@@ -1210,13 +1307,11 @@
     width: 100%;
     min-width: 0;
     flex: 1 1 100%;
-
-    height: 44px;
+    height: 43px;
   }
 
   .admin-toolbar > select {
     flex: 1;
-
     min-width: 0;
     height: 42px;
   }
@@ -1224,13 +1319,10 @@
   .admin-icon-button {
     width: 42px;
     height: 42px;
-
     flex: 0 0 42px;
   }
 
-  /* -------------------------
-     TABLE
-     ------------------------- */
+  /* Table */
 
   .admin-table {
     min-width: 760px;
@@ -1239,13 +1331,11 @@
   .admin-table th {
     height: 42px;
     padding: 0 14px;
-
     font-size: 8px;
   }
 
   .admin-table td {
     padding: 14px;
-
     font-size: 10px;
   }
 
@@ -1253,9 +1343,7 @@
     min-width: 170px;
   }
 
-  /* -------------------------
-     MODAL
-     ------------------------- */
+  /* Modal */
 
   .admin-modal-backdrop {
     padding: 12px;
@@ -1264,25 +1352,52 @@
   .admin-modal {
     width: 100%;
     max-height: calc(100vh - 24px);
-
     border-radius: 14px;
   }
 
   .admin-modal-header {
-    padding: 20px 18px;
+    padding: 18px;
   }
 
   .admin-modal-header h2 {
     font-size: 19px;
   }
 
+  /* Compact conversion row */
+
+  .admin-client-conversion {
+    padding: 11px 18px;
+  }
+
+  .admin-client-conversion-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .admin-convert-client-button {
+    width: 100%;
+  }
+
+  .admin-current-status {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .admin-current-status select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Details */
+
   .admin-detail-status {
-    padding: 13px 18px;
+    padding: 12px 18px;
   }
 
   .admin-detail-grid {
     grid-template-columns: 1fr;
-
     margin-left: 18px;
     margin-right: 18px;
   }
@@ -1293,8 +1408,7 @@
   }
 
   .admin-modal-actions {
-    padding: 14px 18px;
-
+    padding: 13px 18px;
     flex-wrap: wrap;
   }
 
@@ -1303,16 +1417,12 @@
     flex: 1;
   }
 
-  /* -------------------------
-     DRAWER
-     ------------------------- */
+  /* Drawer */
 
   .enquiry-details-modal,
   .admin-modal-content {
     max-width: 100%;
-
     padding: 20px;
-
     border-left: none;
   }
 }
@@ -1356,16 +1466,19 @@
 
   .admin-table .status-badge {
     padding: 5px 8px;
-
     font-size: 7px;
   }
 
   .admin-modal-header {
-    padding: 18px 15px;
+    padding: 17px 15px;
+  }
+
+  .admin-client-conversion {
+    padding: 10px 15px;
   }
 
   .admin-detail-status {
-    padding: 12px 15px;
+    padding: 11px 15px;
   }
 
   .admin-detail-grid {
@@ -1376,12 +1489,11 @@
   .admin-description {
     margin-left: 15px;
     margin-right: 15px;
-
     padding: 14px;
   }
 
   .admin-modal-actions {
-    padding: 13px 15px;
+    padding: 12px 15px;
   }
 
   .enquiry-details-modal,
@@ -1410,6 +1522,14 @@
   .admin-table {
     min-width: 680px;
   }
+
+  .admin-current-status > span {
+    font-size: 8px;
+  }
+
+  .admin-current-status select {
+    font-size: 9px;
+  }
 }
 
 /* =========================================================
@@ -1419,9 +1539,11 @@
 .admin-icon-button:focus-visible,
 .admin-outline-button:focus-visible,
 .admin-danger-button:focus-visible,
+.admin-convert-client-button:focus-visible,
 .admin-search input:focus-visible,
 .admin-toolbar select:focus-visible,
-.admin-detail-status select:focus-visible {
+.admin-detail-status select:focus-visible,
+.admin-current-status select:focus-visible {
   outline: 2px solid rgba(92, 210, 255, 0.55);
   outline-offset: 2px;
 }
@@ -1434,6 +1556,7 @@
   .admin-icon-button,
   .admin-outline-button,
   .admin-danger-button,
+  .admin-convert-client-button,
   .admin-table tbody tr,
   .admin-search,
   .enquiry-details-modal,
@@ -1445,4 +1568,55 @@
     animation: none;
     transition: none;
   }
+}
+/* =========================================================
+   ENQUIRY → OPPORTUNITY BUTTON
+========================================================= */
+
+.admin-convert-opportunity-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 36px;
+  padding: 8px 14px;
+
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  border-radius: 9px;
+
+  background: rgba(99, 102, 241, 0.12);
+  color: #c7d2fe;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.admin-convert-opportunity-button:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.22);
+  border-color: rgba(129, 140, 248, 0.7);
+  color: #ffffff;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 6px 18px rgba(99, 102, 241, 0.16);
+}
+
+.admin-convert-opportunity-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-convert-opportunity-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }

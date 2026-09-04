@@ -1,3 +1,4 @@
+import "../../styles/developer/legacy-portal.css";
 import {
   useCallback,
   useEffect,

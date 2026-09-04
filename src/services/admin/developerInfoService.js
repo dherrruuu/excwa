@@ -1,28 +1,16 @@
 import { supabase } from "../../lib/supabase";
 
-/*
-=========================================================
- EXCWA TECH
- ADMIN DEVELOPER INFO SERVICE
-=========================================================
-*/
+/* =========================================================
+   EXCWA TECH
+   ADMIN DEVELOPER INFO SERVICE
+========================================================= */
 
 const PROFILE_PHOTO_BUCKET = "profile-photos";
 const RESUME_BUCKET = "developer-resumes";
 
-/*
-=========================================================
- DEVELOPER PROFILE COLUMNS
-
- IMPORTANT:
- profile_photo_path DOES NOT EXIST in
- developer_profiles.
-
- The application photo path is stored in:
-
- developer_applications.profile_photo_path
-=========================================================
-*/
+/* =========================================================
+   DEVELOPER PROFILE COLUMNS
+========================================================= */
 
 const PROFILE_COLUMNS = `
   id,
@@ -43,12 +31,9 @@ const PROFILE_COLUMNS = `
   updated_at
 `;
 
-
-/*
-=========================================================
- CLEAN STORAGE PATH
-=========================================================
-*/
+/* =========================================================
+   CLEAN STORAGE PATH
+========================================================= */
 
 function cleanStoragePath(value, bucket) {
   if (!value) {
@@ -61,50 +46,46 @@ function cleanStoragePath(value, bucket) {
     return null;
   }
 
+  // Already a URL
   if (/^https?:\/\//i.test(path)) {
     return path;
   }
 
+  // Remove leading slash
   path = path.replace(/^\/+/, "");
 
+  // Remove bucket prefix if accidentally stored
   const bucketPrefix = `${bucket}/`;
 
-  if (
-    path
-      .toLowerCase()
-      .startsWith(
-        bucketPrefix.toLowerCase()
-      )
-  ) {
-    path = path.slice(
-      bucketPrefix.length
-    );
+  if (path.toLowerCase().startsWith(bucketPrefix.toLowerCase())) {
+    path = path.slice(bucketPrefix.length);
   }
 
   return path || null;
 }
 
-
-/*
-=========================================================
- RESOLVE PROFILE PHOTO
-=========================================================
-*/
+/* =========================================================
+   RESOLVE PROFILE PHOTO
+========================================================= */
 
 async function getProfilePhotoUrl(value) {
   if (!value) {
     return null;
   }
 
-  if (
-    typeof value === "string" &&
-    /^https?:\/\//i.test(value.trim())
-  ) {
-    return value.trim();
+  const stringValue = String(value).trim();
+
+  if (!stringValue) {
+    return null;
+  }
+
+  // Already a URL
+  if (/^https?:\/\//i.test(stringValue)) {
+    return stringValue;
   }
 
   const cleanPath = cleanStoragePath(
-    value,
+    stringValue,
     PROFILE_PHOTO_BUCKET
   );
 
@@ -121,23 +102,18 @@ async function getProfilePhotoUrl(value) {
     }
   );
 
-  /*
-  -------------------------------------------------------
-  TRY PUBLIC URL
-  -------------------------------------------------------
-  */
+  /* -------------------------------------------------------
+     TRY PUBLIC URL
+  ------------------------------------------------------- */
 
   try {
-    const {
-      data,
-    } = supabase.storage
+    const { data } = supabase.storage
       .from(PROFILE_PHOTO_BUCKET)
       .getPublicUrl(cleanPath);
 
     if (data?.publicUrl) {
       console.log(
-        "[DeveloperInfo] Photo URL:",
-        data.publicUrl
+        "[DeveloperInfo] Photo public URL created."
       );
 
       return data.publicUrl;
@@ -149,13 +125,9 @@ async function getProfilePhotoUrl(value) {
     );
   }
 
-  /*
-  -------------------------------------------------------
-  TRY SIGNED URL
-
-  This works if profile-photos is private.
-  -------------------------------------------------------
-  */
+  /* -------------------------------------------------------
+     TRY SIGNED URL
+  ------------------------------------------------------- */
 
   try {
     const {
@@ -188,30 +160,55 @@ async function getProfilePhotoUrl(value) {
   }
 }
 
-
-/*
-=========================================================
- FIND APPLICATION PHOTO
-=========================================================
-
-developer_profiles.profile_photo_url is NULL.
-
-The original application stores:
-
-developer_applications.profile_photo_path
-
-Example:
-
-applications/abc123.jpg
-=========================================================
-*/
-
+/* =========================================================
+   FIND APPLICATION PHOTO
+========================================================= */
 async function getApplicationPhotoPath(userId) {
   if (!userId) {
+    console.warn(
+      "[DeveloperInfo] Cannot lookup application photo: missing userId"
+    );
     return null;
   }
 
+  console.log(
+    "[DeveloperInfo] Looking for application photo:",
+    userId
+  );
+
   try {
+    // First get the developer's email from profiles
+    const {
+      data: profile,
+      error: profileError,
+    } = await supabase
+      .from("profiles")
+      .select("id, email")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (profileError) {
+      console.error(
+        "[DeveloperInfo] Profile lookup failed:",
+        profileError
+      );
+      return null;
+    }
+
+    if (!profile?.email) {
+      console.warn(
+        "[DeveloperInfo] No email found for user:",
+        userId
+      );
+      return null;
+    }
+
+    console.log(
+      "[DeveloperInfo] Developer email:",
+      profile.email
+    );
+
+    // Find the original application using email
     const {
       data,
       error,
@@ -219,41 +216,37 @@ async function getApplicationPhotoPath(userId) {
       .from("developer_applications")
       .select(`
         id,
+        email,
         developer_user_id,
         profile_photo_path,
         created_at
       `)
-      .eq(
-        "developer_user_id",
-        userId
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false,
-        }
-      )
+      .eq("email", profile.email)
+      .order("created_at", {
+        ascending: false,
+      })
       .limit(1)
       .maybeSingle();
 
     if (error) {
-      console.warn(
+      console.error(
         "[DeveloperInfo] Application photo lookup failed:",
         error
       );
-
       return null;
     }
+
+    console.log(
+      "[DeveloperInfo] Application record:",
+      data
+    );
 
     console.log(
       "[DeveloperInfo] Application photo path:",
       data?.profile_photo_path
     );
 
-    return (
-      data?.profile_photo_path ||
-      null
-    );
+    return data?.profile_photo_path || null;
   } catch (error) {
     console.error(
       "[DeveloperInfo] Application photo exception:",
@@ -265,36 +258,27 @@ async function getApplicationPhotoPath(userId) {
 }
 
 
-/*
-=========================================================
- NORMALIZE DEVELOPER
-=========================================================
-*/
+/* =========================================================
+   NORMALIZE DEVELOPER
+========================================================= */
 
-async function normalizeDeveloper(
-  developer
-) {
+async function normalizeDeveloper(developer) {
   if (!developer) {
     return null;
   }
 
   let photoValue =
-    developer.profile_photo_url ||
-    null;
+    developer.profile_photo_url || null;
 
   /*
-  If developer_profiles has no photo URL,
-  get it from the original application.
+    If developer_profiles doesn't have a usable photo,
+    look in developer_applications.
   */
 
-  if (
-    !photoValue &&
-    developer.user_id
-  ) {
-    photoValue =
-      await getApplicationPhotoPath(
-        developer.user_id
-      );
+  if (!photoValue && developer.user_id) {
+    photoValue = await getApplicationPhotoPath(
+      developer.user_id
+    );
   }
 
   console.log(
@@ -303,9 +287,7 @@ async function normalizeDeveloper(
   );
 
   const profilePhotoUrl =
-    await getProfilePhotoUrl(
-      photoValue
-    );
+    await getProfilePhotoUrl(photoValue);
 
   console.log(
     "[DeveloperInfo] Final photo URL:",
@@ -325,20 +307,15 @@ async function normalizeDeveloper(
       developer.account || null,
 
     applications:
-      Array.isArray(
-        developer.applications
-      )
+      Array.isArray(developer.applications)
         ? developer.applications
         : [],
   };
 }
 
-
-/*
-=========================================================
- GET ALL DEVELOPERS
-=========================================================
-*/
+/* =========================================================
+   GET ALL DEVELOPERS
+========================================================= */
 
 export async function getDeveloperInfoList() {
   console.log(
@@ -373,18 +350,13 @@ export async function getDeveloperInfoList() {
       : [];
 
   return Promise.all(
-    developers.map(
-      normalizeDeveloper
-    )
+    developers.map(normalizeDeveloper)
   );
 }
 
-
-/*
-=========================================================
- GET SINGLE DEVELOPER
-=========================================================
-*/
+/* =========================================================
+   GET SINGLE DEVELOPER
+========================================================= */
 
 export async function getDeveloperInfoById(
   developerId
@@ -447,12 +419,9 @@ export async function getDeveloperInfoById(
   };
 }
 
-
-/*
-=========================================================
- GET ACCOUNT
-=========================================================
-*/
+/* =========================================================
+   GET ACCOUNT
+========================================================= */
 
 export async function getDeveloperAccount(
   userId
@@ -501,12 +470,9 @@ export async function getDeveloperAccount(
   }
 }
 
-
-/*
-=========================================================
- GET APPLICATIONS
-=========================================================
-*/
+/* =========================================================
+   GET APPLICATIONS
+========================================================= */
 
 export async function getDeveloperApplications(
   userId
@@ -572,12 +538,9 @@ export async function getDeveloperApplications(
   }
 }
 
-
-/*
-=========================================================
- UPDATE DEVELOPER
-=========================================================
-*/
+/* =========================================================
+   UPDATE DEVELOPER
+========================================================= */
 
 export async function updateDeveloperInfo(
   developerId,
@@ -604,9 +567,7 @@ export async function updateDeveloperInfo(
 
   const cleanUpdates = {};
 
-  for (
-    const field of allowedFields
-  ) {
+  for (const field of allowedFields) {
     if (
       Object.prototype.hasOwnProperty.call(
         updates || {},
@@ -646,12 +607,9 @@ export async function updateDeveloperInfo(
   return normalizeDeveloper(data);
 }
 
-
-/*
-=========================================================
- STATUS UPDATE
-=========================================================
-*/
+/* =========================================================
+   STATUS UPDATE
+========================================================= */
 
 async function updateDeveloperStatus(
   developerId,
@@ -670,9 +628,7 @@ async function updateDeveloperStatus(
       new Date().toISOString(),
   };
 
-  if (
-    rejectionReason !== undefined
-  ) {
+  if (rejectionReason !== undefined) {
     payload.rejection_reason =
       rejectionReason;
   }
@@ -702,12 +658,9 @@ async function updateDeveloperStatus(
   return normalizeDeveloper(data);
 }
 
-
-/*
-=========================================================
- SUSPEND
-=========================================================
-*/
+/* =========================================================
+   SUSPEND
+========================================================= */
 
 export async function suspendDeveloper(
   developerId
@@ -718,12 +671,9 @@ export async function suspendDeveloper(
   );
 }
 
-
-/*
-=========================================================
- REACTIVATE
-=========================================================
-*/
+/* =========================================================
+   REACTIVATE
+========================================================= */
 
 export async function reactivateDeveloper(
   developerId
@@ -735,12 +685,9 @@ export async function reactivateDeveloper(
   );
 }
 
-
-/*
-=========================================================
- DEACTIVATE
-=========================================================
-*/
+/* =========================================================
+   DEACTIVATE
+========================================================= */
 
 export async function deactivateDeveloper(
   developerId
@@ -751,13 +698,13 @@ export async function deactivateDeveloper(
   );
 }
 
-
-/*
 /* =========================================================
    RESUME URL
 ========================================================= */
 
-export async function getDeveloperResumeUrl(path) {
+export async function getDeveloperResumeUrl(
+  path
+) {
   if (!path) {
     return null;
   }
@@ -782,7 +729,10 @@ export async function getDeveloperResumeUrl(path) {
 
   const cleanPath = value
     .replace(/^\/+/, "")
-    .replace(/^developer-resumes\//i, "");
+    .replace(
+      /^developer-resumes\//i,
+      ""
+    );
 
   console.log(
     "[DeveloperInfo] Creating resume signed URL:",
@@ -794,7 +744,7 @@ export async function getDeveloperResumeUrl(path) {
       data,
       error,
     } = await supabase.storage
-      .from("developer-resumes")
+      .from(RESUME_BUCKET)
       .createSignedUrl(
         cleanPath,
         60 * 60
@@ -815,7 +765,6 @@ export async function getDeveloperResumeUrl(path) {
     );
 
     return data?.signedUrl || null;
-
   } catch (error) {
     console.error(
       "[DeveloperInfo] Resume URL exception:",
@@ -826,12 +775,9 @@ export async function getDeveloperResumeUrl(path) {
   }
 }
 
-
-/*
-=========================================================
- EXPORTS
-=========================================================
-*/
+/* =========================================================
+   EXPORTS
+========================================================= */
 
 export {
   PROFILE_PHOTO_BUCKET,

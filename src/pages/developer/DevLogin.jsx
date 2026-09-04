@@ -396,7 +396,6 @@ export default function DevLogin() {
           <ExcwaLogo />
         </div>
 
-<div className="developer-login-header"></div>
         <div className="developer-login-header">
 
           <span className="developer-login-eyebrow">

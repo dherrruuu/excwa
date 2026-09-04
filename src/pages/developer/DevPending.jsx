@@ -1,3 +1,4 @@
+import "../../styles/developer/legacy-portal.css";
 import { Clock, LogOut } from "lucide-react";
 import ExcwaLogo from "../../components/common/ExcwaLogo";
 import { useDeveloper } from "../../hooks/useDeveloper";

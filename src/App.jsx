@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 // ============================================================
 
 import DeveloperActivate from "./pages/auth/DeveloperActivate";
+import ClientActivate from "./pages/auth/ClientActivate";
 
 // ============================================================
 // ADMIN
@@ -46,9 +47,10 @@ import DevProtectedRoute from "./components/developer/DevProtectedRoute";
 // CLIENT PORTAL
 // ============================================================
 
-import ClientActivate from "./pages/auth/ClientActivate";
 import ClientLogin from "./pages/client-portal/ClientLogin";
 import ClientDashboard from "./pages/client-portal/ClientDashboard";
+import ClientProjects from "./pages/client-portal/ClientProjects";
+import ClientProjectDetails from "./pages/client-portal/ClientProjectDetails";
 
 import ClientProtectedRoute from "./components/client-portal/ClientProtectedRoute";
 
@@ -77,6 +79,15 @@ export default function App() {
         <Route
           path="/activate"
           element={<DeveloperActivate />}
+        />
+
+        {/* ======================================================
+            CLIENT ACCOUNT ACTIVATION
+            ====================================================== */}
+
+        <Route
+          path="/client/activate"
+          element={<ClientActivate />}
         />
 
         {/* ======================================================
@@ -125,15 +136,6 @@ export default function App() {
         </Route>
 
         {/* ======================================================
-            CLIENT PORTAL ACTIVATION
-            ====================================================== */}
-
-        <Route
-          path="/client/activate"
-          element={<ClientActivate />}
-        />
-
-        {/* ======================================================
             CLIENT PORTAL LOGIN
             ====================================================== */}
 
@@ -147,10 +149,25 @@ export default function App() {
             ====================================================== */}
 
         <Route element={<ClientProtectedRoute />}>
+
+          {/* CLIENT OVERVIEW */}
           <Route
             path="/client/dashboard"
             element={<ClientDashboard />}
           />
+
+          {/* ALL CLIENT PROJECTS */}
+          <Route
+            path="/client/projects"
+            element={<ClientProjects />}
+          />
+
+          {/* SINGLE PROJECT DETAILS */}
+          <Route
+            path="/client/projects/:projectId"
+            element={<ClientProjectDetails />}
+          />
+
         </Route>
 
         {/* ======================================================
@@ -167,6 +184,7 @@ export default function App() {
             ====================================================== */}
 
         <Route element={<AdminProtectedRoute />}>
+
           <Route
             path="/admin"
             element={<AdminLayout />}
@@ -193,7 +211,7 @@ export default function App() {
             />
 
             {/* ==================================================
-                DEVELOPER APPLICATIONS
+                DEVELOPERS
                 /admin/developers
                 ================================================== */}
 
@@ -243,6 +261,7 @@ export default function App() {
             />
 
           </Route>
+
         </Route>
 
       </Routes>

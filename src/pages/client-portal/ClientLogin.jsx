@@ -255,21 +255,7 @@ export default function ClientLogin() {
               FOOTER
           ====================================================== */}
 
-          <div className="client-login-footer">
-
-            <span>
-              Need an activation link?
-            </span>
-
-            <span className="client-login-footer-dot">
-              •
-            </span>
-
-            <Link to="/client/activate">
-              Activate Account
-            </Link>
-
-          </div>
+          
 
         </section>
 

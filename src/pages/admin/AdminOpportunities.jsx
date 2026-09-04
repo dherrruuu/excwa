@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import "../../styles/admin/admin-opportunities.css";
 
@@ -6,6 +7,7 @@ import {
   getAllOpportunities,
   createOpportunity,
   updateOpportunity,
+  setClientPreviewVisibility,
   deleteOpportunity as deleteOpportunityService,
 } from "../../services/admin/adminOpportunityService";
 
@@ -274,6 +276,9 @@ const submissionStatusIcon = (status) => {
 ========================================================= */
 
 export default function AdminOpportunities() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   /* =======================================================
      OPPORTUNITIES
   ======================================================= */
@@ -292,8 +297,7 @@ export default function AdminOpportunities() {
 
   const [showForm, setShowForm] = useState(false);
   const [showView, setShowView] = useState(false);
-  const [showApplicants, setShowApplicants] =
-    useState(false);
+  const [showApplicants, setShowApplicants] = useState(false);
   const [showChangeDeveloper, setShowChangeDeveloper] =
     useState(false);
 
@@ -305,6 +309,13 @@ export default function AdminOpportunities() {
 
   const [editingOpportunity, setEditingOpportunity] =
     useState(null);
+
+  /*
+   * These values are used when an opportunity is being
+   * created from a converted enquiry.
+   */
+  const [sourceClientId, setSourceClientId] = useState(null);
+  const [sourceEnquiryId, setSourceEnquiryId] = useState(null);
 
   /* =======================================================
      SELECTED OPPORTUNITY
@@ -338,6 +349,8 @@ export default function AdminOpportunities() {
     useState([]);
 
   const [reassigning, setReassigning] = useState(false);
+
+  const [previewSaving, setPreviewSaving] = useState(false);
 
   /* =======================================================
      MESSAGES
@@ -380,33 +393,138 @@ export default function AdminOpportunities() {
   }, []);
 
   /* =========================================================
+     OPEN FORM FROM ENQUIRY
+  ========================================================= */
+
+  useEffect(() => {
+    const state = location.state;
+    const enquiry = state?.enquiry;
+
+    if (
+      !state?.createFromEnquiry ||
+      !enquiry
+    ) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    setEditingOpportunity(null);
+
+    /*
+     * Preserve client/enquiry relationship.
+     */
+    setSourceClientId(
+      enquiry.client_id || null
+    );
+
+    setSourceEnquiryId(
+      enquiry.id || null
+    );
+
+    /*
+     * Try to automatically match the enquiry service
+     * with one of the existing opportunity categories.
+     */
+    const matchedCategory =
+      CATEGORIES.includes(
+        enquiry.service
+      )
+        ? enquiry.service
+        : "";
+
+    setForm({
+      ...INITIAL_FORM,
+
+      title: enquiry.service
+        ? `${enquiry.service} Project`
+        : "",
+
+      description:
+        enquiry.project_description || "",
+
+      category: matchedCategory,
+
+      project_type:
+        enquiry.service || "",
+
+      required_roles: [],
+
+      required_skills: "",
+
+      tech_stack: "",
+
+      deliverables: "",
+
+      deadline: "",
+
+      application_deadline: "",
+
+      budget:
+        enquiry.estimated_budget || "",
+
+      freelancer_payout: "",
+
+      status: "draft",
+    });
+
+    setShowForm(true);
+
+    /*
+     * Clear router state after consuming it.
+     *
+     * This prevents the same enquiry form from opening
+     * again when the page is refreshed.
+     */
+    navigate(location.pathname, {
+      replace: true,
+      state: null,
+    });
+  }, [
+    location.state,
+    location.pathname,
+    navigate,
+  ]);
+
+  /* =========================================================
      FILTER
   ========================================================= */
 
   const filteredOpportunities =
-    opportunities.filter((opportunity) => {
-      if (opportunityFilter === "all") {
-        return true;
-      }
+    opportunities.filter(
+      (opportunity) => {
+        if (
+          opportunityFilter ===
+          "all"
+        ) {
+          return true;
+        }
 
-      return (
-        opportunity.status ===
-        opportunityFilter
-      );
-    });
+        return (
+          opportunity.status ===
+          opportunityFilter
+        );
+      }
+    );
 
   const currentFilterLabel =
     OPPORTUNITY_FILTERS.find(
       (filter) =>
-        filter.value === opportunityFilter
-    )?.label || "Open / Pending";
+        filter.value ===
+        opportunityFilter
+    )?.label ||
+    "Open / Pending";
 
   /* =========================================================
      FORM CHANGE
   ========================================================= */
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value,
+    } = e.target;
 
     setForm((prev) => ({
       ...prev,
@@ -423,9 +541,12 @@ export default function AdminOpportunities() {
       ...prev,
 
       required_roles:
-        prev.required_roles.includes(role)
+        prev.required_roles.includes(
+          role
+        )
           ? prev.required_roles.filter(
-              (item) => item !== role
+              (item) =>
+                item !== role
             )
           : [
               ...prev.required_roles,
@@ -455,7 +576,11 @@ export default function AdminOpportunities() {
     if (saving) return;
 
     setShowForm(false);
+
     setEditingOpportunity(null);
+
+    setSourceClientId(null);
+    setSourceEnquiryId(null);
 
     resetForm();
   };
@@ -468,16 +593,20 @@ export default function AdminOpportunities() {
     opportunity
   ) => {
     return {
-      title: opportunity.title || "",
+      title:
+        opportunity.title || "",
 
       description:
-        opportunity.description || "",
+        opportunity.description ||
+        "",
 
       category:
-        opportunity.category || "",
+        opportunity.category ||
+        "",
 
       project_type:
-        opportunity.project_type || "",
+        opportunity.project_type ||
+        "",
 
       required_roles:
         Array.isArray(
@@ -503,10 +632,12 @@ export default function AdminOpportunities() {
           ? opportunity.tech_stack.join(
               ", "
             )
-          : opportunity.tech_stack || "",
+          : opportunity.tech_stack ||
+            "",
 
       deliverables:
-        opportunity.deliverables || "",
+        opportunity.deliverables ||
+        "",
 
       deadline:
         opportunity.deadline
@@ -523,14 +654,16 @@ export default function AdminOpportunities() {
           : "",
 
       budget:
-        opportunity.budget ?? "",
+        opportunity.budget ??
+        "",
 
       freelancer_payout:
         opportunity.freelancer_payout ??
         "",
 
       status:
-        opportunity.status || "draft",
+        opportunity.status ||
+        "draft",
     };
   };
 
@@ -544,6 +677,9 @@ export default function AdminOpportunities() {
 
     setEditingOpportunity(null);
 
+    setSourceClientId(null);
+    setSourceEnquiryId(null);
+
     resetForm();
 
     setShowForm(true);
@@ -553,7 +689,9 @@ export default function AdminOpportunities() {
      EDIT
   ========================================================= */
 
-  const openEdit = (opportunity) => {
+  const openEdit = (
+    opportunity
+  ) => {
     if (!opportunity) return;
 
     setError("");
@@ -561,10 +699,28 @@ export default function AdminOpportunities() {
 
     setShowView(false);
 
-    setEditingOpportunity(opportunity);
+    setEditingOpportunity(
+      opportunity
+    );
+
+    /*
+     * Editing an existing opportunity should use
+     * its existing client relationship.
+     */
+    setSourceClientId(
+      opportunity.client_id ||
+        null
+    );
+
+    setSourceEnquiryId(
+      opportunity.enquiry_id ||
+        null
+    );
 
     setForm(
-      opportunityToForm(opportunity)
+      opportunityToForm(
+        opportunity
+      )
     );
 
     setShowForm(true);
@@ -587,7 +743,9 @@ export default function AdminOpportunities() {
       return;
     }
 
-    if (!form.description.trim()) {
+    if (
+      !form.description.trim()
+    ) {
       setError(
         "Project description is required."
       );
@@ -601,14 +759,18 @@ export default function AdminOpportunities() {
       return;
     }
 
-    if (!form.deliverables.trim()) {
+    if (
+      !form.deliverables.trim()
+    ) {
       setError(
         "Please enter the deliverables."
       );
       return;
     }
 
-    if (!form.freelancer_payout) {
+    if (
+      !form.freelancer_payout
+    ) {
       setError(
         "Developer payout is required."
       );
@@ -617,7 +779,8 @@ export default function AdminOpportunities() {
 
     if (
       publish &&
-      form.required_roles.length === 0
+      form.required_roles.length ===
+        0
     ) {
       setError(
         "Select at least one required developer role."
@@ -630,7 +793,8 @@ export default function AdminOpportunities() {
     try {
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } =
+        await supabase.auth.getUser();
 
       if (!user) {
         throw new Error(
@@ -638,13 +802,31 @@ export default function AdminOpportunities() {
         );
       }
 
+      /*
+       * IMPORTANT:
+       *
+       * Existing opportunity:
+       * use its current client_id.
+       *
+       * New opportunity from enquiry:
+       * use sourceClientId.
+       */
+      const clientIdForSave =
+        editingOpportunity
+          ? editingOpportunity.client_id ||
+            null
+          : sourceClientId ||
+            null;
+
       const payload = {
-        title: form.title.trim(),
+        title:
+          form.title.trim(),
 
         description:
           form.description.trim(),
 
-        category: form.category,
+        category:
+          form.category,
 
         project_type:
           form.project_type.trim() ||
@@ -657,7 +839,8 @@ export default function AdminOpportunities() {
           form.required_skills
             .split(",")
             .map(
-              (item) => item.trim()
+              (item) =>
+                item.trim()
             )
             .filter(Boolean),
 
@@ -665,7 +848,8 @@ export default function AdminOpportunities() {
           form.tech_stack
             .split(",")
             .map(
-              (item) => item.trim()
+              (item) =>
+                item.trim()
             )
             .filter(Boolean),
 
@@ -680,7 +864,9 @@ export default function AdminOpportunities() {
           null,
 
         budget: form.budget
-          ? Number(form.budget)
+          ? Number(
+              form.budget
+            )
           : null,
 
         freelancer_payout:
@@ -688,14 +874,28 @@ export default function AdminOpportunities() {
             form.freelancer_payout
           ),
 
+        /*
+         * Keep opportunity linked
+         * to the converted client.
+         */
+        client_id:
+          clientIdForSave,
+
         ...(editingOpportunity
           ? {
-              status: form.status,
+              status:
+                form.status,
             }
           : {}),
       };
 
-      if (editingOpportunity) {
+      /* =====================================================
+         UPDATE EXISTING OPPORTUNITY
+      ===================================================== */
+
+      if (
+        editingOpportunity
+      ) {
         await updateOpportunity(
           editingOpportunity.id,
           payload
@@ -704,7 +904,13 @@ export default function AdminOpportunities() {
         setSuccess(
           "Opportunity updated successfully."
         );
-      } else {
+      }
+
+      /* =====================================================
+         CREATE NEW OPPORTUNITY
+      ===================================================== */
+
+      else {
         await createOpportunity({
           ...payload,
 
@@ -712,7 +918,8 @@ export default function AdminOpportunities() {
             ? "open"
             : "draft",
 
-          created_by: user.id,
+          created_by:
+            user.id,
         });
 
         setSuccess(
@@ -722,11 +929,21 @@ export default function AdminOpportunities() {
         );
       }
 
+      /*
+       * Close form.
+       */
       setShowForm(false);
+
       setEditingOpportunity(null);
+
+      setSourceClientId(null);
+      setSourceEnquiryId(null);
 
       resetForm();
 
+      /*
+       * Refresh opportunity list.
+       */
       await loadOpportunities();
     } catch (err) {
       console.error(
@@ -768,434 +985,523 @@ export default function AdminOpportunities() {
   };
 
   /* =========================================================
+     CLIENT PREVIEW
+  ========================================================= */
+
+  const toggleClientPreview =
+    async () => {
+      if (
+        !selectedOpportunity?.id ||
+        previewSaving
+      ) {
+        return;
+      }
+
+      const enabled =
+        !selectedOpportunity.client_preview_enabled;
+
+      setPreviewSaving(true);
+      setError("");
+
+      try {
+        await setClientPreviewVisibility(
+          selectedOpportunity.id,
+          enabled
+        );
+
+        const updated = {
+          ...selectedOpportunity,
+          client_preview_enabled:
+            enabled,
+        };
+
+        setSelectedOpportunity(
+          updated
+        );
+
+        setOpportunities(
+          (items) =>
+            items.map(
+              (item) =>
+                item.id ===
+                updated.id
+                  ? {
+                      ...item,
+                      client_preview_enabled:
+                        enabled,
+                    }
+                  : item
+            )
+        );
+
+        setSuccess(
+          enabled
+            ? "Client preview enabled."
+            : "Client preview disabled."
+        );
+      } catch (err) {
+        setError(
+          err?.message ||
+            "Unable to update client preview access."
+        );
+      } finally {
+        setPreviewSaving(
+          false
+        );
+      }
+    };
+
+  /* =========================================================
      LOAD APPLICANTS
   ========================================================= */
 
-  const loadApplicants = async (
-    opportunity
-  ) => {
-    if (!opportunity?.id) {
-      setError(
-        "Invalid opportunity."
-      );
-      return;
-    }
-
-    setSelectedOpportunity(
+  const loadApplicants =
+    async (
       opportunity
-    );
-
-    setShowView(false);
-    setShowApplicants(true);
-
-    setApplicants([]);
-
-    setApplicantsLoading(true);
-
-    setError("");
-    setSuccess("");
-
-    try {
-      /* =====================================================
-         LOAD APPLICATIONS
-      ===================================================== */
-
-      const {
-        data: applications,
-        error: applicationsError,
-      } = await supabase
-        .from(
-          "opportunity_applications"
-        )
-        .select(
-          `
-            id,
-            opportunity_id,
-            developer_id,
-            status,
-            cover_message,
-            estimated_days,
-            applied_at
-          `
-        )
-        .eq(
-          "opportunity_id",
-          opportunity.id
-        )
-        .order(
-          "applied_at",
-          {
-            ascending: false,
-          }
+    ) => {
+      if (!opportunity?.id) {
+        setError(
+          "Invalid opportunity."
         );
-
-      if (applicationsError) {
-        throw applicationsError;
+        return;
       }
 
-      const applicationRows =
-        Array.isArray(applications)
-          ? applications
-          : [];
-
-      /* =====================================================
-         DEVELOPER IDS
-      ===================================================== */
-
-      const developerIds = [
-        ...new Set(
-          applicationRows
-            .map(
-              (application) =>
-                application.developer_id
-            )
-            .filter(Boolean)
-        ),
-      ];
-
-      let developers = [];
-
-      /* =====================================================
-         DEVELOPER PROFILES
-      ===================================================== */
-
-      if (
-        developerIds.length > 0
-      ) {
-        const {
-          data,
-          error:
-            developersError,
-        } = await supabase
-          .from(
-            "developer_profiles"
-          )
-          .select(
-            `
-              id,
-              full_name,
-              primary_roles,
-              profile_photo_url,
-              github_url,
-              linkedin_url
-            `
-          )
-          .in(
-            "id",
-            developerIds
-          );
-
-        if (developersError) {
-          throw developersError;
-        }
-
-        developers =
-          Array.isArray(data)
-            ? data
-            : [];
-      }
-
-      /* =====================================================
-         DEVELOPER MAP
-      ===================================================== */
-
-      const developerMap =
-        new Map(
-          developers.map(
-            (developer) => [
-              developer.id,
-              developer,
-            ]
-          )
-        );
-
-      /* =====================================================
-         ASSIGNMENT
-      ===================================================== */
-
-      let assignmentData = null;
-
-      try {
-        assignmentData =
-          await getOpportunityAssignment(
-            opportunity.id
-          );
-      } catch (
-        assignmentError
-      ) {
-        console.warn(
-          "Unable to load opportunity assignment:",
-          assignmentError
-        );
-
-        assignmentData = null;
-      }
-
-      /* =====================================================
-         COMBINE
-      ===================================================== */
-
-      const mappedApplicants =
-        applicationRows.map(
-          (application) => {
-            const developer =
-              developerMap.get(
-                application.developer_id
-              ) || null;
-
-            return {
-              ...application,
-
-              developer,
-
-              assignment:
-                assignmentData,
-
-              submitted_at:
-                application.applied_at,
-
-              submission_notes:
-                application.cover_message,
-
-              github_url:
-                developer?.github_url ||
-                null,
-
-              linkedin_url:
-                developer?.linkedin_url ||
-                null,
-
-              profile_photo_url:
-                developer?.profile_photo_url ||
-                null,
-            };
-          }
-        );
-
-      setApplicants(
-        mappedApplicants
+      setSelectedOpportunity(
+        opportunity
       );
-    } catch (err) {
-      console.error(
-        "Load applicants error:",
-        err
+
+      setShowView(false);
+      setShowApplicants(
+        true
       );
 
       setApplicants([]);
 
-      setError(
-        err?.message ||
-          "Unable to load applicants."
-      );
-    } finally {
       setApplicantsLoading(
-        false
+        true
       );
-    }
-  };
+
+      setError("");
+      setSuccess("");
+
+      try {
+        /* ===================================================
+           LOAD APPLICATIONS
+        =================================================== */
+
+        const {
+          data: applications,
+          error:
+            applicationsError,
+        } =
+          await supabase
+            .from(
+              "opportunity_applications"
+            )
+            .select(
+              `
+                id,
+                opportunity_id,
+                developer_id,
+                status,
+                cover_message,
+                estimated_days,
+                applied_at
+              `
+            )
+            .eq(
+              "opportunity_id",
+              opportunity.id
+            )
+            .order(
+              "applied_at",
+              {
+                ascending:
+                  false,
+              }
+            );
+
+        if (
+          applicationsError
+        ) {
+          throw applicationsError;
+        }
+
+        const applicationRows =
+          Array.isArray(
+            applications
+          )
+            ? applications
+            : [];
+
+        /* ===================================================
+           DEVELOPER IDS
+        =================================================== */
+
+        const developerIds = [
+          ...new Set(
+            applicationRows
+              .map(
+                (
+                  application
+                ) =>
+                  application.developer_id
+              )
+              .filter(Boolean)
+          ),
+        ];
+
+        let developers = [];
+
+        /* ===================================================
+           DEVELOPER PROFILES
+        =================================================== */
+
+        if (
+          developerIds.length >
+          0
+        ) {
+          const {
+            data,
+            error:
+              developersError,
+          } =
+            await supabase
+              .from(
+                "developer_profiles"
+              )
+              .select(
+                `
+                  id,
+                  full_name,
+                  primary_roles,
+                  profile_photo_url,
+                  github_url,
+                  linkedin_url
+                `
+              )
+              .in(
+                "id",
+                developerIds
+              );
+
+          if (
+            developersError
+          ) {
+            throw developersError;
+          }
+
+          developers =
+            Array.isArray(
+              data
+            )
+              ? data
+              : [];
+        }
+
+        /* ===================================================
+           DEVELOPER MAP
+        =================================================== */
+
+        const developerMap =
+          new Map(
+            developers.map(
+              (developer) => [
+                developer.id,
+                developer,
+              ]
+            )
+          );
+
+        /* ===================================================
+           ASSIGNMENT
+        =================================================== */
+
+        let assignmentData =
+          null;
+
+        try {
+          assignmentData =
+            await getOpportunityAssignment(
+              opportunity.id
+            );
+        } catch (
+          assignmentError
+        ) {
+          console.warn(
+            "Unable to load opportunity assignment:",
+            assignmentError
+          );
+
+          assignmentData =
+            null;
+        }
+
+        /* ===================================================
+           COMBINE
+        =================================================== */
+
+        const mappedApplicants =
+          applicationRows.map(
+            (
+              application
+            ) => {
+              const developer =
+                developerMap.get(
+                  application.developer_id
+                ) || null;
+
+              return {
+                ...application,
+
+                developer,
+
+                assignment:
+                  assignmentData,
+
+                submitted_at:
+                  application.applied_at,
+
+                submission_notes:
+                  application.cover_message,
+
+                github_url:
+                  developer?.github_url ||
+                  null,
+
+                linkedin_url:
+                  developer?.linkedin_url ||
+                  null,
+
+                profile_photo_url:
+                  developer?.profile_photo_url ||
+                  null,
+              };
+            }
+          );
+
+        setApplicants(
+          mappedApplicants
+        );
+      } catch (err) {
+        console.error(
+          "Load applicants error:",
+          err
+        );
+
+        setApplicants([]);
+
+        setError(
+          err?.message ||
+            "Unable to load applicants."
+        );
+      } finally {
+        setApplicantsLoading(
+          false
+        );
+      }
+    };
 
   /* =========================================================
      APPROVE APPLICATION
-========================================================= */
+  ========================================================= */
 
-  const approveApplicant = async (
-    application
-  ) => {
-    if (!application?.id) {
-      setError(
-        "Invalid application."
-      );
-      return;
-    }
-
-    if (
-      processingApplicationId
-    ) {
-      return;
-    }
-
-    const developerName =
-      application.developer?.full_name ||
-      "this developer";
-
-    const projectTitle =
-      selectedOpportunity?.title ||
-      "this opportunity";
-
-    const confirmed =
-      window.confirm(
-        `Approve ${developerName} for "${projectTitle}"?\n\n` +
-          `This will approve the application and create the project assignment.`
-      );
-
-    if (!confirmed) return;
-
-    setProcessingApplicationId(
-      application.id
-    );
-
-    setError("");
-    setSuccess("");
-
-    try {
-      /*
-       * IMPORTANT
-       *
-       * This RPC must be called from the
-       * authenticated admin browser session.
-       *
-       * Do NOT test this by manually executing
-       * the RPC in Supabase SQL Editor because
-       * auth.uid() will be NULL there.
-       */
-
-      const {
-        data,
-        error: approveError,
-      } = await supabase.rpc(
-        "admin_approve_application",
-        {
-          p_application_id:
-            application.id,
-        }
-      );
-
-      if (approveError) {
-        throw approveError;
+  const approveApplicant =
+    async (
+      application
+    ) => {
+      if (!application?.id) {
+        setError(
+          "Invalid application."
+        );
+        return;
       }
 
-      console.log(
-        "Application approved:",
-        data
-      );
+      if (
+        processingApplicationId
+      ) {
+        return;
+      }
 
-      setSuccess(
-        `${developerName} has been approved successfully.`
-      );
+      const developerName =
+        application.developer
+          ?.full_name ||
+        "this developer";
 
-      /*
-       * Refresh opportunity status
-       */
-      await loadOpportunities();
+      const projectTitle =
+        selectedOpportunity?.title ||
+        "this opportunity";
 
-      /*
-       * Refresh applicants
-       */
-      await loadApplicants(
-        selectedOpportunity
-      );
-    } catch (err) {
-      console.error(
-        "Approve application error:",
-        err
-      );
+      const confirmed =
+        window.confirm(
+          `Approve ${developerName} for "${projectTitle}"?\n\n` +
+            `This will approve the application and create the project assignment.`
+        );
 
-      setError(
-        err?.message ||
-          "Unable to approve application."
-      );
-    } finally {
+      if (!confirmed) {
+        return;
+      }
+
       setProcessingApplicationId(
-        null
+        application.id
       );
-    }
-  };
+
+      setError("");
+      setSuccess("");
+
+      try {
+        const {
+          data,
+          error:
+            approveError,
+        } =
+          await supabase.rpc(
+            "admin_approve_application",
+            {
+              p_application_id:
+                application.id,
+            }
+          );
+
+        if (
+          approveError
+        ) {
+          throw approveError;
+        }
+
+        console.log(
+          "Application approved:",
+          data
+        );
+
+        setSuccess(
+          `${developerName} has been approved successfully.`
+        );
+
+        await loadOpportunities();
+
+        await loadApplicants(
+          selectedOpportunity
+        );
+      } catch (err) {
+        console.error(
+          "Approve application error:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Unable to approve application."
+        );
+      } finally {
+        setProcessingApplicationId(
+          null
+        );
+      }
+    };
 
   /* =========================================================
      REJECT APPLICATION
   ========================================================= */
 
-  const rejectApplicant = async (
-    application
-  ) => {
-    if (!application?.id) {
-      setError(
-        "Invalid application."
-      );
-      return;
-    }
-
-    if (
-      processingApplicationId
-    ) {
-      return;
-    }
-
-    const developerName =
-      application.developer?.full_name ||
-      "this developer";
-
-    const confirmed =
-      window.confirm(
-        `Reject ${developerName}'s application?\n\nThis action will mark the application as rejected.`
-      );
-
-    if (!confirmed) return;
-
-    setProcessingApplicationId(
-      application.id
-    );
-
-    setError("");
-    setSuccess("");
-
-    try {
-      /*
-       * Use an admin RPC for rejection so
-       * RLS cannot block the admin action.
-       */
-
-      const {
-        data,
-        error: rejectError,
-      } = await supabase.rpc(
-        "admin_reject_application",
-        {
-          p_application_id:
-            application.id,
-        }
-      );
-
-      if (rejectError) {
-        throw rejectError;
+  const rejectApplicant =
+    async (
+      application
+    ) => {
+      if (!application?.id) {
+        setError(
+          "Invalid application."
+        );
+        return;
       }
 
-      console.log(
-        "Application rejected:",
-        data
-      );
+      if (
+        processingApplicationId
+      ) {
+        return;
+      }
 
-      setSuccess(
-        `${developerName}'s application was rejected.`
-      );
+      const developerName =
+        application.developer
+          ?.full_name ||
+        "this developer";
 
-      await loadApplicants(
-        selectedOpportunity
-      );
-    } catch (err) {
-      console.error(
-        "Reject application error:",
-        err
-      );
+      const confirmed =
+        window.confirm(
+          `Reject ${developerName}'s application?\n\nThis action will mark the application as rejected.`
+        );
 
-      setError(
-        err?.message ||
-          "Unable to reject application."
-      );
-    } finally {
+      if (!confirmed) {
+        return;
+      }
+
       setProcessingApplicationId(
-        null
+        application.id
       );
-    }
-  };
+
+      setError("");
+      setSuccess("");
+
+      try {
+        const {
+          data,
+          error:
+            rejectError,
+        } =
+          await supabase.rpc(
+            "admin_reject_application",
+            {
+              p_application_id:
+                application.id,
+            }
+          );
+
+        if (
+          rejectError
+        ) {
+          throw rejectError;
+        }
+
+        console.log(
+          "Application rejected:",
+          data
+        );
+
+        setSuccess(
+          `${developerName}'s application was rejected.`
+        );
+
+        await loadApplicants(
+          selectedOpportunity
+        );
+      } catch (err) {
+        console.error(
+          "Reject application error:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Unable to reject application."
+        );
+      } finally {
+        setProcessingApplicationId(
+          null
+        );
+      }
+    };
 
   /* =========================================================
      CHANGE DEVELOPER
   ========================================================= */
 
   const openChangeDeveloper =
-    async (opportunity) => {
-      if (!opportunity?.id) return;
+    async (
+      opportunity
+    ) => {
+      if (!opportunity?.id) {
+        return;
+      }
 
       setSelectedOpportunity(
         opportunity
@@ -1217,15 +1523,16 @@ export default function AdminOpportunities() {
         const [
           currentAssignment,
           available,
-        ] = await Promise.all([
-          getOpportunityAssignment(
-            opportunity.id
-          ),
+        ] =
+          await Promise.all([
+            getOpportunityAssignment(
+              opportunity.id
+            ),
 
-          getAvailableDevelopers(
-            opportunity.id
-          ),
-        ]);
+            getAvailableDevelopers(
+              opportunity.id
+            ),
+          ]);
 
         setAssignment(
           currentAssignment
@@ -1239,7 +1546,9 @@ export default function AdminOpportunities() {
             : []
         );
 
-        if (!currentAssignment) {
+        if (
+          !currentAssignment
+        ) {
           throw new Error(
             "This opportunity has no assigned developer."
           );
@@ -1262,11 +1571,13 @@ export default function AdminOpportunities() {
     };
 
   /* =========================================================
-     CHANGE DEVELOPER
+     HANDLE CHANGE DEVELOPER
   ========================================================= */
 
   const handleChangeDeveloper =
-    async (developerId) => {
+    async (
+      developerId
+    ) => {
       if (
         !selectedOpportunity?.id ||
         !developerId ||
@@ -1282,7 +1593,9 @@ export default function AdminOpportunities() {
             developerId
         );
 
-      if (!developer) return;
+      if (!developer) {
+        return;
+      }
 
       const confirmed =
         window.confirm(
@@ -1294,7 +1607,9 @@ export default function AdminOpportunities() {
           }"?\n\nThe current developer will be replaced.`
         );
 
-      if (!confirmed) return;
+      if (!confirmed) {
+        return;
+      }
 
       setReassigning(true);
 
@@ -1342,7 +1657,9 @@ export default function AdminOpportunities() {
   ========================================================= */
 
   const closeApplicants = () => {
-    setShowApplicants(false);
+    setShowApplicants(
+      false
+    );
 
     setSelectedOpportunity(
       null
@@ -1357,128 +1674,140 @@ export default function AdminOpportunities() {
      DELETE OPPORTUNITY
   ========================================================= */
 
-  const deleteOpportunity = async (
-    opportunity
-  ) => {
-    if (!opportunity?.id) {
-      setError(
-        "Invalid opportunity."
-      );
-      return;
-    }
+  const deleteOpportunity =
+    async (
+      opportunity
+    ) => {
+      if (!opportunity?.id) {
+        setError(
+          "Invalid opportunity."
+        );
+        return;
+      }
 
-    const confirmed =
-      window.confirm(
-        `Delete "${opportunity.title}"?\n\nThis will remove the opportunity and its related applications/assignments.\n\nDo you want to continue?`
-      );
+      const confirmed =
+        window.confirm(
+          `Delete "${opportunity.title}"?\n\nThis will remove the opportunity and its related applications/assignments.\n\nDo you want to continue?`
+        );
 
-    if (!confirmed) return;
+      if (!confirmed) {
+        return;
+      }
 
-    setError("");
-    setSuccess("");
+      setError("");
+      setSuccess("");
 
-    try {
-      await deleteOpportunityService(
-        opportunity.id
-      );
+      try {
+        await deleteOpportunityService(
+          opportunity.id
+        );
 
-      setOpportunities(
-        (prev) =>
-          prev.filter(
-            (item) =>
-              item.id !==
-              opportunity.id
-          )
-      );
+        setOpportunities(
+          (prev) =>
+            prev.filter(
+              (item) =>
+                item.id !==
+                opportunity.id
+            )
+        );
 
-      setShowView(false);
-      setShowApplicants(false);
-      setShowChangeDeveloper(
-        false
-      );
+        setShowView(false);
+        setShowApplicants(false);
+        setShowChangeDeveloper(
+          false
+        );
 
-      setSelectedOpportunity(
-        null
-      );
+        setSelectedOpportunity(
+          null
+        );
 
-      setSuccess(
-        "Opportunity deleted successfully."
-      );
+        setSuccess(
+          "Opportunity deleted successfully."
+        );
 
-      await loadOpportunities();
-    } catch (err) {
-      console.error(
-        "Delete opportunity error:",
-        err
-      );
+        await loadOpportunities();
+      } catch (err) {
+        console.error(
+          "Delete opportunity error:",
+          err
+        );
 
-      setError(
-        err?.message ||
-          "Unable to delete opportunity."
-      );
-    }
-  };
+        setError(
+          err?.message ||
+            "Unable to delete opportunity."
+        );
+      }
+    };
 
   /* =========================================================
      DELETE APPLICATION
   ========================================================= */
 
-  const deleteApplication = async (
-    application
-  ) => {
-    if (!application?.id) return;
-
-    const confirmed =
-      window.confirm(
-        "Delete this application?\n\nThis action cannot be undone."
-      );
-
-    if (!confirmed) return;
-
-    setError("");
-    setSuccess("");
-
-    try {
-      const {
-        error: deleteError,
-      } = await supabase
-        .from(
-          "opportunity_applications"
-        )
-        .delete()
-        .eq(
-          "id",
-          application.id
-        );
-
-      if (deleteError) {
-        throw deleteError;
+  const deleteApplication =
+    async (
+      application
+    ) => {
+      if (!application?.id) {
+        return;
       }
 
-      setApplicants(
-        (prev) =>
-          prev.filter(
-            (item) =>
-              item.id !==
+      const confirmed =
+        window.confirm(
+          "Delete this application?\n\nThis action cannot be undone."
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      setError("");
+      setSuccess("");
+
+      try {
+        const {
+          error:
+            deleteError,
+        } =
+          await supabase
+            .from(
+              "opportunity_applications"
+            )
+            .delete()
+            .eq(
+              "id",
               application.id
-          )
-      );
+            );
 
-      setSuccess(
-        "Application deleted successfully."
-      );
-    } catch (err) {
-      console.error(
-        "Delete application error:",
-        err
-      );
+        if (
+          deleteError
+        ) {
+          throw deleteError;
+        }
 
-      setError(
-        err?.message ||
-          "Unable to delete application."
-      );
-    }
-  };
+        setApplicants(
+          (prev) =>
+            prev.filter(
+              (item) =>
+                item.id !==
+                application.id
+            )
+        );
+
+        setSuccess(
+          "Application deleted successfully."
+        );
+      } catch (err) {
+        console.error(
+          "Delete application error:",
+          err
+        );
+
+        setError(
+          err?.message ||
+            "Unable to delete application."
+        );
+      }
+    };
 
   /* =========================================================
      RENDER
@@ -1552,9 +1881,13 @@ export default function AdminOpportunities() {
             </h2>
 
             <span>
-              {filteredOpportunities.length}{" "}
+              {
+                filteredOpportunities.length
+              }{" "}
               shown /{" "}
-              {opportunities.length}{" "}
+              {
+                opportunities.length
+              }{" "}
               total
             </span>
           </div>
@@ -1658,7 +1991,9 @@ export default function AdminOpportunities() {
               <tbody>
 
                 {filteredOpportunities.map(
-                  (opportunity) => (
+                  (
+                    opportunity
+                  ) => (
                     <tr
                       key={
                         opportunity.id
@@ -1710,7 +2045,6 @@ export default function AdminOpportunities() {
                       </td>
 
                       <td>
-
                         <span
                           className={statusClass(
                             opportunity.status
@@ -1724,7 +2058,6 @@ export default function AdminOpportunities() {
                             " "
                           )}
                         </span>
-
                       </td>
 
                       <td>
@@ -1881,7 +2214,9 @@ export default function AdminOpportunities() {
                 <p>
                   {editingOpportunity
                     ? "Update the development project details."
-                    : "Add a new development project."}
+                    : sourceClientId
+                      ? "Create an opportunity from the converted client enquiry."
+                      : "Add a new development project."}
                 </p>
 
               </div>
@@ -1904,6 +2239,34 @@ export default function AdminOpportunities() {
                   {error}
                 </div>
               )}
+
+              {/* =================================================
+                  SOURCE BANNER
+              ================================================= */}
+
+              {!editingOpportunity &&
+                sourceClientId && (
+                  <div className="admin-opportunity-source-banner">
+
+                    <CheckCircle2
+                      size={17}
+                    />
+
+                    <div>
+
+                      <strong>
+                        Creating from converted enquiry
+                      </strong>
+
+                      <span>
+                        This opportunity is linked to the existing client.
+                        You can modify all project details before saving.
+                      </span>
+
+                    </div>
+
+                  </div>
+                )}
 
               {/* PROJECT INFORMATION */}
 
@@ -2345,6 +2708,10 @@ export default function AdminOpportunities() {
 
             </div>
 
+            {/* =================================================
+                FORM FOOTER
+            ================================================= */}
+
             <div className="admin-modal-footer">
 
               <button
@@ -2540,9 +2907,13 @@ export default function AdminOpportunities() {
                         .required_roles
                         .length > 0 ? (
                         selectedOpportunity.required_roles.map(
-                          (role) => (
+                          (
+                            role
+                          ) => (
                             <span
-                              key={role}
+                              key={
+                                role
+                              }
                               className="admin-role-chip selected"
                             >
                               {role}
@@ -2691,6 +3062,51 @@ export default function AdminOpportunities() {
                     </div>
 
                   </div>
+
+                </div>
+
+                <div className="opportunity-view-section opportunity-client-preview-section">
+
+                  <div className="opportunity-client-preview-heading">
+
+                    <div>
+                      <h3>
+                        Client preview
+                      </h3>
+
+                      <p>
+                        Allow the client to open the latest submitted work.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`admin-preview-switch ${
+                        selectedOpportunity.client_preview_enabled
+                          ? "is-on"
+                          : ""
+                      }`}
+                      aria-pressed={Boolean(
+                        selectedOpportunity.client_preview_enabled
+                      )}
+                      aria-label="Toggle client preview visibility"
+                      onClick={
+                        toggleClientPreview
+                      }
+                      disabled={
+                        previewSaving
+                      }
+                    >
+                      <span />
+                    </button>
+
+                  </div>
+
+                  <span className="opportunity-client-preview-status">
+                    {selectedOpportunity.client_preview_enabled
+                      ? "Visible to client"
+                      : "Hidden from client"}
+                  </span>
 
                 </div>
 
@@ -3080,14 +3496,11 @@ export default function AdminOpportunities() {
                 ) : (
                   <div className="admin-applicants-list">
 
-                    {/* =================================================
-                        SUMMARY
-                    ================================================= */}
+                    {/* SUMMARY */}
 
                     <div className="admin-applicants-summary">
 
                       <div>
-
                         <strong>
                           {
                             applicants.length
@@ -3100,15 +3513,15 @@ export default function AdminOpportunities() {
                             ? "Applicant"
                             : "Applicants"}
                         </span>
-
                       </div>
 
                       <div>
-
                         <strong>
                           {
                             applicants.filter(
-                              (item) =>
+                              (
+                                item
+                              ) =>
                                 item.status ===
                                 "pending"
                             ).length
@@ -3118,15 +3531,15 @@ export default function AdminOpportunities() {
                         <span>
                           Pending
                         </span>
-
                       </div>
 
                       <div>
-
                         <strong>
                           {
                             applicants.filter(
-                              (item) =>
+                              (
+                                item
+                              ) =>
                                 item.status ===
                                 "approved"
                             ).length
@@ -3136,15 +3549,15 @@ export default function AdminOpportunities() {
                         <span>
                           Approved
                         </span>
-
                       </div>
 
                       <div>
-
                         <strong>
                           {
                             applicants.filter(
-                              (item) =>
+                              (
+                                item
+                              ) =>
                                 item.status ===
                                 "rejected"
                             ).length
@@ -3154,14 +3567,11 @@ export default function AdminOpportunities() {
                         <span>
                           Rejected
                         </span>
-
                       </div>
 
                     </div>
 
-                    {/* =================================================
-                        APPLICANTS TABLE
-                    ================================================= */}
+                    {/* APPLICANTS TABLE */}
 
                     <div className="admin-applicants-table-wrapper">
 
@@ -3170,7 +3580,6 @@ export default function AdminOpportunities() {
                         <thead>
 
                           <tr>
-
                             <th>
                               Developer
                             </th>
@@ -3198,7 +3607,6 @@ export default function AdminOpportunities() {
                             <th>
                               Actions
                             </th>
-
                           </tr>
 
                         </thead>
@@ -3400,10 +3808,6 @@ export default function AdminOpportunities() {
 
                                     <div className="admin-application-actions">
 
-                                      {/* =================================================
-                                          PENDING → APPROVE / REJECT
-                                      ================================================= */}
-
                                       {applicant.status ===
                                         "pending" && (
                                         <>
@@ -3470,8 +3874,6 @@ export default function AdminOpportunities() {
                                         </>
                                       )}
 
-                                      {/* APPROVED */}
-
                                       {applicant.status ===
                                         "approved" && (
                                         <span className="admin-application-approved-label">
@@ -3487,8 +3889,6 @@ export default function AdminOpportunities() {
                                         </span>
                                       )}
 
-                                      {/* REJECTED */}
-
                                       {applicant.status ===
                                         "rejected" && (
                                         <span className="admin-application-rejected-label">
@@ -3503,8 +3903,6 @@ export default function AdminOpportunities() {
 
                                         </span>
                                       )}
-
-                                      {/* DELETE */}
 
                                       <button
                                         type="button"

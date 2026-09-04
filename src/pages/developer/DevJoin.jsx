@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, LogIn, UserPlus } from "lucide-react";
 import ExcwaLogo from "../../components/common/ExcwaLogo";
+import "../../styles/developer/legacy-portal.css";
 
 export default function DevJoin() {
   return (

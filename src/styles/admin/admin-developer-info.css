@@ -789,6 +789,7 @@
   height: 100%;
   display: block;
   object-fit: cover;
+  object-position: center;
 }
 
 .developer-details-avatar-fallback {
@@ -1610,13 +1611,6 @@
     align-items: flex-start;
   }
 
-  .developer-details-avatar {
-    width: 70px;
-    height: 70px;
-    flex-basis: 70px;
-    border-radius: 16px;
-  }
-
   .developer-details-history-row {
     align-items: flex-start;
     flex-direction: column;
@@ -1731,12 +1725,6 @@
 @media (max-width: 400px) {
   .developer-details-actions {
     grid-template-columns: 1fr;
-  }
-
-  .developer-details-avatar {
-    width: 64px;
-    height: 64px;
-    flex-basis: 64px;
   }
 
   .developer-details-card-header {

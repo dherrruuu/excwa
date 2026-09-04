@@ -1,18 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import {
-  ArrowRight,
-  ShieldCheck,
-  Lock,
-  Mail,
-  Eye,
-  EyeOff,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Lock, Mail } from "lucide-react";
 
 import "../../styles/admin/admin-auth.css";
-
 import ExcwaLogo from "../../components/common/ExcwaLogo";
 import { supabase } from "../../lib/supabase";
 
@@ -21,14 +11,11 @@ export default function AdminLogin() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     setError("");
 
     if (!email.trim() || !password) {
@@ -39,121 +26,34 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      /*
-       * ---------------------------------------------------------
-       * 1. Sign in through Supabase Authentication
-       * ---------------------------------------------------------
-       */
-      const { data, error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+      /* 1. Sign in through Supabase Authentication */
+      const { data, error: loginError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-      if (loginError) {
-        throw loginError;
-      }
+      if (loginError) throw loginError;
+      if (!data?.user) throw new Error("Unable to authenticate administrator.");
 
-      if (!data?.user) {
-        throw new Error("Unable to authenticate administrator.");
-      }
-
-      /*
-       * ---------------------------------------------------------
-       * 2. Get the actual persisted session
-       * ---------------------------------------------------------
-       */
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        throw sessionError;
-      }
-
-      if (!session || !session.user) {
-        throw new Error(
-          "Login succeeded, but no active session was created."
-        );
-      }
-
-      console.log("========== ADMIN AUTH ==========");
-      console.log("Session exists:", !!session);
-      console.log("User ID:", session.user.id);
-      console.log("Email:", session.user.email);
-      console.log(
-        "Access token exists:",
-        !!session.access_token
-      );
-      console.log("================================");
-
-      /*
-       * ---------------------------------------------------------
-       * 3. Verify administrator profile
-       * ---------------------------------------------------------
-       *
-       * Your RLS policies require:
-       *
-       * profiles.id = auth.uid()
-       * profiles.role = 'admin'
-       *
-       * Therefore we verify that before entering the panel.
-       */
-      const {
-        data: profile,
-        error: profileError,
-      } = await supabase
+      /* 2. Verify administrator profile & role */
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id, role")
-        .eq("id", session.user.id)
+        .eq("id", data.user.id)
         .maybeSingle();
 
-      if (profileError) {
-        console.error("Profile lookup error:", profileError);
-        throw new Error(
-          "Unable to verify administrator profile."
-        );
-      }
+      if (profileError) throw new Error("Unable to verify administrator profile.");
+      if (!profile) throw new Error("No administrator profile was found for this account.");
 
-      if (!profile) {
-        throw new Error(
-          "No administrator profile was found for this account."
-        );
-      }
-
-      console.log("========== ADMIN PROFILE ==========");
-      console.log("Profile ID:", profile.id);
-      console.log("Role:", profile.role);
-      console.log("===================================");
-
-      /*
-       * ---------------------------------------------------------
-       * 4. Verify admin role
-       * ---------------------------------------------------------
-       */
       if (profile.role !== "admin") {
         await supabase.auth.signOut();
-
-        throw new Error(
-          "Access denied. This account is not an administrator."
-        );
+        throw new Error("Access denied. This account is not an administrator.");
       }
 
-      /*
-       * ---------------------------------------------------------
-       * 5. Everything is valid
-       * ---------------------------------------------------------
-       */
       navigate("/admin", { replace: true });
-
     } catch (err) {
       console.error("Admin login error:", err);
-
-      setError(
-        err?.message ||
-          "Unable to sign in. Please try again."
-      );
+      setError(err?.message || "Unable to sign in. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -161,170 +61,86 @@ export default function AdminLogin() {
 
   return (
     <div className="admin-login-page">
-
-      {/* Ambient background */}
-      <div className="admin-login-ambient">
-        <div className="admin-login-orb orb-1" />
-        <div className="admin-login-orb orb-2" />
-        <div className="admin-login-grid" />
-      </div>
-
-      <div className="admin-login-container">
-
-        {/* Brand */}
-        <div className="admin-login-brand">
-          <ExcwaLogo size={46} />
-
-          <div className="admin-brand-text">
-            <strong>
-              EXCWA <span>Tech</span>
-            </strong>
-
-            <small>ADMINISTRATOR</small>
-          </div>
+      <div className="admin-login-card">
+        
+        {/* Larger & Center-Aligned Logo */}
+        <div className="admin-brand-icon">
+          <ExcwaLogo size={52} />
         </div>
 
-        {/* Login Card */}
-        <div className="admin-login-card">
+        {/* Card Header (Center Aligned) */}
+        <div className="admin-login-header">
+          <span className="admin-badge">EXCWA TECH</span>
+          <h1>Admin Login</h1>
+          <p>Login to access your EXCWA admin workspace.</p>
+        </div>
 
-          <div className="admin-login-header">
-
-            <div className="admin-login-icon">
-              <ShieldCheck size={25} />
+        {/* Login Form */}
+        <form onSubmit={handleLogin}>
+          
+          {/* Email Input Frame */}
+          <div className="admin-field">
+            <label>EMAIL ADDRESS</label>
+            <div className="admin-input-wrap">
+              <Mail size={18} />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@excwa.com"
+                autoComplete="email"
+                disabled={loading}
+              />
             </div>
-
-            <div>
-              <span className="admin-eyebrow">
-                <Sparkles size={12} />
-                Secure Access
-              </span>
-
-              <h1>Welcome Back.</h1>
-
-              <p>
-                Sign in to access the EXCWA Tech
-                administration panel.
-              </p>
-            </div>
-
           </div>
 
-          <form onSubmit={handleLogin}>
-
-            {/* Email */}
-            <div className="admin-field">
-
-              <label>Administrator Email</label>
-
-              <div className="admin-input-wrap">
-
-                <Mail size={17} />
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value)
-                  }
-                  placeholder="excwa@admin.com"
-                  autoComplete="email"
-                  disabled={loading}
-                />
-
-              </div>
-
+          {/* Password Input Frame */}
+          <div className="admin-field">
+            <label>PASSWORD</label>
+            <div className="admin-input-wrap">
+              <Lock size={18} />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                autoComplete="current-password"
+                disabled={loading}
+              />
             </div>
+          </div>
 
-            {/* Password */}
-            <div className="admin-field">
-
-              <label>Password</label>
-
-              <div className="admin-input-wrap">
-
-                <Lock size={17} />
-
-                <input
-                  type={
-                    showPassword
-                      ? "text"
-                      : "password"
-                  }
-                  value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  disabled={loading}
-                />
-
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() =>
-                    setShowPassword(
-                      !showPassword
-                    )
-                  }
-                  tabIndex={-1}
-                  disabled={loading}
-                >
-                  {showPassword ? (
-                    <EyeOff size={17} />
-                  ) : (
-                    <Eye size={17} />
-                  )}
-                </button>
-
-              </div>
-
+          {/* Error Banner */}
+          {error && (
+            <div className="admin-login-error">
+              <span>!</span>
+              {error}
             </div>
+          )}
 
-            {/* Error */}
-            {error && (
-              <div className="admin-login-error">
-                <span>!</span>
-                {error}
-              </div>
+          {/* Action Button */}
+          <button
+            type="submit"
+            className="admin-login-button"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="admin-spinner" />
+                Logging in...
+              </>
+            ) : (
+              <>
+                Login
+                <ArrowRight size={18} />
+              </>
             )}
+          </button>
+        </form>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              className="admin-login-button"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="admin-spinner" />
-                  Authenticating...
-                </>
-              ) : (
-                <>
-                  Sign In to Admin Panel
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </button>
-
-          </form>
-
-          {/* Security note */}
-          <div className="admin-security-note">
-            <ShieldCheck size={14} />
-
-            <span>
-              Protected by Supabase Authentication
-            </span>
-          </div>
-
-        </div>
-
-        {/* Footer */}
-        <div className="admin-login-footer">
-          <span>EXCWA Tech Administration</span>
-          <span>© 2026 EXCWA Tech</span>
+        {/* Card Footer */}
+        <div className="admin-card-footer">
+          <span>Protected by EXCWA Security</span>
         </div>
 
       </div>

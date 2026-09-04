@@ -5,6 +5,7 @@ import {
   Trash2,
   MessageCircle,
   UserPlus,
+  BriefcaseBusiness,
   CheckCircle2,
   Loader2,
 } from "lucide-react";
@@ -17,7 +18,9 @@ export default function EnquiryDetails({
   onStatusChange,
   onDelete,
   onConvertToClient,
+  onConvertToOpportunity,
   converting = false,
+  convertingToOpportunity = false,
 }) {
   if (!enquiry) {
     return null;
@@ -36,6 +39,9 @@ export default function EnquiryDetails({
           event.stopPropagation()
         }
       >
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
 
         <div className="admin-modal-header">
           <div>
@@ -52,118 +58,161 @@ export default function EnquiryDetails({
             type="button"
             className="admin-icon-button"
             onClick={onClose}
+            aria-label="Close enquiry"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="admin-detail-status">
-          <StatusBadge
-            status={enquiry.status}
-          />
-
-          <select
-            value={enquiry.status || "new"}
-            onChange={(event) =>
-              onStatusChange(
-                enquiry.id,
-                event.target.value
-              )
-            }
-            disabled={converting}
-          >
-            <option value="new">
-              New
-            </option>
-
-            <option value="read">
-              Read
-            </option>
-
-            <option value="contacted">
-              Contacted
-            </option>
-
-            <option value="in_progress">
-              In Progress
-            </option>
-
-            <option value="completed">
-              Completed
-            </option>
-
-            <option value="archived">
-              Archived
-            </option>
-          </select>
-        </div>
+        {/* =====================================================
+            CLIENT + OPPORTUNITY CONVERSION
+        ===================================================== */}
 
         <div className="admin-client-conversion">
+          <div className="admin-client-conversion-row">
 
-          {isClient ? (
-            <div className="admin-client-created">
-              <CheckCircle2 size={16} />
+            {/* =================================================
+                CLIENT
+            ================================================= */}
 
-              <div>
+            {isClient ? (
+              <div className="admin-client-created">
+                <CheckCircle2 size={15} />
+
                 <strong>
                   Client Account Created
                 </strong>
-
-                <span>
-                  This enquiry is already
-                  linked to a client account.
-                </span>
               </div>
-            </div>
-          ) : (
-            <div className="admin-client-create-box">
-
-              <div>
-                <span className="eyebrow">
-                  Client Portal
-                </span>
-
-                <strong>
-                  Convert this enquiry into a client
-                </strong>
-
-                <p>
-                  Create a client portal account
-                  using this customer's enquiry
-                  details.
-                </p>
-              </div>
-
+            ) : (
               <button
                 type="button"
-                className="admin-primary-button"
+                className="admin-convert-client-button"
                 onClick={() =>
                   onConvertToClient?.(
                     enquiry
                   )
                 }
-                disabled={converting}
+                disabled={
+                  converting ||
+                  convertingToOpportunity
+                }
               >
                 {converting ? (
                   <>
                     <Loader2
-                      size={15}
+                      size={14}
                       className="refresh-spinning"
                     />
+
                     Creating...
                   </>
                 ) : (
                   <>
-                    <UserPlus size={15} />
+                    <UserPlus size={14} />
+
                     Convert to Client
                   </>
                 )}
               </button>
+            )}
 
+            {/* =================================================
+                CONVERT TO OPPORTUNITY
+            ================================================= */}
+
+            {isClient && (
+              <button
+                type="button"
+                className="admin-convert-opportunity-button"
+                onClick={() =>
+                  onConvertToOpportunity?.(
+                    enquiry
+                  )
+                }
+                disabled={
+                  converting ||
+                  convertingToOpportunity
+                }
+              >
+                {convertingToOpportunity ? (
+                  <>
+                    <Loader2
+                      size={14}
+                      className="refresh-spinning"
+                    />
+
+                    Opening...
+                  </>
+                ) : (
+                  <>
+                    <BriefcaseBusiness size={14} />
+
+                    Convert to Opportunity
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* =================================================
+                CURRENT STATUS
+            ================================================= */}
+
+            <div className="admin-current-status">
+              <span>
+                Current Status:
+              </span>
+
+              <StatusBadge
+                status={enquiry.status}
+              />
+
+              <select
+                value={
+                  enquiry.status || "new"
+                }
+                onChange={(event) =>
+                  onStatusChange(
+                    enquiry.id,
+                    event.target.value
+                  )
+                }
+                disabled={
+                  converting ||
+                  convertingToOpportunity
+                }
+                aria-label="Current enquiry status"
+              >
+                <option value="new">
+                  New
+                </option>
+
+                <option value="read">
+                  Read
+                </option>
+
+                <option value="contacted">
+                  Contacted
+                </option>
+
+                <option value="in_progress">
+                  In Progress
+                </option>
+
+                <option value="completed">
+                  Completed
+                </option>
+
+                <option value="archived">
+                  Archived
+                </option>
+              </select>
             </div>
-          )}
-
+          </div>
         </div>
+
+        {/* =====================================================
+            ENQUIRY DETAILS
+        ===================================================== */}
 
         <div className="admin-detail-grid">
 
@@ -241,6 +290,10 @@ export default function EnquiryDetails({
 
         </div>
 
+        {/* =====================================================
+            PROJECT DESCRIPTION
+        ===================================================== */}
+
         <div className="admin-description">
           <span>
             PROJECT DESCRIPTION
@@ -251,6 +304,10 @@ export default function EnquiryDetails({
               "No description provided."}
           </p>
         </div>
+
+        {/* =====================================================
+            ACTIONS
+        ===================================================== */}
 
         <div className="admin-modal-actions">
 
@@ -264,6 +321,7 @@ export default function EnquiryDetails({
               className="admin-outline-button"
             >
               <MessageCircle size={15} />
+
               WhatsApp
             </a>
           )}
@@ -274,14 +332,17 @@ export default function EnquiryDetails({
             onClick={() =>
               onDelete(enquiry.id)
             }
-            disabled={converting}
+            disabled={
+              converting ||
+              convertingToOpportunity
+            }
           >
             <Trash2 size={15} />
+
             Delete
           </button>
 
         </div>
-
       </div>
     </div>
   );

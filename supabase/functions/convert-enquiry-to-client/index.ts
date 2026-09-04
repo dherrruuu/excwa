@@ -114,12 +114,11 @@ Deno.serve(async (req) => {
     /* =====================================================
        INVITE USER THROUGH SUPABASE AUTH
 
-       IMPORTANT:
-       inviteUserByEmail() creates the Auth user AND
-       sends the Supabase "Invite user" email.
+       inviteUserByEmail() creates the Auth user and
+       sends the Supabase invitation email.
 
        No temporary password is required.
-       ===================================================== */
+    ===================================================== */
 
     const {
       data: inviteData,
@@ -267,6 +266,17 @@ Deno.serve(async (req) => {
 
     /* =====================================================
        UPDATE ENQUIRY
+
+       IMPORTANT:
+       We only connect the enquiry to the newly created
+       client here.
+
+       NO OPPORTUNITY IS CREATED AUTOMATICALLY.
+
+       Admin will create the Opportunity separately so
+       application dates, deadlines, developer payout,
+       payment information, skills, tech stack, etc.
+       can be configured manually.
     ===================================================== */
 
     const {
@@ -286,6 +296,10 @@ Deno.serve(async (req) => {
         "Enquiry update failed:",
         enquiryUpdateError
       );
+
+      /* ================================================
+         ROLLBACK CLIENT
+      ================================================ */
 
       await supabase
         .from("client_users")
@@ -312,7 +326,9 @@ Deno.serve(async (req) => {
     /* =====================================================
        SUCCESS
 
-       Supabase has already sent the invitation email.
+       Client account has been created.
+       Enquiry is linked to the client.
+       No Opportunity has been created.
     ===================================================== */
 
     return new Response(
@@ -325,13 +341,19 @@ Deno.serve(async (req) => {
         user_id:
           userId,
 
+        enquiry_id:
+          enquiry.id,
+
         email,
 
         client_name:
           fullName,
 
+        opportunity_created:
+          false,
+
         message:
-          "Client account created successfully and invitation email sent.",
+          "Client account created successfully and invitation email sent. No opportunity was created.",
       }),
       {
         status: 200,

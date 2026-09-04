@@ -10,6 +10,7 @@ import {
 import {
   createDeveloperApplication,
 } from "../../services/client/developerApplicationService";
+import "../../styles/developer/legacy-portal.css";
 
 
 /* =========================================================

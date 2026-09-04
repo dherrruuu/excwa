@@ -612,18 +612,19 @@ export default function DeveloperInfoDetails({
         <div className="developer-details-profile">
 
           {developer.profile_photo_url ? (
-            <img
-              src={developer.profile_photo_url}
-              alt={
-                developer.full_name ||
-                "Developer"
-              }
-              className="developer-details-avatar"
-              onError={(event) => {
-                event.currentTarget.style.display =
-                  "none";
-              }}
-            />
+            <div className="developer-details-avatar">
+              <img
+                src={developer.profile_photo_url}
+                alt={
+                  developer.full_name ||
+                  "Developer"
+                }
+                onError={(event) => {
+                  event.currentTarget.style.display =
+                    "none";
+                }}
+              />
+            </div>
           ) : (
             <div className="developer-details-avatar developer-details-avatar-fallback">
               {getInitials(

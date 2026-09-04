@@ -808,3 +808,23 @@ export const filterOpportunities = (
       opportunity.status === status
   );
 };
+
+export const setClientPreviewVisibility = async (
+  opportunityId,
+  enabled
+) => {
+  if (!opportunityId) {
+    throw new Error("Invalid opportunity.");
+  }
+
+  const { data, error } = await supabase.rpc(
+    "admin_set_client_preview_visibility",
+    {
+      p_opportunity_id: opportunityId,
+      p_enabled: Boolean(enabled),
+    }
+  );
+
+  if (error) throw error;
+  return data;
+};
