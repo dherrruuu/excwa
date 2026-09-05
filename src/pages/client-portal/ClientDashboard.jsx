@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "../../lib/supabase";
+import ClientMessages from "../../components/client-portal/ClientMessages";
 import "../../styles/client-portal.css";
 
 /* ============================================================
@@ -41,7 +42,6 @@ const formatDate = (value) => {
   });
 };
 
-
 const formatStatus = (status) => {
   if (!status) return "Unknown";
 
@@ -49,7 +49,6 @@ const formatStatus = (status) => {
     .replaceAll("_", " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 };
-
 
 const formatList = (value) => {
   if (Array.isArray(value)) {
@@ -63,14 +62,12 @@ const formatList = (value) => {
   return "Not set";
 };
 
-
 const getStatusClass = (status) => {
   return `status-${String(status || "unknown").replaceAll(
     "_",
     "-"
   )}`;
 };
-
 
 /* ============================================================
    PROJECT STATUS GROUPS
@@ -84,17 +81,14 @@ const ACTIVE_PROJECT_STATUSES = new Set([
   "changes_requested",
 ]);
 
-
 const COMPLETED_PROJECT_STATUSES = new Set([
   "completed",
 ]);
-
 
 const PENDING_PROJECT_STATUSES = new Set([
   "draft",
   "open",
 ]);
-
 
 /* ============================================================
    PROJECT PROGRESS
@@ -128,7 +122,6 @@ const getProgressSteps = (status) => {
     },
   ];
 
-
   const progressMap = {
     draft: 0,
     open: 0,
@@ -136,8 +129,6 @@ const getProgressSteps = (status) => {
 
     in_progress: 1,
 
-    // Changes requested means the developer
-    // remains in the development stage.
     changes_requested: 1,
 
     submitted: 2,
@@ -151,12 +142,10 @@ const getProgressSteps = (status) => {
     closed: 5,
   };
 
-
   const currentIndex =
     progressMap[status] !== undefined
       ? progressMap[status]
       : 0;
-
 
   return steps.map((step, index) => {
     let state = "upcoming";
@@ -177,7 +166,6 @@ const getProgressSteps = (status) => {
   });
 };
 
-
 /* ============================================================
    COMPONENT
    ============================================================ */
@@ -186,9 +174,7 @@ export default function ClientDashboard() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-
   const [client, setClient] = useState(null);
-
   const [projects, setProjects] = useState([]);
 
   const [activeSection, setActiveSection] =
@@ -197,7 +183,6 @@ export default function ClientDashboard() {
   const [selectedProject, setSelectedProject] =
     useState(null);
 
-
   /* ==========================================================
      LOAD CLIENT PORTAL
      ========================================================== */
@@ -205,11 +190,9 @@ export default function ClientDashboard() {
   useEffect(() => {
     let mounted = true;
 
-
     const loadClientPortal = async () => {
       try {
         setLoading(true);
-
 
         /* ====================================================
            CURRENT USER
@@ -220,11 +203,9 @@ export default function ClientDashboard() {
           error: userError,
         } = await supabase.auth.getUser();
 
-
         if (userError) {
           throw userError;
         }
-
 
         if (!user) {
           navigate("/client/login", {
@@ -233,7 +214,6 @@ export default function ClientDashboard() {
 
           return;
         }
-
 
         /* ====================================================
            CLIENT USER
@@ -248,18 +228,15 @@ export default function ClientDashboard() {
           .eq("user_id", user.id)
           .maybeSingle();
 
-
         if (clientUserError) {
           throw clientUserError;
         }
-
 
         if (!clientUser?.client_id) {
           throw new Error(
             "Client account is not connected."
           );
         }
-
 
         /* ====================================================
            CLIENT PROFILE
@@ -281,18 +258,15 @@ export default function ClientDashboard() {
           .eq("id", clientUser.client_id)
           .maybeSingle();
 
-
         if (clientError) {
           throw clientError;
         }
-
 
         if (!clientData) {
           throw new Error(
             "Client profile could not be found."
           );
         }
-
 
         /* ====================================================
            CLIENT PROJECTS
@@ -325,14 +299,13 @@ export default function ClientDashboard() {
             ascending: false,
           });
 
-
         if (projectError) {
           throw projectError;
         }
 
-
         if (mounted) {
           setClient(clientData);
+
           setProjects(
             Array.isArray(projectData)
               ? projectData
@@ -345,7 +318,6 @@ export default function ClientDashboard() {
           error
         );
 
-
         if (mounted) {
           setClient(null);
           setProjects([]);
@@ -357,15 +329,12 @@ export default function ClientDashboard() {
       }
     };
 
-
     loadClientPortal();
-
 
     return () => {
       mounted = false;
     };
   }, [navigate]);
-
 
   /* ==========================================================
      LOGOUT
@@ -386,7 +355,6 @@ export default function ClientDashboard() {
     }
   };
 
-
   /* ==========================================================
      SECTION NAVIGATION
      ========================================================== */
@@ -395,7 +363,6 @@ export default function ClientDashboard() {
     setActiveSection(section);
     setSelectedProject(null);
   };
-
 
   /* ==========================================================
      OPEN PROJECT
@@ -406,7 +373,6 @@ export default function ClientDashboard() {
     setActiveSection("project-details");
   };
 
-
   /* ==========================================================
      BACK TO PROJECTS
      ========================================================== */
@@ -415,7 +381,6 @@ export default function ClientDashboard() {
     setSelectedProject(null);
     setActiveSection("projects");
   };
-
 
   /* ==========================================================
      LOADING
@@ -436,7 +401,6 @@ export default function ClientDashboard() {
     );
   }
 
-
   /* ==========================================================
      CLIENT ERROR
      ========================================================== */
@@ -445,7 +409,6 @@ export default function ClientDashboard() {
     return (
       <div className="client-portal-error-page">
         <div className="client-portal-error-card">
-
           <BriefcaseBusiness size={32} />
 
           <h2>
@@ -463,12 +426,10 @@ export default function ClientDashboard() {
           >
             Return to Login
           </button>
-
         </div>
       </div>
     );
   }
-
 
   /* ==========================================================
      PROJECT STATS
@@ -479,18 +440,15 @@ export default function ClientDashboard() {
       ACTIVE_PROJECT_STATUSES.has(project.status)
   );
 
-
   const completedProjects = projects.filter(
     (project) =>
       COMPLETED_PROJECT_STATUSES.has(project.status)
   );
 
-
   const pendingProjects = projects.filter(
     (project) =>
       PENDING_PROJECT_STATUSES.has(project.status)
   );
-
 
   /* ==========================================================
      DISPLAY NAME
@@ -500,7 +458,6 @@ export default function ClientDashboard() {
     client.contact_name ||
     client.company_name ||
     "Client";
-
 
   /* ==========================================================
      PAGE TITLE
@@ -515,7 +472,6 @@ export default function ClientDashboard() {
     profile: "Profile",
   };
 
-
   /* ==========================================================
      MAIN DASHBOARD
      ========================================================== */
@@ -523,20 +479,15 @@ export default function ClientDashboard() {
   return (
     <div className="client-portal">
 
-
       {/* ======================================================
           SIDEBAR
           ====================================================== */}
 
       <aside className="client-portal-sidebar">
 
-
-        {/* ====================================================
-            BRAND
-            ==================================================== */}
+        {/* BRAND */}
 
         <div className="client-portal-brand">
-
           <div className="client-portal-brand-mark">
             E
           </div>
@@ -550,16 +501,11 @@ export default function ClientDashboard() {
               CLIENT PORTAL
             </span>
           </div>
-
         </div>
 
-
-        {/* ====================================================
-            NAVIGATION
-            ==================================================== */}
+        {/* NAVIGATION */}
 
         <nav className="client-portal-nav">
-
 
           {/* OVERVIEW */}
 
@@ -580,7 +526,6 @@ export default function ClientDashboard() {
               Overview
             </span>
           </button>
-
 
           {/* PROJECTS */}
 
@@ -603,7 +548,6 @@ export default function ClientDashboard() {
             </span>
           </button>
 
-
           {/* MESSAGES */}
 
           <button
@@ -622,12 +566,7 @@ export default function ClientDashboard() {
             <span>
               Messages
             </span>
-
-            <span className="client-portal-nav-badge">
-              Soon
-            </span>
           </button>
-
 
           {/* PAYMENTS */}
 
@@ -647,12 +586,7 @@ export default function ClientDashboard() {
             <span>
               Payments
             </span>
-
-            <span className="client-portal-nav-badge">
-              Soon
-            </span>
           </button>
-
 
           {/* PROFILE */}
 
@@ -676,13 +610,9 @@ export default function ClientDashboard() {
 
         </nav>
 
-
-        {/* ====================================================
-            LOGOUT
-            ==================================================== */}
+        {/* LOGOUT */}
 
         <div className="client-portal-sidebar-bottom">
-
           <button
             type="button"
             className="client-portal-logout"
@@ -694,11 +624,9 @@ export default function ClientDashboard() {
               Sign out
             </span>
           </button>
-
         </div>
 
       </aside>
-
 
       {/* ======================================================
           MAIN
@@ -706,15 +634,11 @@ export default function ClientDashboard() {
 
       <main className="client-portal-main">
 
-
-        {/* ====================================================
-            TOPBAR
-            ==================================================== */}
+        {/* TOPBAR */}
 
         <header className="client-portal-topbar">
 
           <div>
-
             <span className="client-portal-section-label">
               CLIENT PORTAL
             </span>
@@ -723,9 +647,7 @@ export default function ClientDashboard() {
               {pageTitles[activeSection] ||
                 "Overview"}
             </h1>
-
           </div>
-
 
           {/* USER */}
 
@@ -754,13 +676,11 @@ export default function ClientDashboard() {
 
         </header>
 
-
         {/* ====================================================
             CONTENT
             ==================================================== */}
 
         <section className="client-portal-content">
-
 
           {/* ==================================================
               OVERVIEW
@@ -796,11 +716,9 @@ export default function ClientDashboard() {
 
               </div>
 
-
               {/* STATS */}
 
               <div className="client-portal-stats">
-
 
                 {/* TOTAL */}
 
@@ -822,7 +740,6 @@ export default function ClientDashboard() {
 
                 </div>
 
-
                 {/* ACTIVE */}
 
                 <div className="client-portal-stat-card">
@@ -843,7 +760,6 @@ export default function ClientDashboard() {
 
                 </div>
 
-
                 {/* COMPLETED */}
 
                 <div className="client-portal-stat-card">
@@ -863,7 +779,6 @@ export default function ClientDashboard() {
                   </div>
 
                 </div>
-
 
                 {/* PENDING */}
 
@@ -887,7 +802,6 @@ export default function ClientDashboard() {
 
               </div>
 
-
               {/* RECENT PROJECTS */}
 
               <section className="client-portal-section">
@@ -906,7 +820,6 @@ export default function ClientDashboard() {
 
                   </div>
 
-
                   {projects.length > 0 && (
                     <button
                       type="button"
@@ -924,7 +837,6 @@ export default function ClientDashboard() {
                   )}
 
                 </div>
-
 
                 {projects.length === 0 ? (
 
@@ -985,7 +897,6 @@ export default function ClientDashboard() {
 
                           </div>
 
-
                           <div className="client-portal-project-status">
 
                             <span
@@ -1012,7 +923,6 @@ export default function ClientDashboard() {
 
             </>
           )}
-
 
           {/* ==================================================
               PROJECTS
@@ -1048,7 +958,6 @@ export default function ClientDashboard() {
                 </div>
 
               </div>
-
 
               {projects.length === 0 ? (
 
@@ -1112,7 +1021,6 @@ export default function ClientDashboard() {
 
                       </div>
 
-
                       <div className="client-portal-project-status">
 
                         <span
@@ -1141,7 +1049,6 @@ export default function ClientDashboard() {
 
           )}
 
-
           {/* ==================================================
               PROJECT DETAILS
               ================================================== */}
@@ -1150,7 +1057,6 @@ export default function ClientDashboard() {
             selectedProject && (
 
               <section className="client-portal-section">
-
 
                 {/* BACK */}
 
@@ -1163,7 +1069,6 @@ export default function ClientDashboard() {
 
                   Back to Projects
                 </button>
-
 
                 {/* HERO */}
 
@@ -1187,7 +1092,6 @@ export default function ClientDashboard() {
 
                   </div>
 
-
                   <span
                     className={`client-project-status ${getStatusClass(
                       selectedProject.status
@@ -1200,10 +1104,7 @@ export default function ClientDashboard() {
 
                 </div>
 
-
-                {/* ==================================================
-                    PROJECT PROGRESS
-                    ================================================== */}
+                {/* PROJECT PROGRESS */}
 
                 <section className="client-project-panel client-project-progress-panel">
 
@@ -1225,7 +1126,6 @@ export default function ClientDashboard() {
                     </div>
 
                   </div>
-
 
                   <div
                     className="client-project-progress"
@@ -1264,7 +1164,6 @@ export default function ClientDashboard() {
 
                             </div>
 
-
                             <div className="client-project-progress-label">
 
                               <span className="client-project-progress-number">
@@ -1283,7 +1182,6 @@ export default function ClientDashboard() {
 
                           </div>
 
-
                           {!isLast && (
                             <div className="client-project-progress-connector">
                               <span />
@@ -1295,7 +1193,6 @@ export default function ClientDashboard() {
                     })}
 
                   </div>
-
 
                   {/* CHANGES REQUESTED */}
 
@@ -1326,13 +1223,9 @@ export default function ClientDashboard() {
 
                 </section>
 
-
-                {/* ==================================================
-                    INFORMATION GRID
-                    ================================================== */}
+                {/* INFORMATION GRID */}
 
                 <div className="client-project-detail-grid">
-
 
                   {/* PROJECT INFORMATION */}
 
@@ -1347,7 +1240,6 @@ export default function ClientDashboard() {
                       </h3>
 
                     </div>
-
 
                     <div className="client-project-meta-grid">
 
@@ -1364,7 +1256,6 @@ export default function ClientDashboard() {
 
                       </div>
 
-
                       <div>
 
                         <span>
@@ -1377,7 +1268,6 @@ export default function ClientDashboard() {
                         </strong>
 
                       </div>
-
 
                       <div>
 
@@ -1392,7 +1282,6 @@ export default function ClientDashboard() {
                         </strong>
 
                       </div>
-
 
                       <div>
 
@@ -1419,7 +1308,6 @@ export default function ClientDashboard() {
 
                   </section>
 
-
                   {/* TIMELINE */}
 
                   <section className="client-project-panel">
@@ -1433,7 +1321,6 @@ export default function ClientDashboard() {
                       </h3>
 
                     </div>
-
 
                     <div className="client-project-meta-grid">
 
@@ -1451,7 +1338,6 @@ export default function ClientDashboard() {
 
                       </div>
 
-
                       <div>
 
                         <span>
@@ -1465,7 +1351,6 @@ export default function ClientDashboard() {
                         </strong>
 
                       </div>
-
 
                       <div>
 
@@ -1485,7 +1370,6 @@ export default function ClientDashboard() {
 
                   </section>
 
-
                   {/* TECHNOLOGY */}
 
                   <section className="client-project-panel">
@@ -1499,7 +1383,6 @@ export default function ClientDashboard() {
                       </h3>
 
                     </div>
-
 
                     <div className="client-project-copy">
 
@@ -1515,7 +1398,6 @@ export default function ClientDashboard() {
 
                     </div>
 
-
                     <div className="client-project-copy">
 
                       <span>
@@ -1529,7 +1411,6 @@ export default function ClientDashboard() {
                       </p>
 
                     </div>
-
 
                     <div className="client-project-copy">
 
@@ -1547,7 +1428,6 @@ export default function ClientDashboard() {
 
                   </section>
 
-
                   {/* DELIVERABLES */}
 
                   <section className="client-project-panel">
@@ -1561,7 +1441,6 @@ export default function ClientDashboard() {
                       </h3>
 
                     </div>
-
 
                     <div className="client-project-copy">
 
@@ -1580,36 +1459,16 @@ export default function ClientDashboard() {
 
             )}
 
-
           {/* ==================================================
               MESSAGES
               ================================================== */}
 
           {activeSection === "messages" && (
-
-            <section className="client-portal-section">
-
-              <div className="client-portal-empty">
-
-                <div className="client-portal-empty-icon">
-                  <MessageSquare size={24} />
-                </div>
-
-                <h3>
-                  Messages
-                </h3>
-
-                <p>
-                  Client communication will be
-                  available here soon.
-                </p>
-
-              </div>
-
-            </section>
-
+            <ClientMessages
+              client={client}
+              projects={projects}
+            />
           )}
-
 
           {/* ==================================================
               PAYMENTS
@@ -1640,7 +1499,6 @@ export default function ClientDashboard() {
 
           )}
 
-
           {/* ==================================================
               PROFILE
               ================================================== */}
@@ -1663,7 +1521,6 @@ export default function ClientDashboard() {
 
                   </div>
 
-
                   <div className="client-project-meta-grid">
 
                     <div>
@@ -1679,7 +1536,6 @@ export default function ClientDashboard() {
 
                     </div>
 
-
                     <div>
 
                       <span>
@@ -1693,7 +1549,6 @@ export default function ClientDashboard() {
 
                     </div>
 
-
                     <div>
 
                       <span>
@@ -1706,7 +1561,6 @@ export default function ClientDashboard() {
                       </strong>
 
                     </div>
-
 
                     <div>
 

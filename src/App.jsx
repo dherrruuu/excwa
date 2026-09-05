@@ -20,6 +20,7 @@ import ClientActivate from "./pages/auth/ClientActivate";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEnquiries from "./pages/admin/AdminEnquiries";
+import AdminMessages from "./pages/admin/AdminMessages";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import AdminDeveloperInfo from "./pages/admin/AdminDeveloperInfo";
 import AdminOpportunities from "./pages/admin/AdminOpportunities";
@@ -151,18 +152,21 @@ export default function App() {
         <Route element={<ClientProtectedRoute />}>
 
           {/* CLIENT OVERVIEW */}
+
           <Route
             path="/client/dashboard"
             element={<ClientDashboard />}
           />
 
           {/* ALL CLIENT PROJECTS */}
+
           <Route
             path="/client/projects"
             element={<ClientProjects />}
           />
 
           {/* SINGLE PROJECT DETAILS */}
+
           <Route
             path="/client/projects/:projectId"
             element={<ClientProjectDetails />}
@@ -208,6 +212,16 @@ export default function App() {
             <Route
               path="enquiries"
               element={<AdminEnquiries />}
+            />
+
+            {/* ==================================================
+                CLIENT MESSAGES
+                /admin/messages
+                ================================================== */}
+
+            <Route
+              path="messages"
+              element={<AdminMessages />}
             />
 
             {/* ==================================================

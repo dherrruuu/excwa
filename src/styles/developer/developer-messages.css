@@ -1,0 +1,970 @@
+/* ============================================================
+   EXCWA DEVELOPER — MESSAGES
+   Premium Developer Workspace / Glass UI
+   ============================================================ */
+
+.dev-messages-section {
+  width: 100%;
+  min-width: 0;
+  color: #eef5ff;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.dev-messages-header {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+
+.dev-messages-header > div:first-child {
+  min-width: 0;
+}
+
+.dev-messages-header .eyebrow {
+  display: inline-flex;
+  margin-bottom: 7px;
+  color: #67ddff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dev-messages-header h2 {
+  margin: 0;
+  color: #f4f8ff;
+  font-size: clamp(25px, 3vw, 32px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.dev-messages-header p {
+  max-width: 650px;
+  margin: 8px 0 0;
+  color: #8190a5;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.dev-messages-new-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 15px;
+  border: 1px solid rgba(98, 226, 255, 0.22);
+  border-radius: 11px;
+  color: #f4fbff;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(67, 151, 255, 0.18),
+      rgba(139, 92, 246, 0.14)
+    ),
+    rgba(9, 14, 22, 0.8);
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.dev-messages-new-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(98, 226, 255, 0.42);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(67, 151, 255, 0.24),
+      rgba(139, 92, 246, 0.2)
+    ),
+    rgba(9, 14, 22, 0.9);
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.3),
+    0 0 24px rgba(98, 226, 255, 0.05);
+}
+
+.dev-messages-new-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.dev-messages-error {
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 11px 14px;
+  border: 1px solid rgba(248, 113, 113, 0.22);
+  border-radius: 11px;
+  color: #ffb5b5;
+  background: rgba(127, 29, 29, 0.13);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   MAIN MESSAGES LAYOUT
+   ============================================================ */
+
+.dev-messages-layout {
+  width: 100%;
+  min-width: 0;
+  height: min(650px, calc(100vh - 245px));
+  min-height: 500px;
+
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+
+  overflow: hidden;
+
+  border: 1px solid rgba(126, 151, 181, 0.14);
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16, 23, 34, 0.94),
+      rgba(7, 11, 18, 0.97)
+    );
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  isolation: isolate;
+}
+
+/* ============================================================
+   LEFT CONVERSATIONS PANEL
+   ============================================================ */
+
+.dev-conversations-panel {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  border-right: 1px solid rgba(126, 151, 181, 0.12);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(17, 24, 35, 0.72),
+      rgba(8, 12, 19, 0.74)
+    );
+}
+
+/* ============================================================
+   CONVERSATIONS HEADING
+   ============================================================ */
+
+.dev-conversations-heading {
+  min-height: 62px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid rgba(126, 151, 181, 0.1);
+
+  color: #dce7f6;
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.dev-conversation-refresh {
+  width: 30px;
+  height: 30px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid rgba(126, 151, 181, 0.13);
+  border-radius: 9px;
+
+  color: #78889e;
+  background: rgba(255, 255, 255, 0.025);
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.dev-conversation-refresh:hover:not(:disabled) {
+  color: #72dcff;
+  border-color: rgba(98, 226, 255, 0.25);
+  background: rgba(98, 226, 255, 0.06);
+}
+
+.dev-conversation-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   CONVERSATIONS LIST
+   ============================================================ */
+
+.dev-conversations-list {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 7px;
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(126, 151, 181, 0.22)
+    transparent;
+}
+
+.dev-conversations-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dev-conversations-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dev-conversations-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(126, 151, 181, 0.2);
+}
+
+/* ============================================================
+   CONVERSATION ITEM
+   ============================================================ */
+
+.dev-conversation-item {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding: 11px 10px;
+
+  border: 1px solid transparent;
+  border-radius: 12px;
+
+  color: inherit;
+  background: transparent;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.dev-conversation-item:hover {
+  border-color: rgba(126, 151, 181, 0.1);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.dev-conversation-item.active {
+  border-color: rgba(98, 226, 255, 0.15);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(70, 151, 255, 0.11),
+      rgba(139, 92, 246, 0.075)
+    );
+
+  box-shadow:
+    inset 2px 0 0 rgba(98, 226, 255, 0.7);
+}
+
+/* ============================================================
+   CONVERSATION ICON
+   ============================================================ */
+
+.dev-conversation-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(126, 151, 181, 0.12);
+  border-radius: 10px;
+
+  color: #7b8ca3;
+  background: rgba(255, 255, 255, 0.035);
+
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.dev-conversation-item.active
+  .dev-conversation-icon {
+  color: #6ce2ff;
+  border-color: rgba(98, 226, 255, 0.2);
+  background: rgba(98, 226, 255, 0.075);
+}
+
+/* ============================================================
+   CONVERSATION CONTENT
+   ============================================================ */
+
+.dev-conversation-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.dev-conversation-topline {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dev-conversation-topline strong {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #dce6f4;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.dev-conversation-topline > span {
+  flex-shrink: 0;
+
+  color: #65758a;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.dev-conversation-info p {
+  margin: 4px 0 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #75859a;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   EMPTY CONVERSATIONS
+   ============================================================ */
+
+.dev-conversations-empty {
+  min-height: 240px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 28px 20px;
+
+  color: #5e6e82;
+
+  text-align: center;
+}
+
+.dev-conversations-empty svg {
+  margin-bottom: 12px;
+  color: #65778d;
+}
+
+.dev-conversations-empty span {
+  color: #9aa9bc;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dev-conversations-empty small {
+  max-width: 190px;
+  margin-top: 6px;
+
+  color: #5f7085;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+/* ============================================================
+   MESSAGE THREAD
+   ============================================================ */
+
+.dev-message-thread {
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 75% 0%,
+      rgba(76, 140, 255, 0.055),
+      transparent 32%
+    ),
+    rgba(5, 9, 15, 0.55);
+}
+
+/* ============================================================
+   THREAD HEADER
+   ============================================================ */
+
+.dev-message-thread-header {
+  min-height: 70px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 13px 18px;
+
+  border-bottom: 1px solid rgba(126, 151, 181, 0.1);
+
+  background: rgba(10, 15, 23, 0.58);
+}
+
+.dev-message-thread-header > div {
+  min-width: 0;
+}
+
+.dev-message-thread-header > div > span {
+  display: block;
+  margin-bottom: 3px;
+
+  color: #5f7288;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.dev-message-thread-header h3 {
+  margin: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #edf5ff;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.dev-message-thread-close {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid rgba(126, 151, 181, 0.13);
+  border-radius: 9px;
+
+  color: #718197;
+  background: rgba(255, 255, 255, 0.025);
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.dev-message-thread-close:hover {
+  color: #f1f7ff;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+/* ============================================================
+   MESSAGE LIST
+   ============================================================ */
+
+.dev-message-list {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  padding: 20px 22px 22px;
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(126, 151, 181, 0.2)
+    transparent;
+}
+
+.dev-message-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.dev-message-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dev-message-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(126, 151, 181, 0.2);
+}
+
+/* ============================================================
+   MESSAGE ROW
+   ============================================================ */
+
+.dev-message-row {
+  width: 100%;
+  display: flex;
+}
+
+.dev-message-row.mine {
+  justify-content: flex-end;
+}
+
+.dev-message-row.received {
+  justify-content: flex-start;
+}
+
+/* ============================================================
+   MESSAGE BUBBLE
+   ============================================================ */
+
+.dev-message-bubble {
+  max-width: min(72%, 560px);
+
+  padding: 10px 13px 8px;
+
+  border: 1px solid rgba(126, 151, 181, 0.11);
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(25, 33, 46, 0.88),
+      rgba(15, 21, 30, 0.9)
+    );
+
+  box-shadow:
+    0 7px 20px rgba(0, 0, 0, 0.16);
+}
+
+.dev-message-row.mine
+  .dev-message-bubble {
+  border-color: rgba(79, 140, 255, 0.2);
+
+  border-bottom-right-radius: 5px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(53, 107, 190, 0.23),
+      rgba(87, 64, 157, 0.18)
+    );
+}
+
+.dev-message-row.received
+  .dev-message-bubble {
+  border-bottom-left-radius: 5px;
+}
+
+/* ============================================================
+   MESSAGE TEXT
+   ============================================================ */
+
+.dev-message-bubble p {
+  margin: 0;
+
+  color: #dce6f3;
+
+  font-size: 12px;
+  line-height: 1.58;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.dev-message-row.mine
+  .dev-message-bubble p {
+  color: #edf7ff;
+}
+
+/* ============================================================
+   MESSAGE TIME
+   ============================================================ */
+
+.dev-message-bubble > span {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #62748a;
+
+  font-size: 8px;
+  line-height: 1;
+  text-align: right;
+}
+
+.dev-message-row.mine
+  .dev-message-bubble > span {
+  color: #80a9ca;
+}
+
+/* ============================================================
+   THREAD EMPTY STATE
+   ============================================================ */
+
+.dev-message-thread-empty {
+  flex: 1;
+  min-height: 260px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 40px;
+
+  color: #5d6e83;
+
+  text-align: center;
+}
+
+.dev-message-thread-empty svg {
+  margin-bottom: 14px;
+  color: #657991;
+}
+
+.dev-message-thread-empty h3 {
+  margin: 0;
+
+  color: #aab8ca;
+
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.dev-message-thread-empty p {
+  max-width: 350px;
+
+  margin: 7px 0 0;
+
+  color: #63748a;
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   COMPOSER
+   ============================================================ */
+
+.dev-message-composer {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+
+  padding: 12px 15px;
+
+  border-top: 1px solid rgba(126, 151, 181, 0.1);
+
+  background:
+    rgba(8, 13, 20, 0.82);
+}
+
+.dev-message-composer textarea {
+  flex: 1;
+  min-width: 0;
+
+  min-height: 39px;
+  max-height: 120px;
+
+  resize: vertical;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(126, 151, 181, 0.15);
+  border-radius: 11px;
+
+  outline: none;
+
+  color: #e5edf8;
+  background: rgba(255, 255, 255, 0.035);
+
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.dev-message-composer textarea::placeholder {
+  color: #58697d;
+}
+
+.dev-message-composer textarea:hover {
+  border-color: rgba(126, 151, 181, 0.23);
+}
+
+.dev-message-composer textarea:focus {
+  border-color: rgba(98, 226, 255, 0.3);
+
+  background: rgba(255, 255, 255, 0.045);
+
+  box-shadow:
+    0 0 0 3px rgba(98, 226, 255, 0.035);
+}
+
+.dev-message-composer textarea:disabled {
+  opacity: 0.6;
+}
+
+/* ============================================================
+   SEND BUTTON
+   ============================================================ */
+
+.dev-message-composer > button {
+  width: 39px;
+  height: 39px;
+  flex: 0 0 39px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid rgba(98, 226, 255, 0.2);
+  border-radius: 11px;
+
+  color: #dff9ff;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(58, 145, 255, 0.22),
+      rgba(126, 83, 205, 0.2)
+    );
+
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    opacity 160ms ease;
+}
+
+.dev-message-composer > button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: rgba(98, 226, 255, 0.38);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(58, 145, 255, 0.3),
+      rgba(126, 83, 205, 0.27)
+    );
+}
+
+.dev-message-composer > button:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.dev-messages-loading {
+  min-height: 160px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  padding: 25px;
+
+  color: #6f8095;
+
+  font-size: 11px;
+}
+
+.dev-loading-icon {
+  animation: dev-message-spin 1s linear infinite;
+}
+
+@keyframes dev-message-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 950px) {
+  .dev-messages-layout {
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+
+  .dev-message-bubble {
+    max-width: 80%;
+  }
+}
+
+@media (max-width: 760px) {
+  .dev-messages-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dev-messages-new-btn {
+    width: 100%;
+  }
+
+  .dev-messages-layout {
+    height: 680px;
+    min-height: 520px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 205px minmax(0, 1fr);
+  }
+
+  .dev-conversations-panel {
+    border-right: 0;
+    border-bottom: 1px solid rgba(126, 151, 181, 0.12);
+  }
+
+  .dev-conversations-list {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .dev-conversation-item {
+    min-width: 235px;
+  }
+
+  .dev-conversations-empty {
+    width: 100%;
+    min-height: 150px;
+  }
+}
+
+@media (max-width: 520px) {
+  .dev-messages-header h2 {
+    font-size: 25px;
+  }
+
+  .dev-messages-layout {
+    height: 650px;
+    min-height: 500px;
+    border-radius: 16px;
+  }
+
+  .dev-message-list {
+    padding: 15px;
+  }
+
+  .dev-message-composer {
+    padding: 10px;
+  }
+
+  .dev-message-bubble {
+    max-width: 88%;
+  }
+
+  .dev-message-thread-header {
+    padding: 12px 13px;
+  }
+}
+
+/* ============================================================
+   HARD RESET AGAINST OLD DASHBOARD STYLES
+   ============================================================ */
+
+.dev-messages-section,
+.dev-messages-section *,
+.dev-messages-layout,
+.dev-messages-layout * {
+  box-sizing: border-box;
+}
+
+.dev-messages-section button {
+  font-family: inherit;
+}
+
+.dev-messages-section textarea {
+  font-family: inherit;
+}

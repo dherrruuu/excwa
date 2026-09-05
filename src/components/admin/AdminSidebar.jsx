@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   MessageSquareText,
+  MessagesSquare,
   Settings,
   ExternalLink,
   Users,
@@ -72,6 +73,20 @@ export default function AdminSidebar() {
         >
           <MessageSquareText size={18} />
           Enquiries
+        </NavLink>
+
+        {/* CLIENT MESSAGES */}
+
+        <NavLink
+          to="/admin/messages"
+          className={({ isActive }) =>
+            isActive
+              ? "admin-nav-item active"
+              : "admin-nav-item"
+          }
+        >
+          <MessagesSquare size={18} />
+          Messages
         </NavLink>
 
         {/* DEVELOPER APPLICATIONS */}

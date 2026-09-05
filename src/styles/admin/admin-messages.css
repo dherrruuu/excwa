@@ -1,0 +1,1446 @@
+/* ============================================================
+   EXCWA ADMIN — MESSAGES
+   Premium Glass Communication Center
+   ============================================================ */
+
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.admin-messages-page {
+  width: 100%;
+  min-width: 0;
+  color: #eef3fa;
+}
+
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+
+.admin-messages-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+
+  margin-bottom: 22px;
+}
+
+.admin-messages-header > div:first-child {
+  min-width: 0;
+}
+
+.admin-page-eyebrow {
+  display: inline-block;
+
+  margin-bottom: 7px;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+
+  color: rgba(122, 161, 213, 0.78);
+}
+
+.admin-messages-header h1 {
+  margin: 0;
+
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+
+  color: #f4f7fb;
+}
+
+.admin-messages-header p {
+  margin: 7px 0 0;
+
+  font-size: 13px;
+  line-height: 1.6;
+
+  color: rgba(165, 177, 196, 0.7);
+}
+
+.admin-messages-header-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  flex-shrink: 0;
+
+  padding: 8px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: rgba(185, 198, 218, 0.75);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.admin-messages-error {
+  margin-bottom: 14px;
+  padding: 11px 14px;
+
+  border: 1px solid rgba(244, 114, 114, 0.16);
+  border-radius: 11px;
+
+  background: rgba(244, 114, 114, 0.045);
+
+  color: rgba(255, 180, 180, 0.88);
+
+  font-size: 12px;
+}
+
+
+/* ============================================================
+   MAIN GLASS SHELL
+   ============================================================ */
+
+.admin-messages-shell {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 285px minmax(0, 1fr);
+
+  width: 100%;
+  min-height: 650px;
+  height: calc(100vh - 205px);
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    ),
+    rgba(7, 11, 17, 0.76);
+
+  box-shadow:
+    0 22px 70px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+
+/* ============================================================
+   LOADING
+   ============================================================ */
+
+.admin-messages-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 350px;
+
+  color: rgba(168, 181, 201, 0.7);
+  font-size: 13px;
+}
+
+
+/* ============================================================
+   SPINNER
+   ============================================================ */
+
+.admin-messages-spinner {
+  animation: adminMessagesSpin 0.9s linear infinite;
+}
+
+@keyframes adminMessagesSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* ============================================================
+   LEFT SIDEBAR
+   ============================================================ */
+
+.admin-messages-sidebar {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  min-height: 0;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.065);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.018),
+      rgba(255, 255, 255, 0.006)
+    );
+}
+
+
+/* ============================================================
+   SIDEBAR HEADER
+   ============================================================ */
+
+.admin-messages-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 62px;
+
+  padding: 0 17px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.admin-messages-sidebar-header > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.admin-messages-sidebar-header span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+
+  color: rgba(133, 150, 174, 0.68);
+}
+
+.admin-messages-sidebar-header strong {
+  min-width: 21px;
+  height: 21px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 7px;
+
+  background: rgba(93, 137, 198, 0.095);
+
+  color: rgba(151, 184, 226, 0.8);
+
+  font-size: 10px;
+}
+
+
+/* ============================================================
+   CLIENT LIST
+   ============================================================ */
+
+.admin-messages-client-list {
+  flex: 1;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 9px 8px 14px;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(105, 126, 153, 0.25) transparent;
+}
+
+.admin-messages-client-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-messages-client-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-messages-client-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(105, 126, 153, 0.25);
+}
+
+
+/* ============================================================
+   CLIENT GROUP
+   ============================================================ */
+
+.admin-message-client-group {
+  position: relative;
+
+  margin-bottom: 3px;
+}
+
+
+/* ============================================================
+   CLIENT ROW
+   ============================================================ */
+
+.admin-message-client-row {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 10px 9px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-message-client-row:hover {
+  background: rgba(255, 255, 255, 0.032);
+}
+
+.admin-message-client-row:active {
+  transform: scale(0.995);
+}
+
+
+/* ============================================================
+   CLIENT ICON
+   ============================================================ */
+
+.admin-message-client-icon {
+  width: 30px;
+  height: 30px;
+
+  flex: 0 0 30px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 9px;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: rgba(142, 170, 205, 0.78);
+}
+
+
+/* ============================================================
+   CLIENT INFO
+   ============================================================ */
+
+.admin-message-client-info {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-message-client-info strong {
+  overflow: hidden;
+
+  color: rgba(230, 236, 245, 0.9);
+
+  font-size: 12px;
+  font-weight: 600;
+
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-message-client-info small {
+  margin-top: 2px;
+
+  color: rgba(132, 146, 168, 0.62);
+
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+
+/* ============================================================
+   CLIENT CHEVRON
+   ============================================================ */
+
+.admin-message-client-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+
+  margin-left: 6px;
+
+  color: rgba(120, 138, 163, 0.58);
+}
+
+
+/* ============================================================
+   CONVERSATION TREE
+   ============================================================ */
+
+.admin-message-conversation-list {
+  position: relative;
+
+  margin: 0 0 7px 26px;
+  padding: 4px 0 5px 18px;
+}
+
+
+/* Vertical connector */
+
+.admin-message-conversation-list::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+  left: 0;
+
+  width: 1px;
+
+  background: rgba(79, 96, 120, 0.28);
+}
+
+
+/* ============================================================
+   CONVERSATION ITEM
+   ============================================================ */
+
+.admin-message-conversation {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 8px 8px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+
+/* Horizontal connector */
+
+.admin-message-conversation::before {
+  content: "";
+
+  position: absolute;
+
+  top: 50%;
+  left: -18px;
+
+  width: 18px;
+  height: 1px;
+
+  background: rgba(79, 96, 120, 0.28);
+
+  transform: translateY(-50%);
+
+  transition: background 160ms ease;
+}
+
+
+/* Connector node */
+
+.admin-message-conversation::after {
+  content: "";
+
+  position: absolute;
+
+  top: 50%;
+  left: -19px;
+
+  width: 3px;
+  height: 3px;
+
+  border-radius: 50%;
+
+  background: #596b84;
+
+  transform: translateY(-50%);
+
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+
+/* ============================================================
+   CONVERSATION HOVER
+   ============================================================ */
+
+.admin-message-conversation:hover {
+  background: rgba(255, 255, 255, 0.028);
+
+  border-color: rgba(255, 255, 255, 0.035);
+}
+
+.admin-message-conversation:hover::before {
+  background: rgba(91, 112, 143, 0.42);
+}
+
+
+/* ============================================================
+   ACTIVE CONVERSATION
+   ============================================================ */
+
+.admin-message-conversation.active {
+  background:
+    linear-gradient(
+      100deg,
+      rgba(85, 128, 190, 0.105),
+      rgba(85, 128, 190, 0.035)
+    );
+
+  border-color: rgba(103, 147, 219, 0.13);
+}
+
+.admin-message-conversation.active::before {
+  background: rgba(103, 147, 219, 0.58);
+}
+
+.admin-message-conversation.active::after {
+  background: #7da7e8;
+
+  box-shadow:
+    0 0 6px rgba(103, 147, 219, 0.45);
+}
+
+
+/* ============================================================
+   CONVERSATION ICON
+   ============================================================ */
+
+.admin-message-conversation-icon {
+  width: 27px;
+  height: 27px;
+
+  flex: 0 0 27px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 8px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.018);
+
+  color: rgba(126, 153, 188, 0.72);
+}
+
+.admin-message-conversation.active
+  .admin-message-conversation-icon {
+  color: rgba(151, 190, 235, 0.9);
+
+  border-color: rgba(103, 147, 219, 0.14);
+
+  background: rgba(103, 147, 219, 0.07);
+}
+
+
+/* ============================================================
+   CONVERSATION INFO
+   ============================================================ */
+
+.admin-message-conversation-info {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  overflow: hidden;
+
+  flex: 1;
+}
+
+.admin-message-conversation-info strong {
+  display: block;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: rgba(221, 228, 238, 0.88);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-message-conversation.active
+  .admin-message-conversation-info strong {
+  color: rgba(241, 245, 250, 0.96);
+}
+
+
+/* ============================================================
+   MESSAGE PREVIEW
+   ============================================================ */
+
+.admin-message-preview {
+  display: block;
+
+  min-width: 0;
+  max-width: 100%;
+
+  margin-top: 2px;
+
+  overflow: hidden;
+
+  color: rgba(137, 151, 173, 0.68);
+
+  font-size: 9.5px;
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-message-preview-sender {
+  margin-right: 4px;
+
+  color: rgba(169, 184, 208, 0.7);
+
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   CONVERSATION DATE
+   ============================================================ */
+
+.admin-message-conversation-date {
+  flex: 0 0 auto;
+
+  align-self: flex-start;
+
+  margin-left: 7px;
+  padding-top: 1px;
+
+  color: rgba(117, 132, 154, 0.62);
+
+  font-size: 8.5px;
+  font-weight: 500;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   LIST EMPTY
+   ============================================================ */
+
+.admin-messages-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 220px;
+
+  padding: 25px;
+
+  text-align: center;
+
+  color: rgba(127, 143, 166, 0.62);
+
+  font-size: 11px;
+}
+
+.admin-messages-list-empty svg {
+  opacity: 0.6;
+}
+
+
+/* ============================================================
+   RIGHT CHAT
+   ============================================================ */
+
+.admin-messages-chat {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  min-height: 0;
+
+  background:
+    radial-gradient(
+      circle at 70% 0%,
+      rgba(77, 113, 163, 0.045),
+      transparent 38%
+    ),
+    rgba(5, 9, 14, 0.38);
+}
+
+
+/* ============================================================
+   EMPTY CHAT
+   ============================================================ */
+
+.admin-messages-chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  flex: 1;
+
+  min-height: 0;
+
+  padding: 35px;
+
+  text-align: center;
+}
+
+.admin-messages-chat-empty-icon {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 17px;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  color: rgba(119, 153, 195, 0.62);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.admin-messages-chat-empty h2 {
+  margin: 0;
+
+  color: rgba(225, 232, 241, 0.88);
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.admin-messages-chat-empty p {
+  max-width: 340px;
+
+  margin: 7px 0 0;
+
+  color: rgba(133, 147, 168, 0.62);
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+
+/* ============================================================
+   CHAT HEADER
+   ============================================================ */
+
+.admin-messages-chat-header {
+  display: flex;
+  align-items: center;
+
+  min-width: 0;
+  min-height: 67px;
+
+  padding: 0 16px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.008)
+    );
+}
+
+
+/* ============================================================
+   CHAT HEADER ICON
+   ============================================================ */
+
+.admin-messages-chat-header-icon {
+  width: 36px;
+  height: 36px;
+
+  flex: 0 0 36px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 10px;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: rgba(143, 177, 218, 0.8);
+}
+
+
+/* ============================================================
+   CHAT HEADER INFO
+   ============================================================ */
+
+.admin-messages-chat-header-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.admin-messages-chat-header-info h2 {
+  margin: 0;
+
+  overflow: hidden;
+
+  color: rgba(236, 241, 247, 0.94);
+
+  font-size: 13px;
+  font-weight: 650;
+
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-messages-chat-header-info p {
+  margin: 3px 0 0;
+
+  overflow: hidden;
+
+  color: rgba(132, 147, 169, 0.65);
+
+  font-size: 9.5px;
+  line-height: 1.4;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* ============================================================
+   CLOSE CHAT
+   ============================================================ */
+
+.admin-messages-chat-close {
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 12px;
+  padding: 0;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.022);
+
+  color: rgba(153, 167, 188, 0.68);
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-messages-chat-close:hover {
+  color: rgba(237, 242, 248, 0.94);
+
+  background: rgba(255, 255, 255, 0.055);
+
+  border-color: rgba(125, 167, 232, 0.22);
+
+  box-shadow:
+    0 5px 18px rgba(0, 0, 0, 0.16);
+
+  transform: translateY(-1px);
+}
+
+.admin-messages-chat-close:active {
+  transform: translateY(0);
+}
+
+.admin-messages-chat-close:focus-visible {
+  outline: none;
+
+  border-color: rgba(125, 167, 232, 0.42);
+
+  box-shadow:
+    0 0 0 3px rgba(103, 147, 219, 0.09);
+}
+
+
+/* ============================================================
+   MESSAGE THREAD
+   IMPORTANT:
+   This is the scrollable element used by the JSX auto-scroll.
+   ============================================================ */
+
+.admin-messages-thread {
+  flex: 1;
+
+  min-width: 0;
+  min-height: 0;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  padding: 22px 25px 24px;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(105, 126, 153, 0.28) transparent;
+
+  scroll-behavior: auto;
+}
+
+.admin-messages-thread::-webkit-scrollbar {
+  width: 5px;
+}
+
+.admin-messages-thread::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-messages-thread::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: rgba(105, 126, 153, 0.28);
+}
+
+.admin-messages-thread::-webkit-scrollbar-thumb:hover {
+  background: rgba(119, 145, 177, 0.4);
+}
+
+
+/* ============================================================
+   THREAD EMPTY / LOADING
+   ============================================================ */
+
+.admin-messages-thread-empty,
+.admin-messages-thread-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 100%;
+
+  gap: 9px;
+
+  color: rgba(130, 145, 166, 0.6);
+
+  font-size: 11px;
+
+  text-align: center;
+}
+
+.admin-messages-thread-loading {
+  flex-direction: row;
+}
+
+
+/* ============================================================
+   MESSAGE ROW
+   ============================================================ */
+
+.admin-message-row {
+  display: flex;
+
+  width: 100%;
+
+  margin-bottom: 10px;
+}
+
+.admin-message-row:last-child {
+  margin-bottom: 0;
+}
+
+.admin-message-row.client {
+  justify-content: flex-start;
+}
+
+.admin-message-row.admin {
+  justify-content: flex-end;
+}
+
+
+/* ============================================================
+   MESSAGE BUBBLE
+   ============================================================ */
+
+.admin-message-bubble {
+  max-width: min(68%, 620px);
+
+  padding: 9px 12px 7px;
+
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  box-shadow:
+    0 7px 22px rgba(0, 0, 0, 0.12);
+}
+
+.admin-message-bubble.client {
+  border-radius: 13px 13px 13px 4px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.018)
+    );
+
+  color: rgba(220, 228, 238, 0.9);
+}
+
+.admin-message-bubble.admin {
+  border-radius: 13px 13px 4px 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(79, 125, 187, 0.16),
+      rgba(64, 97, 145, 0.075)
+    );
+
+  border-color: rgba(102, 146, 209, 0.13);
+
+  color: rgba(232, 239, 248, 0.94);
+}
+
+
+/* ============================================================
+   MESSAGE CONTENT
+   ============================================================ */
+
+.admin-message-content {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+
+/* ============================================================
+   MESSAGE META
+   ============================================================ */
+
+.admin-message-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 7px;
+
+  margin-top: 5px;
+
+  color: rgba(129, 145, 166, 0.57);
+
+  font-size: 8.5px;
+  line-height: 1;
+}
+
+.admin-message-bubble.admin
+  .admin-message-meta {
+  color: rgba(153, 181, 216, 0.62);
+}
+
+
+/* ============================================================
+   COMPOSER
+   ============================================================ */
+
+.admin-messages-composer {
+  display: flex;
+  align-items: flex-end;
+
+  gap: 9px;
+
+  min-width: 0;
+
+  padding: 12px 15px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 9, 14, 0.7),
+      rgba(5, 9, 14, 0.88)
+    );
+}
+
+
+/* ============================================================
+   TEXTAREA
+   ============================================================ */
+
+.admin-messages-composer textarea {
+  flex: 1;
+
+  min-width: 0;
+  min-height: 38px;
+  max-height: 110px;
+
+  resize: none;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 11px;
+
+  outline: none;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: rgba(234, 240, 247, 0.92);
+
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.45;
+
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-messages-composer textarea::placeholder {
+  color: rgba(123, 139, 162, 0.55);
+}
+
+.admin-messages-composer textarea:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+
+  background: rgba(255, 255, 255, 0.032);
+}
+
+.admin-messages-composer textarea:focus {
+  border-color: rgba(103, 147, 219, 0.32);
+
+  background: rgba(255, 255, 255, 0.035);
+
+  box-shadow:
+    0 0 0 3px rgba(103, 147, 219, 0.055);
+}
+
+.admin-messages-composer textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   SEND BUTTON
+   ============================================================ */
+
+.admin-messages-composer button {
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 38px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid rgba(104, 148, 214, 0.17);
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(88, 137, 202, 0.18),
+      rgba(70, 105, 157, 0.1)
+    );
+
+  color: rgba(172, 205, 241, 0.9);
+
+  cursor: pointer;
+
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-messages-composer button:hover:not(:disabled) {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(96, 148, 219, 0.25),
+      rgba(73, 112, 170, 0.15)
+    );
+
+  border-color: rgba(116, 162, 229, 0.3);
+
+  color: #e6f1ff;
+
+  box-shadow:
+    0 6px 20px rgba(38, 76, 121, 0.16);
+
+  transform: translateY(-1px);
+}
+
+.admin-messages-composer button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-messages-composer button:disabled {
+  opacity: 0.34;
+
+  cursor: not-allowed;
+}
+
+
+/* ============================================================
+   FOCUS ACCESSIBILITY
+   ============================================================ */
+
+.admin-message-client-row:focus-visible,
+.admin-message-conversation:focus-visible,
+.admin-messages-composer button:focus-visible {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(103, 147, 219, 0.08);
+}
+
+
+/* ============================================================
+   RESPONSIVE — TABLET
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .admin-messages-shell {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+
+  .admin-message-bubble {
+    max-width: 78%;
+  }
+
+  .admin-messages-thread {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE — MOBILE
+   ============================================================ */
+
+@media (max-width: 700px) {
+  .admin-messages-header {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 12px;
+  }
+
+  .admin-messages-header-stat {
+    display: none;
+  }
+
+  .admin-messages-shell {
+    grid-template-columns: 1fr;
+
+    height: calc(100vh - 175px);
+    min-height: 560px;
+
+    border-radius: 15px;
+  }
+
+  /*
+   * Keep sidebar available above the chat.
+   */
+  .admin-messages-sidebar {
+    max-height: 235px;
+
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .admin-messages-client-list {
+    padding-bottom: 8px;
+  }
+
+  .admin-messages-chat {
+    min-height: 0;
+  }
+
+  .admin-message-bubble {
+    max-width: 84%;
+  }
+}
+
+
+/* ============================================================
+   RESPONSIVE — SMALL MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .admin-messages-header h1 {
+    font-size: 24px;
+  }
+
+  .admin-messages-header p {
+    font-size: 12px;
+  }
+
+  .admin-messages-shell {
+    min-height: 520px;
+  }
+
+  .admin-messages-sidebar {
+    max-height: 215px;
+  }
+
+  .admin-message-conversation-list {
+    margin-left: 20px;
+    padding-left: 14px;
+  }
+
+  .admin-message-conversation::before {
+    left: -14px;
+    width: 14px;
+  }
+
+  .admin-message-conversation::after {
+    left: -15px;
+  }
+
+  .admin-message-conversation-date {
+    display: none;
+  }
+
+  .admin-messages-chat-header {
+    min-height: 60px;
+    padding: 0 11px;
+  }
+
+  .admin-messages-chat-header-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .admin-messages-chat-close {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .admin-messages-thread {
+    padding: 17px 12px 18px;
+  }
+
+  .admin-message-bubble {
+    max-width: 88%;
+  }
+
+  .admin-message-content {
+    font-size: 11.5px;
+  }
+
+  .admin-messages-composer {
+    padding: 9px;
+  }
+
+  .admin-messages-composer textarea {
+    min-height: 36px;
+  }
+
+  .admin-messages-composer button {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+}
