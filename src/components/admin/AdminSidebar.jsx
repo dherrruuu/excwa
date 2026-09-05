@@ -8,6 +8,7 @@ import {
   ClipboardCheck,
   BriefcaseBusiness,
   UserRoundSearch,
+  Code2,
 } from "lucide-react";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -22,10 +23,17 @@ export default function AdminSidebar() {
     navigate("/admin/login");
   }
 
+  const navItemClass = ({ isActive }) =>
+    isActive
+      ? "admin-nav-item active"
+      : "admin-nav-item";
+
   return (
     <aside className="admin-sidebar">
 
-      {/* BRAND */}
+      {/* ======================================================
+          BRAND
+          ====================================================== */}
 
       <div className="admin-sidebar-brand">
         <ExcwaLogo size={32} />
@@ -36,132 +44,156 @@ export default function AdminSidebar() {
         </div>
       </div>
 
-      {/* NAVIGATION LABEL */}
 
-      <div className="admin-nav-label">
-        MANAGEMENT
-      </div>
-
-      {/* NAVIGATION */}
+      {/* ======================================================
+          NAVIGATION
+          ====================================================== */}
 
       <nav className="admin-nav">
 
-        {/* DASHBOARD */}
+        {/* ==================================================
+            OVERVIEW
+            ================================================== */}
 
-        <NavLink
-          to="/admin"
-          end
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <LayoutDashboard size={18} />
-          Dashboard
-        </NavLink>
+        <div className="admin-nav-group">
 
-        {/* ENQUIRIES */}
+          <div className="admin-nav-label">
+            OVERVIEW
+          </div>
 
-        <NavLink
-          to="/admin/enquiries"
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <MessageSquareText size={18} />
-          Enquiries
-        </NavLink>
+          <NavLink
+            to="/admin"
+            end
+            className={navItemClass}
+          >
+            <LayoutDashboard size={18} />
+            Dashboard
+          </NavLink>
 
-        {/* CLIENT MESSAGES */}
+        </div>
 
-        <NavLink
-          to="/admin/messages"
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <MessagesSquare size={18} />
-          Messages
-        </NavLink>
 
-        {/* DEVELOPER APPLICATIONS */}
+        {/* ==================================================
+            COMMUNICATION
+            ================================================== */}
 
-        <NavLink
-          to="/admin/developers"
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <Users size={18} />
-          Developer Applications
-        </NavLink>
+        <div className="admin-nav-group">
 
-        {/* DEVELOPER INFO */}
+          <div className="admin-nav-label">
+            COMMUNICATION
+          </div>
 
-        <NavLink
-          to="/admin/developer-info"
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <UserRoundSearch size={18} />
-          Developer Info
-        </NavLink>
+          <NavLink
+            to="/admin/enquiries"
+            className={navItemClass}
+          >
+            <MessageSquareText size={18} />
+            Enquiries
+          </NavLink>
 
-        {/* OPPORTUNITIES */}
+          <NavLink
+            to="/admin/messages"
+            className={navItemClass}
+          >
+            <MessagesSquare size={18} />
+            Messages
+          </NavLink>
 
-        <NavLink
-          to="/admin/opportunities"
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <BriefcaseBusiness size={18} />
-          Opportunities
-        </NavLink>
+          <NavLink
+            to="/admin/developer-messages"
+            className={navItemClass}
+          >
+            <Code2 size={18} />
+            Developer Messages
+          </NavLink>
 
-        {/* WORK REVIEWS */}
+        </div>
 
-        <NavLink
-          to="/admin/reviews"
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <ClipboardCheck size={18} />
-          Work Reviews
-        </NavLink>
 
-        {/* SETTINGS */}
+        {/* ==================================================
+            DEVELOPERS
+            ================================================== */}
 
-        <NavLink
-          to="/admin/settings"
-          className={({ isActive }) =>
-            isActive
-              ? "admin-nav-item active"
-              : "admin-nav-item"
-          }
-        >
-          <Settings size={18} />
-          Settings
-        </NavLink>
+        <div className="admin-nav-group">
+
+          <div className="admin-nav-label">
+            DEVELOPERS
+          </div>
+
+          <NavLink
+            to="/admin/developers"
+            className={navItemClass}
+          >
+            <Users size={18} />
+            Developer Applications
+          </NavLink>
+
+          <NavLink
+            to="/admin/developer-info"
+            className={navItemClass}
+          >
+            <UserRoundSearch size={18} />
+            Developer Info
+          </NavLink>
+
+        </div>
+
+
+        {/* ==================================================
+            PROJECTS
+            ================================================== */}
+
+        <div className="admin-nav-group">
+
+          <div className="admin-nav-label">
+            PROJECTS
+          </div>
+
+          <NavLink
+            to="/admin/opportunities"
+            className={navItemClass}
+          >
+            <BriefcaseBusiness size={18} />
+            Opportunities
+          </NavLink>
+
+          <NavLink
+            to="/admin/reviews"
+            className={navItemClass}
+          >
+            <ClipboardCheck size={18} />
+            Work Reviews
+          </NavLink>
+
+        </div>
+
+
+        {/* ==================================================
+            SYSTEM
+            ================================================== */}
+
+        <div className="admin-nav-group">
+
+          <div className="admin-nav-label">
+            SYSTEM
+          </div>
+
+          <NavLink
+            to="/admin/settings"
+            className={navItemClass}
+          >
+            <Settings size={18} />
+            Settings
+          </NavLink>
+
+        </div>
 
       </nav>
 
-      {/* BOTTOM */}
+
+      {/* ======================================================
+          BOTTOM
+          ====================================================== */}
 
       <div className="admin-sidebar-bottom">
 
@@ -176,6 +208,7 @@ export default function AdminSidebar() {
           <ExternalLink size={15} />
           View Website
         </a>
+
 
         {/* SIGN OUT */}
 

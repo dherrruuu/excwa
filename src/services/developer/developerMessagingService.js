@@ -443,6 +443,10 @@ export async function sendDeveloperMessage({
     );
   }
 
+  /* ----------------------------------------------------------
+     GET CURRENT AUTH USER
+     ---------------------------------------------------------- */
+
   const {
     data: { user },
     error: userError,
@@ -463,20 +467,66 @@ export async function sendDeveloperMessage({
     );
   }
 
-  /*
-    RLS verifies:
+  /* ----------------------------------------------------------
+     DETERMINE SENDER TYPE
+     ----------------------------------------------------------
 
-      sender_id = auth.uid()
-      sender_type = developer
-      conversation belongs to developer
+     Admin:
+       sender_id   = auth.uid()
+       sender_type = "admin"
+
+     Developer:
+       sender_id   = auth.uid()
+       sender_type = "developer"
   */
+
+  const { data: profile, error: profileError } =
+    await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+  if (profileError) {
+    console.error(
+      "sendDeveloperMessage profile lookup error:",
+      profileError
+    );
+
+    throw profileError;
+  }
+
+  if (!profile?.role) {
+    throw new Error(
+      "User profile or role not found"
+    );
+  }
+
+  const normalizedRole =
+    String(profile.role).toLowerCase().trim();
+
+  let senderType;
+
+  if (normalizedRole === "admin") {
+    senderType = "admin";
+  } else if (normalizedRole === "developer") {
+    senderType = "developer";
+  } else {
+    throw new Error(
+      `Messaging is not available for role: ${profile.role}`
+    );
+  }
+
+  /* ----------------------------------------------------------
+     SEND MESSAGE
+     ---------------------------------------------------------- */
 
   const { data, error } = await supabase
     .from("developer_messages")
     .insert({
       conversation_id: conversationId,
       sender_id: user.id,
-      sender_type: "developer",
+      sender_type: senderType,
       message: normalizedMessage,
     })
     .select(`

@@ -21,6 +21,7 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEnquiries from "./pages/admin/AdminEnquiries";
 import AdminMessages from "./pages/admin/AdminMessages";
+import AdminDeveloperMessages from "./pages/admin/AdminDeveloperMessages";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import AdminDeveloperInfo from "./pages/admin/AdminDeveloperInfo";
 import AdminOpportunities from "./pages/admin/AdminOpportunities";
@@ -222,6 +223,16 @@ export default function App() {
             <Route
               path="messages"
               element={<AdminMessages />}
+            />
+
+            {/* ==================================================
+                DEVELOPER MESSAGES
+                /admin/developer-messages
+                ================================================== */}
+
+            <Route
+              path="developer-messages"
+              element={<AdminDeveloperMessages />}
             />
 
             {/* ==================================================
