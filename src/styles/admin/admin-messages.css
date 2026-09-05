@@ -11,6 +11,7 @@
 .admin-messages-page {
   width: 100%;
   min-width: 0;
+  min-height: 0;
   color: #eef3fa;
 }
 
@@ -24,7 +25,6 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-
   margin-bottom: 22px;
 }
 
@@ -34,34 +34,27 @@
 
 .admin-page-eyebrow {
   display: inline-block;
-
   margin-bottom: 7px;
-
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-
   color: rgba(122, 161, 213, 0.78);
 }
 
 .admin-messages-header h1 {
   margin: 0;
-
   font-size: 28px;
   line-height: 1.15;
   font-weight: 700;
   letter-spacing: -0.025em;
-
   color: #f4f7fb;
 }
 
 .admin-messages-header p {
   margin: 7px 0 0;
-
   font-size: 13px;
   line-height: 1.6;
-
   color: rgba(165, 177, 196, 0.7);
 }
 
@@ -69,18 +62,12 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-
   flex-shrink: 0;
-
   padding: 8px 12px;
-
   border: 1px solid rgba(255, 255, 255, 0.075);
   border-radius: 10px;
-
   background: rgba(255, 255, 255, 0.025);
-
   color: rgba(185, 198, 218, 0.75);
-
   font-size: 11px;
   font-weight: 600;
 }
@@ -93,20 +80,18 @@
 .admin-messages-error {
   margin-bottom: 14px;
   padding: 11px 14px;
-
   border: 1px solid rgba(244, 114, 114, 0.16);
   border-radius: 11px;
-
   background: rgba(244, 114, 114, 0.045);
-
   color: rgba(255, 180, 180, 0.88);
-
   font-size: 12px;
 }
 
 
 /* ============================================================
    MAIN GLASS SHELL
+   IMPORTANT:
+   The shell itself must NEVER scroll.
    ============================================================ */
 
 .admin-messages-shell {
@@ -116,10 +101,10 @@
   grid-template-columns: 285px minmax(0, 1fr);
 
   width: 100%;
-  min-height: 650px;
   height: calc(100vh - 205px);
 
   min-width: 0;
+  min-height: 0;
 
   overflow: hidden;
 
@@ -140,6 +125,8 @@
 
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+
+  isolation: isolate;
 }
 
 
@@ -188,6 +175,8 @@
   min-width: 0;
   min-height: 0;
 
+  overflow: hidden;
+
   border-right: 1px solid rgba(255, 255, 255, 0.065);
 
   background:
@@ -208,6 +197,9 @@
   align-items: center;
   justify-content: space-between;
 
+  flex: 0 0 62px;
+
+  min-width: 0;
   min-height: 62px;
 
   padding: 0 17px;
@@ -219,6 +211,8 @@
   display: flex;
   align-items: center;
   gap: 9px;
+
+  min-width: 0;
 }
 
 .admin-messages-sidebar-header span {
@@ -226,7 +220,6 @@
   font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-
   color: rgba(133, 150, 174, 0.68);
 }
 
@@ -241,7 +234,6 @@
   border-radius: 7px;
 
   background: rgba(93, 137, 198, 0.095);
-
   color: rgba(151, 184, 226, 0.8);
 
   font-size: 10px;
@@ -250,10 +242,13 @@
 
 /* ============================================================
    CLIENT LIST
+   ONLY THIS AREA SCROLLS IN THE SIDEBAR
    ============================================================ */
 
 .admin-messages-client-list {
-  flex: 1;
+  flex: 1 1 auto;
+
+  min-width: 0;
   min-height: 0;
 
   overflow-y: auto;
@@ -278,6 +273,10 @@
   background: rgba(105, 126, 153, 0.25);
 }
 
+.admin-messages-client-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(119, 145, 177, 0.4);
+}
+
 
 /* ============================================================
    CLIENT GROUP
@@ -285,7 +284,6 @@
 
 .admin-message-client-group {
   position: relative;
-
   margin-bottom: 3px;
 }
 
@@ -309,7 +307,6 @@
   border-radius: 10px;
 
   background: transparent;
-
   color: inherit;
 
   text-align: left;
@@ -374,7 +371,6 @@
 
   font-size: 12px;
   font-weight: 600;
-
   line-height: 1.35;
 
   text-overflow: ellipsis;
@@ -419,9 +415,6 @@
   padding: 4px 0 5px 18px;
 }
 
-
-/* Vertical connector */
-
 .admin-message-conversation-list::before {
   content: "";
 
@@ -450,13 +443,12 @@
   width: 100%;
   min-width: 0;
 
-  padding: 8px 8px;
+  padding: 8px;
 
   border: 1px solid transparent;
   border-radius: 9px;
 
   background: transparent;
-
   color: inherit;
 
   text-align: left;
@@ -470,7 +462,9 @@
 }
 
 
-/* Horizontal connector */
+/* ============================================================
+   HORIZONTAL CONNECTOR
+   ============================================================ */
 
 .admin-message-conversation::before {
   content: "";
@@ -491,7 +485,9 @@
 }
 
 
-/* Connector node */
+/* ============================================================
+   CONNECTOR NODE
+   ============================================================ */
 
 .admin-message-conversation::after {
   content: "";
@@ -522,7 +518,6 @@
 
 .admin-message-conversation:hover {
   background: rgba(255, 255, 255, 0.028);
-
   border-color: rgba(255, 255, 255, 0.035);
 }
 
@@ -582,8 +577,7 @@
   color: rgba(126, 153, 188, 0.72);
 }
 
-.admin-message-conversation.active
-  .admin-message-conversation-icon {
+.admin-message-conversation.active .admin-message-conversation-icon {
   color: rgba(151, 190, 235, 0.9);
 
   border-color: rgba(103, 147, 219, 0.14);
@@ -610,14 +604,12 @@
   display: block;
 
   min-width: 0;
-
   overflow: hidden;
 
   color: rgba(221, 228, 238, 0.88);
 
   font-size: 11px;
   font-weight: 600;
-
   line-height: 1.35;
 
   text-overflow: ellipsis;
@@ -678,7 +670,6 @@
 
   font-size: 8.5px;
   font-weight: 500;
-
   line-height: 1.3;
 
   white-space: nowrap;
@@ -715,6 +706,9 @@
 
 /* ============================================================
    RIGHT CHAT
+   IMPORTANT:
+   Chat itself does NOT scroll.
+   Only .admin-messages-thread scrolls.
    ============================================================ */
 
 .admin-messages-chat {
@@ -725,6 +719,8 @@
 
   min-width: 0;
   min-height: 0;
+
+  overflow: hidden;
 
   background:
     radial-gradient(
@@ -746,8 +742,9 @@
   align-items: center;
   justify-content: center;
 
-  flex: 1;
+  flex: 1 1 auto;
 
+  min-width: 0;
   min-height: 0;
 
   padding: 35px;
@@ -804,11 +801,14 @@
 
 /* ============================================================
    CHAT HEADER
+   FIXED — DOES NOT SCROLL
    ============================================================ */
 
 .admin-messages-chat-header {
   display: flex;
   align-items: center;
+
+  flex: 0 0 67px;
 
   min-width: 0;
   min-height: 67px;
@@ -869,7 +869,6 @@
 
   font-size: 13px;
   font-weight: 650;
-
   line-height: 1.35;
 
   text-overflow: ellipsis;
@@ -955,14 +954,16 @@
 /* ============================================================
    MESSAGE THREAD
    IMPORTANT:
-   This is the scrollable element used by the JSX auto-scroll.
+   THIS IS THE ONLY SCROLLABLE CHAT AREA.
    ============================================================ */
 
 .admin-messages-thread {
-  flex: 1;
+  flex: 1 1 auto;
 
   min-width: 0;
   min-height: 0;
+
+  height: 0;
 
   overflow-y: auto;
   overflow-x: hidden;
@@ -985,7 +986,6 @@
 
 .admin-messages-thread::-webkit-scrollbar-thumb {
   border-radius: 999px;
-
   background: rgba(105, 126, 153, 0.28);
 }
 
@@ -1005,6 +1005,7 @@
   align-items: center;
   justify-content: center;
 
+  min-width: 0;
   min-height: 100%;
 
   gap: 9px;
@@ -1029,6 +1030,7 @@
   display: flex;
 
   width: 100%;
+  min-width: 0;
 
   margin-bottom: 10px;
 }
@@ -1122,19 +1124,21 @@
   line-height: 1;
 }
 
-.admin-message-bubble.admin
-  .admin-message-meta {
+.admin-message-bubble.admin .admin-message-meta {
   color: rgba(153, 181, 216, 0.62);
 }
 
 
 /* ============================================================
    COMPOSER
+   FIXED AT BOTTOM — DOES NOT SCROLL
    ============================================================ */
 
 .admin-messages-composer {
   display: flex;
   align-items: flex-end;
+
+  flex: 0 0 auto;
 
   gap: 9px;
 
@@ -1158,9 +1162,10 @@
    ============================================================ */
 
 .admin-messages-composer textarea {
-  flex: 1;
+  flex: 1 1 auto;
 
   min-width: 0;
+
   min-height: 38px;
   max-height: 110px;
 
@@ -1274,7 +1279,6 @@
 
 .admin-messages-composer button:disabled {
   opacity: 0.34;
-
   cursor: not-allowed;
 }
 
@@ -1321,7 +1325,6 @@
   .admin-messages-header {
     align-items: flex-start;
     flex-direction: column;
-
     gap: 12px;
   }
 
@@ -1333,18 +1336,17 @@
     grid-template-columns: 1fr;
 
     height: calc(100vh - 175px);
+
     min-height: 560px;
 
     border-radius: 15px;
   }
 
-  /*
-   * Keep sidebar available above the chat.
-   */
   .admin-messages-sidebar {
     max-height: 235px;
 
     border-right: 0;
+
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
 
@@ -1402,6 +1404,7 @@
   }
 
   .admin-messages-chat-header {
+    flex-basis: 60px;
     min-height: 60px;
     padding: 0 11px;
   }
@@ -1443,4 +1446,28 @@
     height: 36px;
     flex-basis: 36px;
   }
+}
+
+
+/* ============================================================
+   EXTRA SCROLL SAFETY
+   Prevent accidental horizontal/page overflow.
+   ============================================================ */
+
+.admin-messages-page,
+.admin-messages-shell,
+.admin-messages-sidebar,
+.admin-messages-chat {
+  box-sizing: border-box;
+}
+
+.admin-messages-shell *,
+.admin-messages-shell *::before,
+.admin-messages-shell *::after {
+  box-sizing: border-box;
+}
+
+.admin-messages-shell button,
+.admin-messages-shell textarea {
+  max-width: 100%;
 }
