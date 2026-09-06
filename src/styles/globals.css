@@ -8,38 +8,25 @@
   --sidebar-width: 100%;
 }
 
-/* Always reserve vertical scrollbar space */
+/* ============================================================
+   HTML / BODY
+   ============================================================ */
+
+/*
+  IMPORTANT:
+  Do NOT force a scrollbar globally.
+
+  Public website pages are allowed to scroll naturally when
+  their content exceeds the viewport.
+
+  Admin / Developer / Client portal pages should control their
+  own scrolling inside their dedicated panels and containers.
+*/
+
 html {
   font-size: var(--font-size-base);
-
-  /* Prevent layout from moving when scrollbar appears */
-  overflow-y: scroll;
-  scrollbar-gutter: stable;
-  scrollbar-width: auto;
-  scrollbar-color: #a6a6a6 #202020;
 }
 
-/* Keep the classic scrollbar appearance limited to the browser page */
-html::-webkit-scrollbar:vertical {
-  width: 16px;
-}
-
-html::-webkit-scrollbar-track:vertical {
-  background: #202020;
-}
-
-html::-webkit-scrollbar-thumb:vertical {
-  background: #a6a6a6;
-  border: 2px outset #555555;
-  border-radius: 0;
-}
-
-html::-webkit-scrollbar-button:vertical {
-  display: block;
-  height: 16px;
-}
-
-/* Prevent horizontal page movement */
 html,
 body {
   width: 100%;
@@ -48,10 +35,16 @@ body {
 
 body {
   margin: 0;
+
+  /* Prevent horizontal page movement */
   overflow-x: hidden;
 }
 
-/* Better box sizing everywhere */
+
+/* ============================================================
+   BETTER BOX SIZING
+   ============================================================ */
+
 *,
 *::before,
 *::after {
@@ -82,11 +75,50 @@ body {
 
 
 /* ============================================================
+   DESKTOP / DASHBOARD SCROLL STABILITY
+   ============================================================ */
+
+/*
+  These containers should NOT create a global page scrollbar.
+
+  Individual dashboard layouts/components are responsible for
+  their own internal scrolling.
+*/
+
+.developer-main,
+.developer-content,
+.admin-main,
+.admin-content,
+.main-content {
+  min-width: 0;
+}
+
+
+/* ============================================================
+   SAFE FLEX BEHAVIOUR
+   ============================================================ */
+
+.flex,
+.flex-container {
+  min-width: 0;
+}
+
+
+/* ============================================================
+   SAFE GRID BEHAVIOUR
+   ============================================================ */
+
+.grid,
+.grid-container {
+  min-width: 0;
+}
+
+
+/* ============================================================
    MOBILE
    ============================================================ */
 
 @media (max-width: 768px) {
-
   html {
     font-size: var(--font-size-base);
   }
@@ -102,38 +134,4 @@ body {
     max-width: 100%;
     min-width: 0;
   }
-
-}
-
-
-/* ============================================================
-   DESKTOP SCROLLBAR STABILITY
-   ============================================================ */
-
-/*
-  If your dashboard has its own scrolling container,
-  these rules prevent horizontal layout changes.
-*/
-
-.developer-main,
-.developer-content,
-.admin-main,
-.admin-content,
-.main-content {
-  min-width: 0;
-}
-
-
-/* ============================================================
-   SAFE FLEX / GRID BEHAVIOUR
-   ============================================================ */
-
-.flex,
-.flex-container {
-  min-width: 0;
-}
-
-.grid,
-.grid-container {
-  min-width: 0;
 }

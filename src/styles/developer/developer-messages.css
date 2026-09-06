@@ -39,7 +39,7 @@
 .dev-messages-header h2 {
   margin: 0;
   color: #f4f8ff;
-  font-size: clamp(25px, 3vw, 32px);
+  font-size: clamp(24px, 2vw, 30px);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.035em;
@@ -125,16 +125,16 @@
 .dev-messages-layout {
   width: 100%;
   min-width: 0;
-  height: min(650px, calc(100vh - 245px));
-  min-height: 500px;
+  height: calc(100vh - 205px);
+  min-height: 650px;
 
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 285px minmax(0, 1fr);
 
   overflow: hidden;
 
   border: 1px solid rgba(126, 151, 181, 0.14);
-  border-radius: 20px;
+  border-radius: 18px;
 
   background:
     linear-gradient(
@@ -178,14 +178,14 @@
    ============================================================ */
 
 .dev-conversations-heading {
-  min-height: 62px;
+  min-height: 58px;
   flex-shrink: 0;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding: 0 16px;
+  padding: 17px 17px 14px;
 
   border-bottom: 1px solid rgba(126, 151, 181, 0.1);
 
@@ -241,7 +241,7 @@
   overflow-y: auto;
   overflow-x: hidden;
 
-  padding: 7px;
+  padding: 8px;
 
   scrollbar-width: thin;
   scrollbar-color:
@@ -274,7 +274,7 @@
   align-items: center;
   gap: 11px;
 
-  padding: 11px 10px;
+  padding: 10px;
 
   border: 1px solid transparent;
   border-radius: 12px;
@@ -316,9 +316,9 @@
    ============================================================ */
 
 .dev-conversation-icon {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
 
   display: inline-flex;
   align-items: center;
@@ -467,7 +467,7 @@
   justify-content: space-between;
   gap: 18px;
 
-  padding: 13px 18px;
+  padding: 12px 18px;
 
   border-bottom: 1px solid rgba(126, 151, 181, 0.1);
 
@@ -498,7 +498,7 @@
   white-space: nowrap;
 
   color: #edf5ff;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 650;
   letter-spacing: -0.015em;
 }
@@ -548,9 +548,9 @@
   display: flex;
   flex-direction: column;
 
-  gap: 8px;
+  gap: 0;
 
-  padding: 20px 22px 22px;
+  padding: 22px 25px 24px;
 
   scrollbar-width: thin;
   scrollbar-color:
@@ -578,6 +578,7 @@
 .dev-message-row {
   width: 100%;
   display: flex;
+  margin-bottom: 9px;
 }
 
 .dev-message-row.mine {
@@ -640,7 +641,7 @@
   color: #dce6f3;
 
   font-size: 12px;
-  line-height: 1.58;
+  line-height: 1.65;
 
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -728,7 +729,7 @@
   align-items: flex-end;
   gap: 9px;
 
-  padding: 12px 15px;
+  padding: 13px 16px;
 
   border-top: 1px solid rgba(126, 151, 181, 0.1);
 
@@ -740,12 +741,12 @@
   flex: 1;
   min-width: 0;
 
-  min-height: 39px;
-  max-height: 120px;
+  min-height: 40px;
+  max-height: 130px;
 
-  resize: vertical;
+  resize: none;
 
-  padding: 10px 12px;
+  padding: 11px 13px;
 
   border: 1px solid rgba(126, 151, 181, 0.15);
   border-radius: 11px;
@@ -791,9 +792,9 @@
    ============================================================ */
 
 .dev-message-composer > button {
-  width: 39px;
-  height: 39px;
-  flex: 0 0 39px;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
 
   display: inline-flex;
   align-items: center;
@@ -845,7 +846,7 @@
    ============================================================ */
 
 .dev-messages-loading {
-  min-height: 160px;
+  min-height: 120px;
 
   display: flex;
   align-items: center;
@@ -873,17 +874,22 @@
    RESPONSIVE
    ============================================================ */
 
-@media (max-width: 950px) {
+@media (max-width: 900px) {
   .dev-messages-layout {
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: 250px minmax(0, 1fr);
   }
 
   .dev-message-bubble {
-    max-width: 80%;
+    max-width: 78%;
+  }
+
+  .dev-message-list {
+    padding-left: 19px;
+    padding-right: 19px;
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 700px) {
   .dev-messages-header {
     align-items: flex-start;
     flex-direction: column;
@@ -894,10 +900,10 @@
   }
 
   .dev-messages-layout {
-    height: 680px;
-    min-height: 520px;
+    height: auto;
+    min-height: 680px;
     grid-template-columns: 1fr;
-    grid-template-rows: 205px minmax(0, 1fr);
+    grid-template-rows: 275px minmax(405px, 1fr);
   }
 
   .dev-conversations-panel {
@@ -922,31 +928,41 @@
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 480px) {
   .dev-messages-header h2 {
-    font-size: 25px;
+    font-size: 24px;
   }
 
   .dev-messages-layout {
-    height: 650px;
-    min-height: 500px;
-    border-radius: 16px;
+    border-radius: 14px;
+    grid-template-rows: 255px minmax(420px, 1fr);
   }
 
   .dev-message-list {
-    padding: 15px;
+    padding: 17px 13px 18px;
   }
 
   .dev-message-composer {
     padding: 10px;
   }
 
+  .dev-message-composer textarea {
+    padding: 10px 11px;
+  }
+
+  .dev-message-composer > button {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
   .dev-message-bubble {
-    max-width: 88%;
+    max-width: 90%;
   }
 
   .dev-message-thread-header {
-    padding: 12px 13px;
+    min-height: 62px;
+    padding: 10px 12px;
   }
 }
 
