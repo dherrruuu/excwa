@@ -43,12 +43,11 @@ export default function Services() {
             What We Build
           </span>
 
-          <h2>Technology Built Around Your Goals.</h2>
+          <h2>From first architecture to continuous advantage.</h2>
 
           <p>
-            From your first idea to a production-ready digital product,
-            we build solutions around your requirements, users and business
-            objectives.
+            Deep engineering capability, delivered with the clarity and speed
+            your next stage of growth demands.
           </p>
         </div>
 

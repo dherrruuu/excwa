@@ -58,12 +58,13 @@ export default function About() {
             </span>
 
             <h2>
-              Technology With Purpose.
+              Complex technology. Clearer possibilities.
             </h2>
 
             <p>
-              We focus on building practical, modern and reliable
-              digital solutions—not simply delivering code.
+              We combine product thinking, deep engineering, and modern
+              infrastructure to build digital systems that perform under
+              pressure.
             </p>
 
           </div>

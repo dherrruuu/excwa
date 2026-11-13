@@ -31,7 +31,7 @@ export default function Hero() {
           >
             <div className="pill">
               <span className="pulse-dot" />
-              Digital Solutions & Software Development
+              DIGITAL SYSTEMS / BUILT FOR MOMENTUM
             </div>
           </motion.div>
 
@@ -40,9 +40,9 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.08 }}
           >
-            We Build{" "}
-            <span>Digital Experiences</span>{" "}
-            That Move Businesses Forward.
+            We engineer the{" "}
+            <span>technology</span>{" "}
+            behind ambitious growth.
           </motion.h1>
 
           <motion.p
@@ -50,9 +50,9 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.15 }}
           >
-            From websites and web applications to mobile apps and custom
-            software, EXCWA Tech transforms ideas into scalable, secure and
-            high-performance digital products.
+            EXCWA - TECH helps enterprises and high-growth companies build
+            faster, scale smarter, and turn complex technology into measurable
+            advantage.
           </motion.p>
 
           <motion.div
@@ -65,7 +65,7 @@ export default function Hero() {
               className="primary-btn"
               onClick={() => scrollTo("contact")}
             >
-              Start Your Project
+              Start a Conversation
               <ArrowRight size={18} />
             </button>
 
@@ -73,7 +73,7 @@ export default function Hero() {
               className="secondary-btn"
               onClick={() => scrollTo("services")}
             >
-              Explore Services
+              Explore Capabilities
               <ArrowRight size={17} />
             </button>
           </motion.div>

@@ -6,6 +6,8 @@
   --container-padding: 1rem;
   --font-size-base: 14px;
   --sidebar-width: 100%;
+  --excwa-bg: #070a12;
+  --excwa-text: #f4f7fb;
 }
 
 /* ============================================================
@@ -35,9 +37,23 @@ body {
 
 body {
   margin: 0;
+  background: var(--excwa-bg);
+  color: var(--excwa-text);
+  font-family: "Inter", "Segoe UI", sans-serif;
 
   /* Prevent horizontal page movement */
   overflow-x: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
 }
 
 
